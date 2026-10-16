@@ -38,6 +38,10 @@ footer{background:#102b46;color:#dbe8f5;padding:25px 0}.small{font-size:13px}
       <button class="navbtn" onclick="school()">বিদ্যালয়</button>
       <button class="navbtn" onclick="notices()">নোটিশ</button>
       <button class="navbtn" onclick="results()">ফলাফল</button>
+      <button class="navbtn" onclick="teachers()">শিক্ষক</button>
+      <button class="navbtn" onclick="gallery()">গ্যালারি</button>
+      <button class="navbtn" onclick="downloads()">ডাউনলোড</button>
+      <button class="navbtn" onclick="contact()">যোগাযোগ</button>
       <button class="navbtn" onclick="admin()">Admin</button>
     </nav>
   </div>
@@ -51,9 +55,9 @@ footer{background:#102b46;color:#dbe8f5;padding:25px 0}.small{font-size:13px}
 </div></footer>
 
 <script>
-const KEY="banguriSchoolFreshV1";
+const KEY="banguriSchoolFreshV2";
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
- notices:[], results:[],
+ notices:[], results:[], teachers:[], gallery:[],
  school:{history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"}
 };
 const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
@@ -65,6 +69,9 @@ function home(){
  <div class="card"><h3>📢 নোটিশ</h3><p class="muted">বিদ্যালয়ের সর্বশেষ বিজ্ঞপ্তি ও গুরুত্বপূর্ণ ঘোষণা।</p><button class="btn" onclick="notices()">নোটিশ বোর্ড</button></div>
  <div class="card"><h3>📊 ফলাফল</h3><p class="muted">পরীক্ষার ধরন → শ্রেণি → শিক্ষাবর্ষ → রোল → ফলাফল।</p><button class="btn" onclick="results()">ফলাফল অনুসন্ধান</button></div>
  <div class="card"><h3>🏫 বিদ্যালয়</h3><p class="muted">ইতিহাস, লক্ষ্য ও যোগাযোগের তথ্য।</p><button class="btn" onclick="school()">বিস্তারিত</button></div>
+ <div class="card"><h3>👨‍🏫 শিক্ষক</h3><p class="muted">শিক্ষক ও কর্মচারীদের তালিকা।</p><button class="btn" onclick="teachers()">দেখুন</button></div>
+ <div class="card"><h3>📸 গ্যালারি</h3><p class="muted">বিদ্যালয়ের ছবি ও স্মরণীয় মুহূর্ত।</p><button class="btn" onclick="gallery()">দেখুন</button></div>
+ <div class="card"><h3>📥 ডাউনলোড</h3><p class="muted">ফরম, নোটিশ ও প্রয়োজনীয় ফাইল।</p><button class="btn" onclick="downloads()">দেখুন</button></div>
  <div class="card"><h3>⚙ Admin</h3><p class="muted">নোটিশ ও ফলাফল ব্যবস্থাপনা।</p><button class="btn" onclick="admin()">Admin Panel</button></div>
  </div>`;
 }
@@ -97,6 +104,19 @@ function findResult(){
  <p><b>মোট নম্বর:</b> ${x.total} &nbsp; <b>GPA:</b> ${x.gpa} &nbsp; <b>ফলাফল:</b> <span class="${x.pass?'ok':'fail'}">${x.pass?'PASSED':'FAILED'}</span></p>
  <button class="btn no-print" onclick="window.print()">🖨 Print</button></div>`;
 }
+
+function teachers(){
+ app.innerHTML=`<div class="card"><h2>👨‍🏫 শিক্ষক ও কর্মচারী</h2>${db.teachers.length?`<div class="grid">${db.teachers.map(t=>`<div class="card"><h3>${esc(t.name)}</h3><p><b>${esc(t.designation)}</b></p><p class="muted">${esc(t.qualification||'')}</p></div>`).join('')}</div>`:'<p class="muted">শিক্ষক তালিকা শিগগিরই যুক্ত করা হবে।</p>'}</div>`;
+}
+function gallery(){
+ app.innerHTML=`<div class="card"><h2>📸 ফটো গ্যালারি</h2>${db.gallery.length?`<div class="grid">${db.gallery.map(g=>`<div class="card"><img src="${esc(g.url)}" alt="${esc(g.title)}" style="width:100%;border-radius:12px"><h3>${esc(g.title)}</h3></div>`).join('')}</div>`:'<p class="muted">এখনও কোনো ছবি যুক্ত করা হয়নি।</p>'}</div>`;
+}
+function downloads(){
+ app.innerHTML=`<div class="card"><h2>📥 ডাউনলোড</h2><div class="grid"><div class="card"><h3>📊 ফলাফল Excel Template</h3><p class="muted">Admin থেকে ফলাফল আপলোডের জন্য ব্যবহার করুন।</p><button class="btn" onclick="downloadTemplate()">Excel Download</button></div><div class="card"><h3>📄 প্রয়োজনীয় ফাইল</h3><p class="muted">ভবিষ্যতে বিদ্যালয়ের ফরম ও PDF এখানে যুক্ত করা যাবে।</p></div></div></div>`;
+}
+function contact(){
+ app.innerHTML=`<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> বাঙ্গুরী উচ্চ বিদ্যালয়</p><p><b>ঠিকানা:</b> ${esc(db.school.contact)}</p><p><b>ই-মেইল:</b> বিদ্যালয়ের অফিসিয়াল ই-মেইল এখানে যুক্ত করা যাবে।</p><p><b>ফোন:</b> বিদ্যালয়ের অফিসিয়াল নম্বর এখানে যুক্ত করা যাবে।</p></div>`;
+}
 function admin(){
  if(sessionStorage.getItem("banguriAdmin")!=="yes"){
    app.innerHTML=`<div class="card"><h2>🔐 Admin Login</h2><p class="muted">এই ডেমো সংস্করণে Admin Panel-এর জন্য পাসওয়ার্ড প্রয়োজন।</p>
@@ -111,12 +131,16 @@ function admin(){
  <div><label>শ্রেণি</label><select id="ac"><option>৬ষ্ঠ</option><option>৭ম</option><option>৮ম</option><option>৯ম</option><option>১০ম</option></select></div></div>
  <label>শিক্ষাবর্ষ</label><input id="ay" value="২০২৬"><label>Excel/CSV ফাইল</label><input id="file" type="file" accept=".xlsx,.xls,.csv">
  <button class="btn" onclick="importResults()">Upload & Process</button><p id="msg" class="muted"></p></div>
+ <div class="card"><h2>👨‍🏫 শিক্ষক যোগ করুন</h2><label>নাম</label><input id="tn"><label>পদবি</label><input id="td"><label>যোগ্যতা</label><input id="tq"><button class="btn" onclick="addTeacher()">যোগ করুন</button></div>
+ <div class="card"><h2>📸 গ্যালারি ছবি যোগ করুন</h2><label>ছবির নাম</label><input id="gn"><label>Image URL</label><input id="gu" placeholder="https://..."><button class="btn" onclick="addGallery()">যোগ করুন</button></div>
  <div class="card"><h2>🏫 বিদ্যালয়ের তথ্য</h2><label>ইতিহাস</label><textarea id="hist" rows="4">${esc(db.school.history)}</textarea><label>লক্ষ্য ও উদ্দেশ্য</label><textarea id="mission" rows="4">${esc(db.school.mission)}</textarea><label>যোগাযোগ</label><textarea id="contact" rows="3">${esc(db.school.contact)}</textarea><button class="btn" onclick="saveSchool()">সংরক্ষণ</button></div>
- <div class="card"><h2>ডেটা</h2><p>নোটিশ: <b>${db.notices.length}</b> | ফলাফল: <b>${db.results.length}</b></p><button class="btn secondary" onclick="downloadTemplate()">Result Template Download</button></div>`;
+ <div class="card"><h2>ডেটা</h2><p>নোটিশ: <b>${db.notices.length}</b> | ফলাফল: <b>${db.results.length}</b> | শিক্ষক: <b>${db.teachers.length}</b> | ছবি: <b>${db.gallery.length}</b></p><button class="btn secondary" onclick="downloadTemplate()">Result Template Download</button></div>`;
 }
 function loginAdmin(){if(document.getElementById("pw").value==="banguri123"){sessionStorage.setItem("banguriAdmin","yes");admin()}else alert("ভুল পাসওয়ার্ড");}
 function logoutAdmin(){sessionStorage.removeItem("banguriAdmin");admin()}
 function addNotice(){const t=document.getElementById("nt").value.trim();if(!t)return alert("শিরোনাম দিন");db.notices.unshift({title:t,body:document.getElementById("nb").value,date:new Date().toLocaleDateString("bn-BD")});save();admin()}
+function addTeacher(){const n=document.getElementById("tn").value.trim();if(!n)return alert("নাম দিন");db.teachers.push({name:n,designation:document.getElementById("td").value,qualification:document.getElementById("tq").value});save();admin()}
+function addGallery(){const n=document.getElementById("gn").value.trim(),u=document.getElementById("gu").value.trim();if(!n||!u)return alert("নাম ও Image URL দিন");db.gallery.push({title:n,url:u});save();admin()}
 function saveSchool(){db.school.history=document.getElementById("hist").value;db.school.mission=document.getElementById("mission").value;db.school.contact=document.getElementById("contact").value;save();alert("সংরক্ষণ হয়েছে");admin()}
 function importResults(){
  const f=document.getElementById("file").files[0]; if(!f)return alert("Excel/CSV ফাইল নির্বাচন করুন");
