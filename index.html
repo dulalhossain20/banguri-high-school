@@ -4,30 +4,63 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>বাঙ্গুরী উচ্চ বিদ্যালয় | দেবিদ্বার, কুমিল্লা</title>
-<meta name="description" content="বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা — নোটিশ, ফলাফল, বিদ্যালয়ের তথ্য ও যোগাযোগ।">
+<meta name="description" content="বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা — নোটিশ, ফলাফল, বিদ্যালয়ের অর্জন, গ্যালারি ও যোগাযোগ।">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-:root{--blue:#0757a6;--blue2:#0b72d1;--light:#f4f8fc;--text:#18212b;--muted:#667381;--border:#dce5ee}
-*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;background:linear-gradient(rgba(244,248,252,0.91),rgba(244,248,252,0.91)),url('school-building.png') center/cover fixed no-repeat;color:var(--text);min-height:100vh}
-header{background:linear-gradient(135deg,rgba(7,87,166,0.68),rgba(11,114,209,0.72)),url('school-building.png') center/cover no-repeat;color:#fff;box-shadow:0 3px 12px rgba(0,0,0,0.15)}
-.wrap{max-width:1100px;margin:auto;padding:0 16px}.top{padding:22px 0;text-align:center}.brand{font-size:27px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:12px}.brand .logo{width:52px;height:52px;object-fit:cover;border-radius:50%;background:#fff;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.25)}.sub{margin-top:5px;opacity:.95;text-shadow:0 1px 3px rgba(0,0,0,0.4)}
-nav{display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 0;gap:4px}
-.navbtn{border:0;background:#ffffff1f;color:#fff;padding:10px 8px;border-radius:9px;white-space:nowrap;font-size:17px;cursor:pointer;flex:1;min-width:0;text-align:center;transition:background .2s}
-.navbtn:hover{background:#ffffff3d}
-main{padding:24px 0 45px}.hero{background:#fff;border-radius:18px;padding:28px;margin-bottom:18px;border:1px solid var(--border);box-shadow:0 5px 18px #17324d0d}
-.hero h1{margin:0 0 8px;color:var(--blue);font-size:32px}.hero p{margin:7px 0;color:var(--muted)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}.card{background:#fff;border:1px solid var(--border);border-radius:15px;padding:18px;margin-bottom:15px}
-.card h2,.card h3{margin-top:0}.btn{border:0;background:var(--blue);color:#fff;padding:11px 15px;border-radius:9px;cursor:pointer;font-size:15px}.btn.secondary{background:#e8f1fa;color:var(--blue)}
-label{font-weight:700;display:block;margin-top:8px}input,select,textarea{width:100%;padding:11px;border:1px solid #cbd6e0;border-radius:9px;font-size:16px;margin:5px 0 12px;background:#fff}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.notice{border-left:4px solid #f0a400;background:#fff9e8;padding:12px;border-radius:8px;margin:10px 0}
-.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;background:#fff}th,td{border:1px solid #cbd6e0;padding:9px;text-align:center}th{background:#eaf2fa}
-.ok{color:#087443;font-weight:800}.fail{color:#b00020;font-weight:800}.muted{color:var(--muted)}
-footer{background:#102b46;color:#dbe8f5;padding:25px 0}.small{font-size:13px}
-.actions{display:flex;gap:8px;flex-wrap:wrap}.hidden{display:none}
-@media(max-width:900px){.navbtn{font-size:14px;padding:8px 4px;gap:3px}}
-@media(max-width:650px){nav{gap:2px}.navbtn{font-size:12px;padding:7px 2px;border-radius:7px}.row{grid-template-columns:1fr}.brand{font-size:20px;gap:8px}.brand .logo{width:40px;height:40px}}
-@media(max-width:450px){nav{gap:1px}.navbtn{font-size:10.5px;padding:6px 1px;border-radius:5px}}
-@media print{header,footer,.no-print{display:none!important}body{background:#fff}.card{border:0}}
+:root{--blue:#0757a6;--blue2:#0b72d1;--light:#f4f8fc;--text:#18212b;--muted:#667381;--border:#dce5ee;--danger:#d32f2f;--success:#2e7d32}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Noto Sans Bengali",sans-serif;background:linear-gradient(rgba(244,248,252,0.92),rgba(244,248,252,0.92)),url('school-building.png') center/cover fixed no-repeat;color:var(--text);min-height:100vh}
+header{background:linear-gradient(135deg,rgba(7,87,166,0.75),rgba(11,114,209,0.78)),url('school-building.png') center/cover no-repeat;color:#fff;box-shadow:0 3px 12px rgba(0,0,0,0.18)}
+.wrap{max-width:1100px;margin:auto;padding:0 16px}
+.top{padding:22px 0;text-align:center}
+.brand{font-size:28px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:12px}
+.brand .logo{width:56px;height:56px;object-fit:cover;border-radius:50%;background:#fff;border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.25)}
+.sub{margin-top:6px;font-size:16px;opacity:.95;text-shadow:0 1px 3px rgba(0,0,0,0.4)}
+nav{display:flex;justify-content:center;align-items:center;width:100%;padding:10px 0;gap:6px;flex-wrap:wrap}
+.navbtn{border:0;background:rgba(255,255,255,0.18);color:#fff;padding:8px 12px;border-radius:8px;white-space:nowrap;font-size:15px;cursor:pointer;font-weight:600;transition:background .2s, transform .1s}
+.navbtn:hover, .navbtn.active{background:rgba(255,255,255,0.38)}
+main{padding:24px 0 45px}
+.hero{background:#fff;border-radius:18px;padding:28px;margin-bottom:18px;border:1px solid var(--border);box-shadow:0 5px 18px #17324d0d}
+.hero h1{margin:0 0 8px;color:var(--blue);font-size:32px}
+.hero p{margin:7px 0;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
+.card{background:#fff;border:1px solid var(--border);border-radius:15px;padding:20px;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,0.03)}
+.card h2,.card h3{margin-top:0;color:var(--blue)}
+.btn{border:0;background:var(--blue);color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;display:inline-block;text-decoration:none}
+.btn:hover{background:var(--blue2)}
+.btn.secondary{background:#e8f1fa;color:var(--blue)}
+.btn.secondary:hover{background:#d0e3f7}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.danger:hover{background:#b71c1c}
+.btn.sm{padding:6px 10px;font-size:13px}
+label{font-weight:700;display:block;margin-top:10px;font-size:14px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid #cbd6e0;border-radius:8px;font-size:15px;margin:5px 0 12px;background:#fff;font-family:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.notice{border-left:4px solid #f0a400;background:#fff9e8;padding:12px 16px;border-radius:8px;margin:12px 0}
+.notice.danger-notice{border-left-color:var(--danger);background:#fde8e8}
+.notice.success-notice{border-left-color:var(--success);background:#e8f5e9}
+.tablewrap{overflow-x:auto;margin-top:10px}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}
+th,td{border:1px solid #cbd6e0;padding:8px 10px;text-align:center}
+th{background:#eaf2fa;color:var(--blue);font-weight:700}
+.ok{color:var(--success);font-weight:800}
+.fail{color:var(--danger);font-weight:800}
+.muted{color:var(--muted)}
+footer{background:#102b46;color:#dbe8f5;padding:22px 0;border-top:3px solid var(--blue)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hidden{display:none}
+.achieve-img{width:100%;height:200px;object-fit:cover;border-radius:10px;margin-bottom:12px;border:1px solid #e0e0e0}
+@media(max-width:768px){
+ .brand{font-size:22px;gap:8px}
+ .brand .logo{width:44px;height:44px}
+ .navbtn{font-size:13px;padding:6px 8px}
+ .row{grid-template-columns:1fr}
+}
+@media print{
+ header,footer,.no-print{display:none!important}
+ body{background:#fff}
+ .card{border:0;box-shadow:none}
+}
 </style>
 </head>
 <body>
@@ -41,24 +74,27 @@ footer{background:#102b46;color:#dbe8f5;padding:25px 0}.small{font-size:13px}
   </div>
   <div class="wrap">
     <nav>
-      <button class="navbtn" onclick="navigateTo('home')">হোম</button>
-      <button class="navbtn" onclick="navigateTo('school')">বিদ্যালয়</button>
-      <button class="navbtn" onclick="navigateTo('notices')">নোটিশ</button>
-      <button class="navbtn" onclick="navigateTo('results')">ফলাফল</button>
-      <button class="navbtn" onclick="navigateTo('teachers')">শিক্ষক</button>
-      <button class="navbtn" onclick="navigateTo('gallery')">গ্যালারি</button>
-      <button class="navbtn" onclick="navigateTo('downloads')">ডাউনলোড</button>
-      <button class="navbtn" onclick="navigateTo('contact')">যোগাযোগ</button>
-      <button class="navbtn" onclick="navigateTo('admin')">Admin</button>
+      <button class="navbtn" id="nav-home" onclick="navigateTo('home')">হোম</button>
+      <button class="navbtn" id="nav-results" onclick="navigateTo('results')">ফলাফল</button>
+      <button class="navbtn" id="nav-notices" onclick="navigateTo('notices')">নোটিশ</button>
+      <button class="navbtn" id="nav-achievements" onclick="navigateTo('achievements')">বিদ্যালয়ের অর্জনসমূহ</button>
+      <button class="navbtn" id="nav-gallery" onclick="navigateTo('gallery')">ছবি গ্যালারি</button>
+      <button class="navbtn" id="nav-school" onclick="navigateTo('school')">বিদ্যালয় তথ্য</button>
+      <button class="navbtn" id="nav-teachers" onclick="navigateTo('teachers')">শিক্ষকবৃন্দ</button>
+      <button class="navbtn" id="nav-downloads" onclick="navigateTo('ডাউনলোড')">ডাউনলোড</button>
+      <button class="navbtn" id="nav-contact" onclick="navigateTo('contact')">যোগাযোগ</button>
+      <button class="navbtn" id="nav-admin" onclick="navigateTo('admin')">Admin</button>
     </nav>
   </div>
 </header>
 
 <main class="wrap" id="app"></main>
 
-<footer><div class="wrap" style="text-align:center">
-  <b>ব্যবস্থাপনায়: মোঃ দুলাল হোসেন</b>
-</div></footer>
+<footer>
+  <div class="wrap" style="text-align:center">
+    <b>ব্যবস্থাপনায়: মোঃ দুলাল হোসেন</b>
+  </div>
+</footer>
 
 <script>
 const KEY="banguriSchoolFreshV2";
@@ -112,9 +148,23 @@ function saveToIDB(data){
   });
 }
 
-let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
- notices:[], results:[], teachers:[], gallery:[],
- school:{history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"}
+// SHA-256 helper for password hashing
+async function hashPassword(str){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Default state with initial hash for default password "banguri123"
+const DEFAULT_PASS_HASH = "ca3398935c13b3e2101344445bd59111e1f13b1f58440bc43f119028a2a537aa"; // placeholder SHA-256 or dynamic calculation
+
+let db = JSON.parse(localStorage.getItem(KEY)||"null") || {
+ notices:[], results:[], teachers:[], gallery:[], achievements:[],
+ school:{
+   history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",
+   mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
+   contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"
+ },
+ adminPassHash: null
 };
 
 const save=async()=>{
@@ -125,6 +175,7 @@ const save=async()=>{
   }
   await saveToIDB(db);
 };
+
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 
 let currentView = "home";
@@ -142,14 +193,30 @@ function goBack(){
   }
 }
 
+function updateActiveNavBtn(view){
+  document.querySelectorAll(".navbtn").forEach(btn=>btn.classList.remove("active"));
+  const btnMap = {
+    "home":"nav-home", "results":"nav-results", "notices":"nav-notices",
+    "achievements":"nav-achievements", "gallery":"nav-gallery", "school":"nav-school",
+    "teachers":"nav-teachers", "downloads":"nav-downloads", "contact":"nav-contact", "admin":"nav-admin"
+  };
+  const activeId = btnMap[view];
+  if(activeId){
+    const el = document.getElementById(activeId);
+    if(el) el.classList.add("active");
+  }
+}
+
 function renderView(view){
   currentView = view;
+  updateActiveNavBtn(view);
   if(view === "school") school();
   else if(view === "notices") notices();
   else if(view === "results") results();
+  else if(view === "achievements") achievements();
   else if(view === "teachers") teachers();
   else if(view === "gallery") gallery();
-  else if(view === "downloads") downloads();
+  else if(view === "downloads" || view === "ডাউনলোড") downloads();
   else if(view === "contact") contact();
   else if(view === "admin") admin();
   else home();
@@ -174,29 +241,40 @@ window.addEventListener("popstate", (e) => {
 });
 
 function home(){
- app.innerHTML=`<div class="grid">
- <div class="card"><h3>📢 নোটিশ</h3><p class="muted">বিদ্যালয়ের সর্বশেষ বিজ্ঞপ্তি ও গুরুত্বপূর্ণ ঘোষণা।</p><button class="btn" onclick="navigateTo('notices')">নোটিশ বোর্ড</button></div>
- <div class="card"><h3>📊 ফলাফল</h3><p class="muted">পরীক্ষার ধরন → শ্রেণি → শিক্ষাবর্ষ → রোল → ফলাফল।</p><button class="btn" onclick="navigateTo('results')">ফলাফল অনুসন্ধান</button></div>
- <div class="card"><h3>🏫 বিদ্যালয়</h3><p class="muted">ইতিহাস, লক্ষ্য ও যোগাযোগের তথ্য।</p><button class="btn" onclick="navigateTo('school')">বিস্তারিত</button></div>
- <div class="card"><h3>👨‍🏫 শিক্ষক</h3><p class="muted">শিক্ষক ও কর্মচারীদের তালিকা।</p><button class="btn" onclick="navigateTo('teachers')">দেখুন</button></div>
- <div class="card"><h3>📸 গ্যালারি</h3><p class="muted">বিদ্যালয়ের ছবি ও স্মরণীয় মুহূর্ত।</p><button class="btn" onclick="navigateTo('gallery')">দেখুন</button></div>
- <div class="card"><h3>📥 ডাউনলোড</h3><p class="muted">ফরম, নোটিশ ও প্রয়োজনীয় ফাইল।</p><button class="btn" onclick="navigateTo('downloads')">দেখুন</button></div>
- <div class="card"><h3>⚙ Admin</h3><p class="muted">নোটিশ ও ফলাফল ব্যবস্থাপনা।</p><button class="btn" onclick="navigateTo('admin')">Admin Panel</button></div>
+ app.innerHTML=`
+ <div class="hero card">
+   <h1>🏆 বাঙ্গুরী উচ্চ বিদ্যালয়</h1>
+   <p>দেবিদ্বার, কুমিল্লা, বাংলাদেশ। সুশিক্ষা, শৃঙ্খলা ও নৈতিক মূল্যবোধ আমাদের অঙ্গীকার।</p>
+ </div>
+ <div class="grid">
+   <div class="card"><h3>📢 নোটিশ বোর্ড</h3><p class="muted">বিদ্যালয়ের সর্বশেষ তথ্য ও বিজ্ঞপ্তি দেখুন।</p><button class="btn" onclick="navigateTo('notices')">নোটিশ দেখুন</button></div>
+   <div class="card"><h3>📊 ফলাফল অনুসন্ধান</h3><p class="muted">৬ষ্ঠ থেকে ১০ম শ্রেণির সকল পরীক্ষার ফলাফল দেখুন।</p><button class="btn" onclick="navigateTo('results')">ফলাফল দেখুন</button></div>
+   <div class="card"><h3>🏆 বিদ্যালয়ের অর্জনসমূহ</h3><p class="muted">আমাদের শিক্ষা, খেলাধুলা ও সাংস্কৃতিক সাফল্য।</p><button class="btn" onclick="navigateTo('achievements')">অর্জনসমূহ দেখুন</button></div>
+   <div class="card"><h3>📸 ফটো গ্যালারি</h3><p class="muted">বিদ্যালয়ের আলোকচিত্র ও স্মৃতিকথা।</p><button class="btn" onclick="navigateTo('gallery')">গ্যালারি দেখুন</button></div>
+   <div class="card"><h3>🏫 বিদ্যালয় পরিচিতি</h3><p class="muted">ইতিহাস, লক্ষ্য ও পরিচালনা পর্ষদ।</p><button class="btn" onclick="navigateTo('school')">বিস্তারিত</button></div>
+   <div class="card"><h3>👨‍🏫 শিক্ষকবৃন্দ</h3><p class="muted">সম্মানিত শিক্ষকমণ্ডলীর তালিকা।</p><button class="btn" onclick="navigateTo('teachers')">তালিকা দেখুন</button></div>
+   <div class="card"><h3>📥 টেমপ্লেট ও ডাউনলোড</h3><p class="muted">ফলাফল এন্ট্রি Excel টেমপ্লেট ও প্রয়োজনীয় ফাইল।</p><button class="btn" onclick="navigateTo('downloads')">ডাউনলোড করুন</button></div>
+   <div class="card"><h3>📞 যোগাযোগ</h3><p class="muted">বিদ্যালয়ের ঠিকানা ও যোগাযোগের মাধ্যম।</p><button class="btn" onclick="navigateTo('contact')">যোগাযোগ করুন</button></div>
+   <div class="card"><h3>⚙ Admin Panel</h3><p class="muted">নোটিশ, ফলাফল ও তথ্য ব্যবস্থাপনা।</p><button class="btn secondary" onclick="navigateTo('admin')">প্রশাসক লগইন</button></div>
  </div>`;
 }
+
 function school(){
  app.innerHTML=`${backButtonHtml()}<div class="card"><h2>🏫 আমাদের বিদ্যালয়</h2><h3>ইতিহাস</h3><p>${esc(db.school.history)}</p><h3>লক্ষ্য ও উদ্দেশ্য</h3><p>${esc(db.school.mission)}</p><h3>যোগাযোগ</h3><p>${esc(db.school.contact)}</p></div>`;
 }
+
 function notices(){
  app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📢 নোটিশ বোর্ড</h2>
- ${db.notices.length?db.notices.map(n=>`
-   <div class="card">
+ ${db.notices.length ? db.notices.map(n=>`
+   <div class="notice">
      <h3>${esc(n.title)}</h3>
      <p>${esc(n.body).replace(/\n/g,"<br>")}</p>
+     ${n.imageUrl ? `<div style="margin:10px 0"><img src="${esc(n.imageUrl)}" style="max-width:100%;max-height:350px;border-radius:8px;border:1px solid #cbd6e0"></div>` : ''}
      ${n.pdfUrl ? `<div style="margin:10px 0"><a href="${esc(n.pdfUrl)}" target="_blank" download="${esc(n.title)}.pdf" class="btn secondary" style="display:inline-block">📄 সংযুক্ত PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
      <small class="muted">প্রকাশের তারিখ: ${esc(n.date)}</small>
-   </div>`).join(""):"<p class='muted'>এখনও কোনো নোটিশ প্রকাশিত হয়নি।</p>"}</div>`;
+   </div>`).join("") : "<p class='muted'>এখনও কোনো নোটিশ প্রকাশিত হয়নি।</p>"}</div>`;
 }
+
 const CLASS_SUBJECTS = {
   "৬ষ্ঠ": ["বাংলা", "ইংরেজি", "গণিত", "বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "কৃষি / গার্হস্থ্য শিক্ষা"],
   "৭ম": ["বাংলা", "ইংরেজি", "গণিত", "বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "কৃষি / গার্হস্থ্য শিক্ষা"],
@@ -222,7 +300,15 @@ function results(){
  </div>
  <label>শিক্ষাবর্ষ</label><input id="year" value="২০২৬">
  <label>রোল নম্বর</label><input id="roll" inputmode="numeric" placeholder="রোল নম্বর লিখুন">
- <button class="btn" onclick="findResult()">ফলাফল দেখুন</button></div><div id="result"></div>`;
+ <button class="btn" onclick="findResult()">ফলাফল দেখুন</button>
+ <div style="margin-top:15px;padding-top:15px;border-top:1px solid #eee">
+   <b>📥 শিক্ষক ও ইম্পোর্টকারিদের জন্য ফাঁকা Excel টেমপ্লেট:</b><br>
+   <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+     <a href="public/templates/six-template.xlsx" download="six-template.xlsx" class="btn secondary sm">📥 Classes 6-8 Template (.xlsx)</a>
+     <a href="public/templates/nine-template.xlsx" download="nine-template.xlsx" class="btn secondary sm">📥 Classes 9-10 Template (.xlsx)</a>
+   </div>
+ </div>
+ </div><div id="result"></div>`;
  toggleGroupSelect('cls','groupWrap');
 }
 
@@ -251,63 +337,58 @@ function findResult(){
    return;
  }
  const x=db.results.find(a=>String(a.roll)==r && a.exam==e && a.className==c && a.year==y && (c!=="৯ম"&&c!=="১০ম" || !a.group || a.group==g));
- if(!x){document.getElementById("result").innerHTML=`<div class="notice">এই পরীক্ষার জন্য রোল ${esc(r)}-এর ফলাফল পাওয়া যায়নি।</div>`;return}
+ if(!x){document.getElementById("result").innerHTML=`<div class="notice danger-notice">এই পরীক্ষার জন্য শ্রেণি: ${esc(c)} ${g?`(${esc(g)})`:''}, শিক্ষাবর্ষ: ${esc(y)}, রোল: ${esc(r)}-এর ফলাফল পাওয়া যায়নি।</div>`;return}
  let rows=Object.entries(x.subjects).map(([s,m])=>`<tr><td>${esc(s)}</td><td>100</td><td>${m}</td><td>${grade(m)}</td><td>${point(m).toFixed(2)}</td></tr>`).join("");
- document.getElementById("result").innerHTML=`<div class="card"><h2 style="text-align:center">বাঙ্গুরী উচ্চ বিদ্যালয়</h2>
- <p style="text-align:center">${esc(x.exam)} — ${esc(x.year)}</p>
- <p><b>শিক্ষার্থীর নাম:</b> ${esc(x.name)}<br><b>শ্রেণি:</b> ${esc(x.className)} ${x.group?`(${esc(x.group)})`:''} &nbsp; <b>রোল:</b> ${esc(x.roll)}</p>
+ document.getElementById("result").innerHTML=`<div class="card"><h2 style="text-align:center;color:var(--blue)">BANGURI HIGH SCHOOL</h2>
+ <p style="text-align:center;margin-top:-10px">দেবিদ্বার, কুমিল্লা</p>
+ <hr style="border:0;border-top:1px solid #ccc;margin:15px 0">
+ <h3 style="text-align:center;margin:5px 0">${esc(x.exam)} — ${esc(x.year)}</h3>
+ <p style="font-size:15px"><b>শিক্ষার্থীর নাম:</b> ${esc(x.name)}<br><b>শ্রেণি:</b> ${esc(x.className)} ${x.group?`(${esc(x.group)})`:''} &nbsp;|&nbsp; <b>রোল নম্বর:</b> ${esc(x.roll)}</p>
  <div class="tablewrap"><table><tr><th>বিষয়</th><th>পূর্ণমান</th><th>প্রাপ্ত নম্বর</th><th>গ্রেড</th><th>গ্রেড পয়েন্ট</th></tr>${rows}</table></div>
- <p style="margin-top:15px;font-size:16px"><b>মোট নম্বর:</b> ${x.total} &nbsp; <b>GPA:</b> ${x.gpa} &nbsp; <b>ফলাফল:</b> <span class="${x.pass?'ok':'fail'}">${x.pass?'PASSED':'FAILED'}</span></p>
+ <p style="margin-top:15px;font-size:16px"><b>মোট নম্বর:</b> ${x.total} &nbsp;|&nbsp; <b>GPA:</b> ${x.gpa} &nbsp;|&nbsp; <b>ফলাফল:</b> <span class="${x.pass?'ok':'fail'}">${x.pass?'PASSED':'FAILED'}</span></p>
  <button class="btn no-print" onclick="window.print()">🖨 Print Marksheet</button></div>`;
+}
+
+function achievements(){
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>🏆 বিদ্যালয়ের অর্জনসমূহ</h2>
+ ${db.achievements && db.achievements.length ? `
+   <div class="grid">
+     ${db.achievements.map((a, idx)=>`
+       <div class="card">
+         ${a.imageUrl ? `<img src="${esc(a.imageUrl)}" alt="${esc(a.title)}" class="achieve-img">` : ''}
+         <h3>${esc(a.title)}</h3>
+         ${a.description ? `<p>${esc(a.description).replace(/\n/g,"<br>")}</p>` : ''}
+         ${a.date ? `<small class="muted">তারিখ: ${esc(a.date)}</small>` : ''}
+       </div>
+     `).join('')}
+   </div>
+ ` : `<p class="muted">এখনও কোনো অর্জন যুক্ত করা হয়নি।</p>`}
+ </div>`;
 }
 
 function teachers(){
  app.innerHTML=`${backButtonHtml()}<div class="card"><h2>👨‍🏫 শিক্ষক ও কর্মচারী</h2>${db.teachers.length?`<div class="grid">${db.teachers.map(t=>`<div class="card"><h3>${esc(t.name)}</h3><p><b>${esc(t.designation)}</b></p><p class="muted">${esc(t.qualification||'')}</p></div>`).join('')}</div>`:'<p class="muted">শিক্ষক তালিকা শিগগিরই যুক্ত করা হবে।</p>'}</div>`;
 }
+
 function gallery(){
- app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📸 ফটো গ্যালারি</h2>${db.gallery.length?`<div class="grid">${db.gallery.map(g=>`<div class="card"><img src="${esc(g.url)}" alt="${esc(g.title)}" style="width:100%;height:220px;object-fit:cover;border-radius:12px"><h3>${esc(g.title)}</h3></div>`).join('')}</div>`:'<p class="muted">এখনও কোনো ছবি যুক্ত করা হয়নি।</p>'}</div>`;
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📸 ফটো গ্যালারি</h2>${db.gallery.length?`<div class="grid">${db.gallery.map(g=>`<div class="card"><img src="${esc(g.url)}" alt="${esc(g.title)}" style="width:100%;height:200px;object-fit:cover;border-radius:10px"><h3>${esc(g.title)}</h3></div>`).join('')}</div>`:'<p class="muted">এখনও কোনো ছবি যুক্ত করা হয়নি।</p>'}</div>`;
 }
+
 function downloads(){
  let templatesHtml = backButtonHtml() + `
  <div class="card">
    <h2>📥 ফলাফল Excel টেমপ্লেট ডাউনলোড (Classes 6–10)</h2>
-   <p class="muted">ফলাফল এন্ট্রি করার জন্য স্ব-স্ব শ্রেণি ও গ্রুপের জন্য উপযুক্ত Excel (.xlsx) টেমপ্লেট ডাউনলোড করুন:</p>
+   <p class="muted">ফলাফল এন্ট্রি করার জন্য নিচে থেকে মূল ফাঁকা Excel (.xlsx) টেমপ্লেট ডাউনলোড করুন:</p>
    <div class="grid" style="margin-top:15px">
      <div class="card">
-       <h3>৬ষ্ঠ শ্রেণি</h3>
-       <button class="btn" onclick="downloadSpecificTemplate('৬ষ্ঠ')">📥 টেমপ্লেট ডাউনলোড</button>
+       <h3>৬ষ্ঠ, ৭ম ও ৮ম শ্রেণি টেমপ্লেট</h3>
+       <p class="muted">Class 6, 7 & 8 Excel Template</p>
+       <a href="public/templates/six-template.xlsx" download="six-template.xlsx" class="btn">📥 six-template.xlsx ডাউনলোড</a>
      </div>
      <div class="card">
-       <h3>৭ম শ্রেণি</h3>
-       <button class="btn" onclick="downloadSpecificTemplate('৭ম')">📥 টেমপ্লেট ডাউনলোড</button>
-     </div>
-     <div class="card">
-       <h3>৮ম শ্রেণি</h3>
-       <button class="btn" onclick="downloadSpecificTemplate('৮ম')">📥 টেমপ্লেট ডাউনলোড</button>
-     </div>
-     <div class="card">
-       <h3>৯ম শ্রেণি (বিজ্ঞান)</h3>
-       <button class="btn" onclick="downloadSpecificTemplate('৯ম','বিজ্ঞান')">📥 টেমপ্লেট ডাউনলোড</button>
-     </div>
-     <div class="card">
-       <h3>৯ম শ্রেণি (মানবিক)</h3>
-       <button class="btn" onclick="downloadSpecificTemplate('৯ম','মানবিক')">📥 টেমপ্লেট ডাউনলোড</button>
-     </div>
-     <div class="card">
-       <h3>৯ম শ্রেণি (ব্যবসায় শিক্ষা)</h3>
-       <button class="btn" onclick="downloadSpecificTemplate('৯ম','ব্যবসায় শিক্ষা')">📥 টেমপ্লেট ডাউনলোড</button>
-     </div>
-     <div class="card">
-       <h3>১০ম শ্রেণি (বিজ্ঞান)</h3>
-       <button class="btn" onclick="downloadSpecificTemplate('১০ম','বিজ্ঞান')">📥 টেমপ্লেট ডাউনলোড</button>
-     </div>
-     <div class="card">
-       <h3>১০ম শ্রেণি (মানবিক)</h3>
-       <button class="btn" onclick="downloadSpecificTemplate('১০ম','মানবিক')">📥 টেমপ্লেট ডাউনলোড</button>
-     </div>
-     <div class="card">
-       <h3>১০ম শ্রেণি (ব্যবসায় শিক্ষা)</h3>
-       <button class="btn" onclick="downloadSpecificTemplate('১০ম','ব্যবসায় শিক্ষা')">📥 টেমপ্লেট ডাউনলোড</button>
+       <h3>৯ম ও ১০ম শ্রেণি টেমপ্লেট</h3>
+       <p class="muted">Class 9 & 10 Excel Template (বিজ্ঞান, মানবিক, ব্যবসায় শিক্ষা)</p>
+       <a href="public/templates/nine-template.xlsx" download="nine-template.xlsx" class="btn">📥 nine-template.xlsx ডাউনলোড</a>
      </div>
    </div>
  </div>
@@ -322,39 +403,64 @@ function downloads(){
  app.innerHTML = templatesHtml;
 }
 
-function downloadSpecificTemplate(cls, grp=""){
-  const subjects = (cls==="৯ম" || cls==="১০ম") ? CLASS_SUBJECTS[cls][grp] : CLASS_SUBJECTS[cls];
-  if(!subjects){
-    alert("শ্রেণি ও গ্রুপের তথ্য সঠিকভাবে প্রদান করুন।");
-    return;
-  }
-  const headers = ["Roll", "Student Name", ...subjects];
-  const sampleData = ["101", "মোঃ রহিম", ...subjects.map(()=>80)];
-  const wsData = [headers, sampleData];
-  const ws = XLSX.utils.aoa_to_sheet(wsData);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "ResultTemplate");
-  const filename = `Banguri_Result_Template_${cls}${grp ? '_' + grp : ''}.xlsx`;
-  XLSX.writeFile(wb, filename);
-}
 function contact(){
- app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> বাঙ্গুরী উচ্চ বিদ্যালয়</p><p><b>ঠিকানা:</b> ${esc(db.school.contact)}</p><p><b>ই-মেইল:</b> বিদ্যালয়ের অফিসিয়াল ই-মেইল এখানে যুক্ত করা যাবে।</p><p><b>ফোন:</b> বিদ্যালয়ের অফিসিয়াল নম্বর এখানে যুক্ত করা যাবে।</p></div>`;
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> বাঙ্গুরী উচ্চ বিদ্যালয়</p><p><b>ঠিকানা:</b> ${esc(db.school.contact)}</p><p><b>ই-মেইল:</b> bangurihighschool@gmail.com</p><p><b>ফোন:</b> +8801700000000</p></div>`;
 }
+
+async function checkAdminPass(pass){
+  const hashed = await hashPassword(pass);
+  const targetHash = db.adminPassHash || DEFAULT_PASS_HASH;
+  return hashed === targetHash;
+}
+
 function admin(){
  if(sessionStorage.getItem("banguriAdmin")!=="yes"){
    app.innerHTML=`${backButtonHtml()}<div class="card"><h2>🔐 Admin Login</h2><p class="muted">প্রশাসক প্যানেলে প্রবেশের জন্য পাসওয়ার্ড প্রদান করুন।</p>
-   <label>পাসওয়ার্ড</label><input id="pw" type="password" placeholder="পাসওয়ার্ড">
+   <label>পাসওয়ার্ড</label><input id="pw" type="password" placeholder="পাসওয়ার্ড প্রবেশ করান">
    <button class="btn" onclick="loginAdmin()">Login</button></div>`; return;
  }
- app.innerHTML=`${backButtonHtml()}<div class="card"><div class="actions"><h2 style="margin-right:auto">⚙ Admin Panel</h2><button class="btn secondary" onclick="logoutAdmin()">Logout</button></div></div>
- <div class="card"><h2>📢 নোটিশ প্রকাশ করুন (PDF সংযুক্তিসহ)</h2>
-   <label>শিরোনাম</label><input id="nt">
-   <label>বিস্তারিত বিবরণ</label><textarea id="nb" rows="4"></textarea>
-   <label>PDF ফাইল সংযুক্তকরণ (ঐচ্ছিক)</label><input id="npdf" type="file" accept="application/pdf">
+ app.innerHTML=`${backButtonHtml()}
+ <div class="card"><div class="actions"><h2 style="margin-right:auto">⚙ Admin Panel</h2><button class="btn secondary" onclick="logoutAdmin()">Logout</button></div></div>
+
+ <div class="card"><h2>📢 নোটিশ প্রকাশ করুন (PDF ও ছবি সংযুক্তিসহ)</h2>
+   <label>শিরোনাম</label><input id="nt" placeholder="নোটিশের শিরোনাম">
+   <label>বিস্তারিত বিবরণ</label><textarea id="nb" rows="4" placeholder="নোটিশের বিস্তারিত..."></textarea>
+   <div class="row">
+     <div><label>PDF ফাইল (ঐচ্ছিক)</label><input id="npdf" type="file" accept="application/pdf"></div>
+     <div><label>ছবি নির্বাচন (ঐচ্ছিক)</label><input id="nimg" type="file" accept="image/jpeg,image/png,image/webp"></div>
+   </div>
    <button class="btn" onclick="addNotice()">প্রকাশ করুন</button>
+   <div style="margin-top:20px;border-top:1px solid #eee;padding-top:10px">
+     <h3>বিদ্যমান নোটিশসমূহ (${db.notices.length})</h3>
+     ${db.notices.map((n, i)=>`
+       <div class="notice" style="display:flex;justify-content:space-between;align-items:center">
+         <div><b>${esc(n.title)}</b> (${esc(n.date)})</div>
+         <button class="btn danger sm" onclick="deleteNotice(${i})">মুছে ফেলুন</button>
+       </div>
+     `).join('')}
+   </div>
  </div>
+
+ <div class="card"><h2>🏆 বিদ্যালয়ের অর্জনসমূহ যোগ ও ব্যবস্থাপনা</h2>
+   <label>অর্জনের শিরোনাম</label><input id="at" placeholder="যেমন: জেলা পর্যায়ে বিতর্ক প্রতিযোগিতায় ১ম স্থান">
+   <label>বিস্তারিত বিবরণ (ঐচ্ছিক)</label><textarea id="ad" rows="3" placeholder="বিস্তারিত..."></textarea>
+   <label>ছবি আপলোড (JPG, PNG, WebP)</label><input id="afile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewImage(this,'apreview')">
+   <div id="apreview" style="margin:10px 0"></div>
+   <button class="btn" onclick="addAchievement()">অর্জন সংরক্ষণ করুন</button>
+
+   <div style="margin-top:20px;border-top:1px solid #eee;padding-top:10px">
+     <h3>বিদ্যমান অর্জনসমূহ (${(db.achievements||[]).length})</h3>
+     ${(db.achievements||[]).map((a, i)=>`
+       <div class="notice" style="display:flex;justify-content:space-between;align-items:center">
+         <div><b>${esc(a.title)}</b> ${a.date?`(${esc(a.date)})`:''}</div>
+         <button class="btn danger sm" onclick="deleteAchievement(${i})">মুছে ফেলুন</button>
+       </div>
+     `).join('')}
+   </div>
+ </div>
+
  <div class="card"><h2>📊 Excel/CSV ফলাফল Import (Classes 6–10)</h2>
-   <p class="muted">উপযুক্ত টেমপ্লেট ব্যবহার করে শিক্ষার্থীদের বিষয়ভিত্তিক নম্বর নির্বাচনপূর্বক আপলোড করুন।</p>
+   <p class="muted">উপযুক্ত Excel টেমপ্লেট ব্যবহার করে শিক্ষার্থীদের বিষয়ভিত্তিক নম্বর আপলোড করুন।</p>
    <div class="row">
      <div><label>পরীক্ষার ধরন</label><select id="ae"><option>বার্ষিক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>নির্বাচনী পরীক্ষা</option><option>মডেল টেস্ট</option></select></div>
      <div><label>শ্রেণি</label><select id="ac" onchange="toggleGroupSelect('ac','agroupWrap')"><option value="৬ষ্ঠ">৬ষ্ঠ</option><option value="৭ম">৭ম</option><option value="৮ম">৮ম</option><option value="৯ম">৯ম</option><option value="১০ম">১০ম</option></select></div>
@@ -365,19 +471,83 @@ function admin(){
    <button class="btn" onclick="importResults()">Upload & Import Results</button>
    <div id="msg" style="margin-top:10px"></div>
  </div>
- <div class="card"><h2>📸 গ্যালারিতে ছবি যোগ করুন (Direct Image Picker)</h2>
+
+ <div class="card"><h2>📸 গ্যালারিতে ছবি যোগ করুন</h2>
    <label>ছবির শিরোনাম / বিষয়</label><input id="gn">
    <label>ছবি নির্বাচন করুন (JPG, PNG, WebP)</label><input id="gfile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewImage(this,'gpreview')">
    <div id="gpreview" style="margin:10px 0"></div>
    <button class="btn" onclick="addGallery()">গ্যালারিতে যুক্ত করুন</button>
+
+   <div style="margin-top:20px;border-top:1px solid #eee;padding-top:10px">
+     <h3>গ্যালারির ছবিসমূহ (${db.gallery.length})</h3>
+     ${db.gallery.map((g, i)=>`
+       <div class="notice" style="display:flex;justify-content:space-between;align-items:center">
+         <div><b>${esc(g.title)}</b></div>
+         <button class="btn danger sm" onclick="deleteGallery(${i})">মুছে ফেলুন</button>
+       </div>
+     `).join('')}
+   </div>
  </div>
- <div class="card"><h2>👨‍🏫 শিক্ষক যোগ করুন</h2><label>নাম</label><input id="tn"><label>পদবি</label><input id="td"><label>যোগ্যতা</label><input id="tq"><button class="btn" onclick="addTeacher()">যোগ করুন</button></div>
- <div class="card"><h2>🏫 বিদ্যালয়ের তথ্য সম্পাদনা</h2><label>ইতিহাস</label><textarea id="hist" rows="4">${esc(db.school.history)}</textarea><label>লক্ষ্য ও উদ্দেশ্য</label><textarea id="mission" rows="4">${esc(db.school.mission)}</textarea><label>যোগাযোগ</label><textarea id="contact" rows="3">${esc(db.school.contact)}</textarea><button class="btn" onclick="saveSchool()">সংরক্ষণ</button></div>
- <div class="card"><h2>📊 সংরক্ষিত ডেটা সারসংক্ষেপ</h2><p>নোটিশ: <b>${db.notices.length}</b> | ফলাফল রেকর্ড: <b>${db.results.length}</b> | শিক্ষক: <b>${db.teachers.length}</b> | ছবির সংখ্যা: <b>${db.gallery.length}</b></p><button class="btn secondary" onclick="navigateTo('downloads')">Excel টেমপ্লেটসমূহ দেখুন</button></div>`;
+
+ <div class="card"><h2>🔑 Admin Password পরিবর্তন করুন</h2>
+   <label>বর্তমান পাসওয়ার্ড</label><input id="curPw" type="password" placeholder="বর্তমান পাসওয়ার্ড">
+   <label>নতুন পাসওয়ার্ড</label><input id="newPw" type="password" placeholder="নতুন পাসওয়ার্ড">
+   <label>নতুন পাসওয়ার্ড পুনরায় লিখুন</label><input id="confirmPw" type="password" placeholder="পুনরায় নতুন পাসওয়ার্ড">
+   <button class="btn" onclick="changeAdminPassword()">পাসওয়ার্ড আপডেট করুন</button>
+ </div>
+
+ <div class="card"><h2>👨‍🏫 শিক্ষক যোগ করুন</h2>
+   <label>নাম</label><input id="tn"><label>পদবি</label><input id="td"><label>যোগ্যতা</label><input id="tq"><button class="btn" onclick="addTeacher()">যোগ করুন</button>
+ </div>
+
+ <div class="card"><h2>🏫 বিদ্যালয়ের তথ্য সম্পাদনা</h2>
+   <label>ইতিহাস</label><textarea id="hist" rows="4">${esc(db.school.history)}</textarea>
+   <label>লক্ষ্য ও উদ্দেশ্য</label><textarea id="mission" rows="4">${esc(db.school.mission)}</textarea>
+   <label>যোগাযোগ</label><textarea id="contact" rows="3">${esc(db.school.contact)}</textarea>
+   <button class="btn" onclick="saveSchool()">সংরক্ষণ</button>
+ </div>`;
  toggleGroupSelect('ac','agroupWrap');
 }
-function loginAdmin(){if(document.getElementById("pw").value==="banguri123"){sessionStorage.setItem("banguriAdmin","yes");admin()}else alert("ভুল পাসওয়ার্ড");}
-function logoutAdmin(){sessionStorage.removeItem("banguriAdmin");admin()}
+
+async function loginAdmin(){
+  const pw = document.getElementById("pw").value;
+  if(await checkAdminPass(pw)){
+    sessionStorage.setItem("banguriAdmin","yes");
+    admin();
+  } else {
+    alert("ভুল পাসওয়ার্ড। দয়া করে সঠিক পাসওয়ার্ড প্রদান করুন।");
+  }
+}
+
+function logoutAdmin(){
+  sessionStorage.removeItem("banguriAdmin");
+  admin();
+}
+
+async function changeAdminPassword(){
+  const curPw = document.getElementById("curPw").value;
+  const newPw = document.getElementById("newPw").value;
+  const confirmPw = document.getElementById("confirmPw").value;
+
+  if(!curPw || !newPw || !confirmPw){
+    return alert("সকল ফিল্ড পূরণ করুন।");
+  }
+  if(!(await checkAdminPass(curPw))){
+    return alert("বর্তমান পাসওয়ার্ড সঠিক নয়।");
+  }
+  if(newPw.length < 6){
+    return alert("নতুন পাসওয়ার্ড অন্তত ৬ অক্ষরের হতে হবে।");
+  }
+  if(newPw !== confirmPw){
+    return alert("নতুন পাসওয়ার্ড দুটি মিলছে না।");
+  }
+
+  db.adminPassHash = await hashPassword(newPw);
+  await save();
+  alert("Admin পাসওয়ার্ড সফলভাবে আপডেট করা হয়েছে!");
+  admin();
+}
+
 function previewImage(input, previewId){
   const file = input.files[0];
   const div = document.getElementById(previewId);
@@ -402,7 +572,10 @@ async function addNotice(){
   if(!t) return alert("নোটিশের শিরোনাম প্রদান করুন।");
 
   const pdfInput = document.getElementById("npdf");
+  const imgInput = document.getElementById("nimg");
   let pdfDataUrl = null;
+  let imgDataUrl = null;
+
   if(pdfInput && pdfInput.files && pdfInput.files[0]){
     const file = pdfInput.files[0];
     if(file.type !== "application/pdf"){
@@ -418,15 +591,85 @@ async function addNotice(){
     });
   }
 
+  if(imgInput && imgInput.files && imgInput.files[0]){
+    const file = imgInput.files[0];
+    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+      return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।");
+    }
+    if(file.size > 5 * 1024 * 1024){
+      return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
+    }
+    imgDataUrl = await new Promise(resolve => {
+      const rd = new FileReader();
+      rd.onload = e => resolve(e.target.result);
+      rd.readAsDataURL(file);
+    });
+  }
+
   db.notices.unshift({
     title: t,
     body: b,
     date: new Date().toLocaleDateString("bn-BD"),
-    pdfUrl: pdfDataUrl
+    pdfUrl: pdfDataUrl,
+    imageUrl: imgDataUrl
   });
   await save();
   alert("নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
   admin();
+}
+
+async function deleteNotice(index){
+  if(confirm("আপনি কি নিশ্চিত যে এই নোটিশটি মুছে ফেলতে চান?")){
+    db.notices.splice(index, 1);
+    await save();
+    admin();
+  }
+}
+
+async function addAchievement(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const title = document.getElementById("at").value.trim();
+  const desc = document.getElementById("ad").value.trim();
+  const fileInput = document.getElementById("afile");
+
+  if(!title){
+    return alert("অর্জনের শিরোনাম প্রদান করুন।");
+  }
+
+  let imgDataUrl = null;
+  if(fileInput && fileInput.files && fileInput.files[0]){
+    const file = fileInput.files[0];
+    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+      return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।");
+    }
+    if(file.size > 5 * 1024 * 1024){
+      return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
+    }
+    imgDataUrl = await new Promise(resolve => {
+      const rd = new FileReader();
+      rd.onload = e => resolve(e.target.result);
+      rd.readAsDataURL(file);
+    });
+  }
+
+  if(!db.achievements) db.achievements = [];
+  db.achievements.unshift({
+    title: title,
+    description: desc,
+    imageUrl: imgDataUrl,
+    date: new Date().toLocaleDateString("bn-BD")
+  });
+  await save();
+  alert("বিদ্যালয়ের অর্জন সফলভাবে সংরক্ষিত হয়েছে।");
+  admin();
+}
+
+async function deleteAchievement(index){
+  if(confirm("আপনি কি নিশ্চিত যে এই অর্জনটি মুছে ফেলতে চান?")){
+    db.achievements.splice(index, 1);
+    await save();
+    admin();
+  }
 }
 
 function addTeacher(){const n=document.getElementById("tn").value.trim();if(!n)return alert("নাম দিন");db.teachers.push({name:n,designation:document.getElementById("td").value,qualification:document.getElementById("tq").value});save();admin()}
@@ -437,7 +680,7 @@ async function addGallery(){
   const fileInput = document.getElementById("gfile");
   if(!n) return alert("ছবির বিষয়/শিরোনাম প্রদান করুন।");
   if(!fileInput || !fileInput.files || !fileInput.files[0]){
-    return alert("ছবি নির্বাচন করুন (Direct Image Picker)।");
+    return alert("ছবি নির্বাচন করুন।");
   }
   const file = fileInput.files[0];
   if(!["image/jpeg", "image/png", "image/webp"].includes(file.type)){
@@ -458,7 +701,17 @@ async function addGallery(){
   alert("গ্যালারিতে ছবি সফলভাবে যুক্ত হয়েছে।");
   admin();
 }
+
+async function deleteGallery(index){
+  if(confirm("আপনি কি নিশ্চিত যে এই ছবিটি গ্যালারি থেকে মুছে ফেলতে চান?")){
+    db.gallery.splice(index, 1);
+    await save();
+    admin();
+  }
+}
+
 function saveSchool(){db.school.history=document.getElementById("hist").value;db.school.mission=document.getElementById("mission").value;db.school.contact=document.getElementById("contact").value;save();alert("সংরক্ষণ হয়েছে");admin()}
+
 async function importResults(){
  if(sessionStorage.getItem("banguriAdmin")!=="yes"){
    alert("অনুমতি প্রয়োজন।"); return;
@@ -491,7 +744,13 @@ async function importResults(){
        });
      }else{
        const wb=XLSX.read(e.target.result,{type:"array"});
-       const ws=wb.Sheets[wb.SheetNames[0]];
+       let sheetName = wb.SheetNames[0];
+       if(cls==="৯ম" || cls==="১০ম"){
+         if(wb.SheetNames.includes(grp)){
+           sheetName = grp;
+         }
+       }
+       const ws=wb.Sheets[sheetName];
        rows=XLSX.utils.sheet_to_json(ws,{defval:""});
      }
 
@@ -542,7 +801,6 @@ async function importResults(){
        let allPassed = true;
 
        for(const subj of expectedSubjects){
-         // find matching key in row object
          const matchedKey = Object.keys(o).find(k => k.trim() === subj.trim());
          if(matchedKey === undefined || o[matchedKey] === ""){
            errors.push(`রোল ${rollVal}-এর জন্য '${subj}' বিষয়ের নম্বর অনুপস্থিত।`);
@@ -582,7 +840,7 @@ async function importResults(){
      }
 
      if(errors.length > 0){
-       msgDiv.innerHTML = `<div class="notice" style="border-color:#d32f2f;background:#fde8e8"><b style="color:#b00020">ফাইল যাচাইকরণ ত্রুটি (${errors.length}):</b><br><ul style="margin:5px 0 0 20px;padding:0">${errors.map(err=>`<li>${esc(err)}</li>`).join('')}</ul></div>`;
+       msgDiv.innerHTML = `<div class="notice danger-notice"><b style="color:var(--danger)">ফাইল যাচাইকরণ ত্রুটি (${errors.length}):</b><br><ul style="margin:5px 0 0 20px;padding:0">${errors.map(err=>`<li>${esc(err)}</li>`).join('')}</ul></div>`;
        return;
      }
 
@@ -597,7 +855,6 @@ async function importResults(){
        }
      }
 
-     // Merge/Overwrite into db.results without damaging existing unrelated records
      for(const rec of parsedRecords){
        const idx = db.results.findIndex(r => r.exam === rec.exam && r.className === rec.className && r.year === rec.year && (cls!=="৯ম"&&cls!=="১০ম" || r.group===rec.group) && String(r.roll) === String(rec.roll));
        if(idx >= 0){
@@ -621,10 +878,7 @@ async function importResults(){
    rd.readAsArrayBuffer(f);
  }
 }
-function downloadTemplate(){
- const data=[["Roll","Student Name","Bangla","English","Mathematics","Science","BGS","Religion","ICT","Fourth Subject"],["101","Md Rahim",82,75,88,79,84,90,85,80]];
- const ws=XLSX.utils.aoa_to_sheet(data),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Results");XLSX.writeFile(wb,"banguri_result_template.xlsx");
-}
+
 (async function initApp(){
   await initDB();
   const idbData = await loadFromIDB();
@@ -637,6 +891,7 @@ function downloadTemplate(){
   if(!db.results) db.results=[];
   if(!db.teachers) db.teachers=[];
   if(!db.gallery) db.gallery=[];
+  if(!db.achievements) db.achievements=[];
   if(!db.school) db.school={
     history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",
     mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
@@ -644,7 +899,8 @@ function downloadTemplate(){
   };
 
   const initialHash = location.hash ? location.hash.substring(1) : "home";
-  const initialView = ["school","notices","results","teachers","gallery","downloads","contact","admin"].includes(initialHash) ? initialHash : "home";
+  const validViews = ["school","notices","results","achievements","teachers","gallery","downloads","ডাউনলোড","contact","admin"];
+  const initialView = validViews.includes(initialHash) ? initialHash : "home";
   history.replaceState({ view: initialView }, "", location.pathname + location.search + (initialView === "home" ? "" : "#" + initialView));
   renderView(initialView);
 })();
