@@ -172,14 +172,64 @@ async function hashPassword(str){
 const DEFAULT_PASS_HASH = "6df603a9397b0777cb35f07751e11b0f18dd2b864b348936f8e0b7a44bc60780";
 
 let db = JSON.parse(localStorage.getItem(KEY)||"null") || {
- notices:[], results:[], teachers:[], gallery:[], achievements:[],
- syllabuses:[], registrations:[], formFillups:[], routines:[], ebooks:[], calendars:[],
- chairman:{ text:"", imageUrl:"" },
- headTeacher:{ text:"", imageUrl:"" },
+ notices:[
+   { id: 1, title: "২০২৬ শিক্ষাবর্ষের বার্ষিক ক্রীড়া প্রতিযোগিতা ও সাংস্কৃতিক অনুষ্ঠান সংক্রান্ত নোটিশ", body: "আগামী ১৫ ফেব্রুয়ারি ২০২৬ তারিখ বাঙ্গুরী উচ্চ বিদ্যালয়ের বার্ষিক ক্রীড়া প্রতিযোগিতা অনুষ্ঠিত হবে। সকল শিক্ষার্থীকে নির্ধারিত সময়ে উপস্থিত থাকার জন্য নির্দেশ প্রদান করা হলো।", date: "১০/০১/২০২৬", pdfUrl: "", imageUrl: "school-building.png" },
+   { id: 2, title: "অভিভাবক সমাবেশ ও শ্রেণি পরীক্ষা সংক্রান্ত জরুরি বিজ্ঞপ্তি", body: "সকল শ্রেণির অভিভাবকগণকে জানানো যাচ্ছে যে আগামী ২০ জানুয়ারি অভিভাবক সমাবেশ অনুষ্ঠিত হবে।", date: "০৫/০১/২০২৬", pdfUrl: "", imageUrl: "" }
+ ],
+ results:[],
+ teachers:[
+   { id: 1, name: "মোঃ দুলাল হোসেন", designation: "প্রধান শিক্ষক", subject: "গণিত", category: "শিক্ষক", imageUrl: "school-logo.jpg" },
+   { id: 2, name: "আব্দুল কুদ্দুস", designation: "সহকারী প্রধান শিক্ষক", subject: "ইংরেজি", category: "শিক্ষক", imageUrl: "" },
+   { id: 3, name: "মোসাঃ পারভীন আক্তার", designation: "সহকারী শিক্ষক", subject: "বিজ্ঞান", category: "শিক্ষক", imageUrl: "" },
+   { id: 4, name: "মোঃ রফিকুল ইসলাম", designation: "সহকারী শিক্ষক", subject: "বাংলাদেশ ও বিশ্বপরিচয়", category: "শিক্ষক", imageUrl: "" },
+   { id: 5, name: "মোঃ আল-আমিন", designation: "অফিস সহকারী", subject: "প্রশাসন", category: "কর্মচারী", imageUrl: "" }
+ ],
+ gallery:[
+   { title: "বিদ্যালয় ভবন ও প্রাঙ্গণ", url: "school-building.png" },
+   { title: "বিদ্যালয়ের অফিশিয়াল লোগো", url: "school-logo.jpg" }
+ ],
+ achievements:[
+   { id: 1, title: "উপজেলা পর্যায়ে বিতর্ক প্রতিযোগিতায় ১ম স্থান অর্জন", description: "দেবিদ্বার উপজেলা পর্যায়ে আয়োজিত আন্তঃস্কুল বিতর্ক প্রতিযোগিতায় বাঙ্গুরী উচ্চ বিদ্যালয় চ্যাম্পিয়ন হওয়ার গৌরব অর্জন করেছে।", date: "২০২৫", imageUrl: "school-building.png" },
+   { id: 2, title: "এসএসসি পরীক্ষায় শতভাগ পাস ও জিপিএ-৫ প্রাপ্তি", description: "গত এসএসসি পরীক্ষায় বিদ্যালয়ের শিক্ষার্থীরা মেধার স্বাক্ষর রেখে চমৎকার সাফল্য অর্জন করেছে।", date: "২০২৫", imageUrl: "" }
+ ],
+ syllabuses:[
+   { id: 1, className: "৬ষ্ঠ", title: "৬ষ্ঠ শ্রেণি বার্ষিক পরীক্ষা সিলেবাস ২০২৬", date: "০১/০১/২০২৬", pdfUrl: "" },
+   { id: 2, className: "৮ম", title: "৮ম শ্রেণি বার্ষিক পরীক্ষা সিলেবাস ২০২৬", date: "০১/০১/২০২৬", pdfUrl: "" },
+   { id: 3, className: "৯ম", title: "৯ম শ্রেণি বিষয়ভিত্তিক সিলেবাস ২০২৬", date: "০১/০১/২০২৬", pdfUrl: "" }
+ ],
+ registrations:[
+   { id: 1, className: "৬ষ্ঠ", title: "৬ষ্ঠ শ্রেণির ভর্তি ও রেজিষ্ট্রেশন কার্যক্রম", description: "৬ষ্ঠ শ্রেণির নবীন শিক্ষার্থীদের ভর্তি ও প্রয়োজনীয় তথ্য সংগ্রহের কার্যক্রম শুরু হয়েছে।", date: "০২/০১/২০২৬", pdfUrl: "" },
+   { id: 2, className: "৯ম", title: "৯ম শ্রেণির শিক্ষা বোর্ড রেজিষ্ট্রেশন বিজ্ঞপ্তি", description: "কুমিল্লা শিক্ষা বোর্ডের অধীনে ৯ম শ্রেণির শিক্ষার্থীদের রেজিষ্ট্রেশন ফরম পূরণ চলছে।", date: "১০/০১/২০২৬", pdfUrl: "" }
+ ],
+ formFillups:[
+   { id: 1, title: "এসএসসি পরীক্ষা ২০২৬ ফর্ম ফিলাপ বিজ্ঞপ্তি", description: "এসএসসি পরীক্ষা ২০২৬-এর নির্বাচনী পরীক্ষায় উত্তীর্ণ শিক্ষার্থীদের ফর্ম ফিলাপ সংক্রান্ত নির্দেশনা।", date: "০৫/০১/২০২৬", pdfUrl: "" }
+ ],
+ routines:[
+   { id: 1, title: "অর্ধবার্ষিক পরীক্ষা ২০২৬ সময়সূচি", className: "সকল শ্রেণি", date: "১০/০১/২০২৬", pdfUrl: "" }
+ ],
+ ebooks:[
+   { id: 1, className: "৬ষ্ঠ", title: "বাংলা ১ম পত্র (আনন্দপাঠ)", subject: "বাংলা", pdfUrl: "", date: "০১/০১/২০২৬" },
+   { id: 2, className: "৭ম", title: "English for Today", subject: "ইংরেজি", pdfUrl: "", date: "০১/০১/২০২৬" },
+   { id: 3, className: "৮ম", title: "গণিত (Mathematics)", subject: "গণিত", pdfUrl: "", date: "০১/০১/২০২৬" },
+   { id: 4, className: "৯ম", title: "পদার্থবিজ্ঞান (Physics)", subject: "বিজ্ঞান", pdfUrl: "", date: "০১/০১/২০২৬" },
+   { id: 5, className: "১০ম", title: "বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা", subject: "মানবিক", pdfUrl: "", date: "০১/০১/২০২৬" }
+ ],
+ calendars:[
+   { id: 1, title: "২০২৬ শিক্ষাবর্ষের একাডেমিক ক্যালেন্ডার ও ছুটির তালিকা", year: "২০২৬", date: "০১/০১/২০২৬", pdfUrl: "" }
+ ],
+ chairman:{
+   text: "বাঙ্গুরী উচ্চ বিদ্যালয়ের পরিচালনা পর্ষদের পক্ষ থেকে সকলকে আন্তরিক শুভেচ্ছা ও অভিনন্দন। আমাদের লক্ষ্য শিক্ষার্থীদের সুশিক্ষা ও নৈতিক মূল্যবোধে সমৃদ্ধ গড়ে তোলা। অভিভাবক, শিক্ষক ও শিক্ষার্থীদের যৌথ প্রচেষ্টায় বাঙ্গুরী উচ্চ বিদ্যালয় উত্তরোত্তর সমৃদ্ধির পথে এগিয়ে যাচ্ছে।",
+   imageUrl: "school-building.png"
+ },
+ headTeacher:{
+   text: "প্রিয় শিক্ষার্থীবৃন্দ ও সুধীমণ্ডলী, বাঙ্গুরী উচ্চ বিদ্যালয়ে আপনাকে স্বাগতম। আমরা বিশ্বাস করি গুণগত শিক্ষা ও শৃঙ্খলাই একটি উজ্জ্বল ভবিষ্যতের মূল চাবিকাঠি। আমাদের দক্ষ শিক্ষকবৃন্দ ও আধুনিক শিক্ষা পদ্ধতি শিক্ষার্থীদের মেধা বিকাশ ও চরিত্র গঠনে নিরলসভাবে কাজ করে যাচ্ছে।",
+   imageUrl: "school-logo.jpg"
+ },
  school:{
-   history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",
-   mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
-   contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"
+   history: "বাঙ্গুরী উচ্চ বিদ্যালয় কুমিল্লা জেলার দেবিদ্বার উপজেলায় অবস্থিত একটি ঐতিহ্যবাহী শিক্ষাপ্রতিষ্ঠান। এটি এলাকার শিক্ষার আলো ছড়াতে এবং শিক্ষার্থীদের আদর্শ নাগরিক হিসেবে গড়ে তুলতে সুদীর্ঘকাল ধরে গুরুত্বপূর্ণ ভূমিকা পালন করে আসছে। প্রতিষ্ঠানটিতে মানসম্মত শিক্ষা, সুশৃঙ্খল পরিবেশ, খেলাধুলা ও সহপাঠ্যক্রমিক কার্যক্রমের ওপর বিশেষ গুরুত্ব প্রদান করা হয়।",
+   historyImage: "school-building.png",
+   mission: "শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
+   contact: "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"
  },
  adminPassHash: null
 };
@@ -280,15 +330,22 @@ function home(){
    <p>দেবিদ্বার, কুমিল্লা, বাংলাদেশ। সুশিক্ষা, শৃঙ্খলা ও নৈতিক মূল্যবোধ আমাদের অঙ্গীকার।</p>
  </div>
  <div class="grid">
-   <div class="card"><h3>📢 নোটিশ বোর্ড</h3><p class="muted">বিদ্যালয়ের সর্বশেষ তথ্য ও বিজ্ঞপ্তি দেখুন।</p><button class="btn" onclick="navigateTo('notices')">নোটিশ দেখুন</button></div>
-   <div class="card"><h3>📊 ফলাফল অনুসন্ধান</h3><p class="muted">৬ষ্ঠ থেকে ১০ম শ্রেণির সকল পরীক্ষার ফলাফল দেখুন।</p><button class="btn" onclick="navigateTo('results')">ফলাফল দেখুন</button></div>
+   <div class="card"><h3>📊 ফলাফল</h3><p class="muted">৬ষ্ঠ থেকে ১০ম শ্রেণির সকল পরীক্ষার ফলাফল দেখুন।</p><button class="btn" onclick="navigateTo('results')">ফলাফল দেখুন</button></div>
+   <div class="card"><h3>📢 নোটিশ</h3><p class="muted">বিদ্যালয়ের সর্বশেষ তথ্য ও নোটিশ বোর্ড দেখুন।</p><button class="btn" onclick="navigateTo('notices')">নোটিশ দেখুন</button></div>
    <div class="card"><h3>📚 সিলেবাস</h3><p class="muted">৬ষ্ঠ থেকে ১০ম শ্রেণির পাঠ্যক্রম ও সিলেবাস PDF।</p><button class="btn" onclick="navigateTo('syllabus')">সিলেবাস দেখুন</button></div>
-   <div class="card"><h3>📝 রেজিষ্ট্রেশন</h3><p class="muted">৬ষ্ঠ, ৮ম ও ৯ ম শ্রেণির রেজিষ্ট্রেশন সংক্রান্ত নোটিশ।</p><button class="btn" onclick="navigateTo('registration')">রেজিষ্ট্রেশন তথ্য</button></div>
-   <div class="card"><h3>📋 ফর্ম ফিলাপ</h3><p class="muted">পরীক্ষার ফর্ম ফিলাপ সংক্রান্ত নোটিশ ও নির্দেশিকা।</p><button class="btn" onclick="navigateTo('formfillup')">ফর্ম ফিলাপ</button></div>
+   <div class="card"><h3>📝 রেজিষ্ট্রেশন</h3><p class="muted">৬ষ্ঠ, ৮ম ও ৯ ম শ্রেণির রেজিষ্ট্রেশন নোটিশ ও তথ্য।</p><button class="btn" onclick="navigateTo('registration')">রেজিষ্ট্রেশন তথ্য</button></div>
+   <div class="card"><h3>📋 ফর্ম ফিলাপ</h3><p class="muted">পরীক্ষার ফর্ম ফিলাপ সংক্রান্ত নোটিশ ও নির্দেশিকা।</p><button class="btn" onclick="navigateTo('formfillup')">ফর্ম ফিলাপ দেখুন</button></div>
+   <div class="card"><h3>👨‍🏫 শিক্ষক ও কর্মচারীদের তালিকা</h3><p class="muted">বিদ্যালয়ের সম্মানিত শিক্ষক-শিক্ষিকা ও কর্মচারী তালিকা।</p><button class="btn" onclick="navigateTo('teachers')">তালিকা দেখুন</button></div>
+   <div class="card"><h3>🏛 বিদ্যালয়ের ইতিহাস</h3><p class="muted">বাঙ্গুরী উচ্চ বিদ্যালয়ের ঐতিহ্য ও ইতিহাসের পটভূমি।</p><button class="btn" onclick="navigateTo('history')">ইতিহাস দেখুন</button></div>
+   <div class="card"><h3>📅 পরীক্ষার রুটিন</h3><p class="muted">শ্রেণিভিত্তিক পরীক্ষার সময়সূচি ও সময়সারণী।</p><button class="btn" onclick="navigateTo('routines')">রুটিন দেখুন</button></div>
+   <div class="card"><h3>📖 ই বুক</h3><p class="muted">শ্রেণি ও বিষয়ভিত্তিক ডিজিটাল পাঠ্যবই ও ই-বুক।</p><button class="btn" onclick="navigateTo('ebooks')">ই বুক দেখুন</button></div>
+   <div class="card"><h3>📆 একাডেমিক ক্যালেন্ডার</h3><p class="muted">শিক্ষাবর্ষভিত্তিক ছুটির তালিকা ও বর্ষপঞ্জি।</p><button class="btn" onclick="navigateTo('calendar')">ক্যালেন্ডার দেখুন</button></div>
+   <div class="card"><h3>🎙 সভাপতির বাণী</h3><p class="muted">বিদ্যালয় পরিচালনা পর্ষদের মাননীয় সভাপতির বার্তা।</p><button class="btn" onclick="navigateTo('chairman')">বাণী দেখুন</button></div>
+   <div class="card"><h3>🎙 প্রধান শিক্ষকের বাণী</h3><p class="muted">বিদ্যালয়ের সম্মানিত প্রধান শিক্ষকের বার্তা।</p><button class="btn" onclick="navigateTo('headteacher')">বাণী দেখুন</button></div>
    <div class="card"><h3>🏆 বিদ্যালয়ের অর্জনসমূহ</h3><p class="muted">আমাদের শিক্ষা, খেলাধুলা ও সাংস্কৃতিক সাফল্য।</p><button class="btn" onclick="navigateTo('achievements')">অর্জনসমূহ দেখুন</button></div>
-   <div class="card"><h3>📸 ফটো গ্যালারি</h3><p class="muted">বিদ্যালয়ের আলোকচিত্র ও স্মৃতিকথা।</p><button class="btn" onclick="navigateTo('gallery')">গ্যালারি দেখুন</button></div>
-   <div class="card"><h3>📞 যোগাযোগ</h3><p class="muted">বিদ্যালয়ের ঠিকানা ও যোগাযোগের মাধ্যম।</p><button class="btn" onclick="navigateTo('contact')">যোগাযোগ করুন</button></div>
-   <div class="card"><h3>⚙ Admin Panel</h3><p class="muted">নোটিশ, ফলাফল, সিলেবাস ও তথ্য ব্যবস্থাপনা।</p><button class="btn secondary" onclick="navigateTo('admin')">প্রশাসক প্যানেল</button></div>
+   <div class="card"><h3>📸 Photo Gallery</h3><p class="muted">বিদ্যালয়ের আলোকচিত্র ও চিত্রশালা।</p><button class="btn" onclick="navigateTo('gallery')">গ্যালারি দেখুন</button></div>
+   <div class="card"><h3>📞 Contact</h3><p class="muted">বিদ্যালয়ের ঠিকানা, ই-মেইল ও যোগাযোগের তথ্য।</p><button class="btn" onclick="navigateTo('contact')">যোগাযোগ করুন</button></div>
+   <div class="card"><h3>⚙ Admin Panel</h3><p class="muted">নোটিশ, ফলাফল, সিলেবাস, শিক্ষক ও তথ্য ব্যবস্থাপনা।</p><button class="btn secondary" onclick="navigateTo('admin')">প্রশাসক প্যানেল</button></div>
  </div>`;
 }
 
