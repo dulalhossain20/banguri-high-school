@@ -154,8 +154,8 @@ async function hashPassword(str){
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
 }
 
-// Default state with initial hash for default password "banguri123"
-const DEFAULT_PASS_HASH = "ca3398935c13b3e2101344445bd59111e1f13b1f58440bc43f119028a2a537aa"; // placeholder SHA-256 or dynamic calculation
+// Default state with initial SHA-256 hash for default password "banguri123"
+const DEFAULT_PASS_HASH = "6df603a9397b0777cb35f07751e11b0f18dd2b864b348936f8e0b7a44bc60780";
 
 let db = JSON.parse(localStorage.getItem(KEY)||"null") || {
  notices:[], results:[], teachers:[], gallery:[], achievements:[],
