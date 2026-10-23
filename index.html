@@ -718,6 +718,7 @@ function renderAdminSubContent(){
               </div>
               <div class="actions">
                 <a href="${esc(s.pdfUrl)}" target="_blank" download="${esc(s.title)}.pdf" class="btn secondary sm">📄 PDF দেখুন</a>
+                <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace PDF<input type="file" accept="application/pdf" style="display:none" onchange="replaceItemFile('syllabuses', ${i}, 'pdfUrl', this)"></label>
                 <button class="btn sm" onclick="editSyllabus(${i})">সম্পাদনা</button>
                 <button class="btn danger sm" onclick="deleteSyllabus(${i})">মুছে ফেলুন</button>
               </div>
@@ -756,6 +757,7 @@ function renderAdminSubContent(){
               </div>
               <div class="actions">
                 ${r.pdfUrl ? `<a href="${esc(r.pdfUrl)}" target="_blank" download="${esc(r.title)}.pdf" class="btn secondary sm">📄 PDF দেখুন</a>` : ''}
+                <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace PDF<input type="file" accept="application/pdf" style="display:none" onchange="replaceItemFile('registrations', ${i}, 'pdfUrl', this)"></label>
                 <button class="btn sm" onclick="editRegistration(${i})">সম্পাদনা</button>
                 <button class="btn danger sm" onclick="deleteRegistration(${i})">মুছে ফেলুন</button>
               </div>
@@ -788,6 +790,7 @@ function renderAdminSubContent(){
               </div>
               <div class="actions">
                 ${f.pdfUrl ? `<a href="${esc(f.pdfUrl)}" target="_blank" download="${esc(f.title)}.pdf" class="btn secondary sm">📄 PDF দেখুন</a>` : ''}
+                <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace PDF<input type="file" accept="application/pdf" style="display:none" onchange="replaceItemFile('formFillups', ${i}, 'pdfUrl', this)"></label>
                 <button class="btn sm" onclick="editFormFillup(${i})">সম্পাদনা</button>
                 <button class="btn danger sm" onclick="deleteFormFillup(${i})">মুছে ফেলুন</button>
               </div>
@@ -824,6 +827,7 @@ function renderAdminSubContent(){
                 <b>${esc(t.name)}</b> — <span style="color:var(--blue);font-weight:bold">${esc(t.designation)}</span> ${t.subject?`<small class="muted">(${esc(t.subject)})</small>`:''}
               </div>
               <div class="actions">
+                <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace Photo<input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="replaceItemFile('teachers', ${i}, 'imageUrl', this)"></label>
                 <button class="btn sm" onclick="editTeacher(${i})">সম্পাদনা</button>
                 <button class="btn danger sm" onclick="deleteTeacher(${i})">মুছে ফেলুন</button>
               </div>
@@ -879,6 +883,7 @@ function renderAdminSubContent(){
               </div>
               <div class="actions">
                 ${r.pdfUrl ? `<a href="${esc(r.pdfUrl)}" target="_blank" download="${esc(r.title)}.pdf" class="btn secondary sm">📄 PDF দেখুন</a>` : ''}
+                <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace PDF<input type="file" accept="application/pdf" style="display:none" onchange="replaceItemFile('routines', ${i}, 'pdfUrl', this)"></label>
                 <button class="btn sm" onclick="editRoutine(${i})">সম্পাদনা</button>
                 <button class="btn danger sm" onclick="deleteRoutine(${i})">মুছে ফেলুন</button>
               </div>
@@ -917,6 +922,7 @@ function renderAdminSubContent(){
               </div>
               <div class="actions">
                 ${b.pdfUrl ? `<a href="${esc(b.pdfUrl)}" target="_blank" download="${esc(b.title)}.pdf" class="btn secondary sm">📖 PDF দেখুন</a>` : ''}
+                <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace PDF<input type="file" accept="application/pdf" style="display:none" onchange="replaceItemFile('ebooks', ${i}, 'pdfUrl', this)"></label>
                 <button class="btn sm" onclick="editEbook(${i})">সম্পাদনা</button>
                 <button class="btn danger sm" onclick="deleteEbook(${i})">মুছে ফেলুন</button>
               </div>
@@ -946,6 +952,7 @@ function renderAdminSubContent(){
               </div>
               <div class="actions">
                 ${c.pdfUrl ? `<a href="${esc(c.pdfUrl)}" target="_blank" download="${esc(c.title)}.pdf" class="btn secondary sm">📄 PDF দেখুন</a>` : ''}
+                <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace PDF<input type="file" accept="application/pdf" style="display:none" onchange="replaceItemFile('calendars', ${i}, 'pdfUrl', this)"></label>
                 <button class="btn sm" onclick="editCalendar(${i})">সম্পাদনা</button>
                 <button class="btn danger sm" onclick="deleteCalendar(${i})">মুছে ফেলুন</button>
               </div>
@@ -1007,6 +1014,7 @@ function renderAdminSubContent(){
             <div><b>${esc(n.title)}</b> <small class="muted">(${esc(n.date)})</small></div>
             <div class="actions">
               ${n.pdfUrl ? `<a href="${esc(n.pdfUrl)}" target="_blank" download="${esc(n.title)}.pdf" class="btn secondary sm">📄 PDF</a>` : ''}
+              <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace File<input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" style="display:none" onchange="replaceNoticeFile(${i}, this)"></label>
               <button class="btn sm" onclick="editNotice(${i})">সম্পাদনা</button>
               <button class="btn danger sm" onclick="deleteNotice(${i})">মুছে ফেলুন</button>
             </div>
@@ -1031,6 +1039,7 @@ function renderAdminSubContent(){
           <div class="notice" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
             <div><b>${esc(a.title)}</b> ${a.date?`<small class="muted">(${esc(a.date)})</small>`:''}</div>
             <div class="actions">
+              <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace Image<input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="replaceItemFile('achievements', ${i}, 'imageUrl', this)"></label>
               <button class="btn sm" onclick="editAchievement(${i})">সম্পাদনা</button>
               <button class="btn danger sm" onclick="deleteAchievement(${i})">মুছে ফেলুন</button>
             </div>
@@ -1054,6 +1063,7 @@ function renderAdminSubContent(){
           <div class="notice" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
             <div><b>${esc(g.title)}</b></div>
             <div class="actions">
+              <label class="btn secondary sm" style="cursor:pointer;margin:0">Replace Image<input type="file" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="replaceItemFile('gallery', ${i}, 'url', this)"></label>
               <button class="btn sm" onclick="editGallery(${i})">সম্পাদনা</button>
               <button class="btn danger sm" onclick="deleteGallery(${i})">মুছে ফেলুন</button>
             </div>
@@ -1209,7 +1219,62 @@ async function addSyllabus(){
   renderAdminSubContent();
 }
 
+
+async function replaceItemFile(storeKey, index, fileProp, fileInput){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  if(!fileInput || !fileInput.files || !fileInput.files[0]) return;
+  const file = fileInput.files[0];
+  const item = db[storeKey] ? db[storeKey][index] : null;
+  if(!item) return alert("তথ্য পাওয়া যায়নি।");
+
+  if(file.size > 15 * 1024 * 1024){
+    return alert("ফাইলের আকার সর্বোচ্চ 15MB হতে হবে।");
+  }
+
+  const dataUrl = await new Promise(resolve => {
+    const rd = new FileReader();
+    rd.onload = e => resolve(e.target.result);
+    rd.readAsDataURL(file);
+  });
+
+  item[fileProp] = dataUrl;
+  await save();
+  alert("ফাইল সফলভাবে পরিবর্তন করা হয়েছে।");
+  renderAdminSubContent();
+}
+
+async function replaceNoticeFile(index, fileInput){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  if(!fileInput || !fileInput.files || !fileInput.files[0]) return;
+  const file = fileInput.files[0];
+  const item = db.notices ? db.notices[index] : null;
+  if(!item) return alert("নোটিশ পাওয়া যায়নি।");
+
+  if(file.size > 15 * 1024 * 1024){
+    return alert("ফাইলের আকার সর্বোচ্চ 15MB হতে হবে।");
+  }
+
+  const dataUrl = await new Promise(resolve => {
+    const rd = new FileReader();
+    rd.onload = e => resolve(e.target.result);
+    rd.readAsDataURL(file);
+  });
+
+  if(file.type === "application/pdf"){
+    item.pdfUrl = dataUrl;
+  } else if(["image/jpeg", "image/png", "image/webp"].includes(file.type)){
+    item.imageUrl = dataUrl;
+  } else {
+    return alert("শুধুমাত্র PDF বা JPG/PNG/WebP ফাইল নির্বাচন করুন।");
+  }
+
+  await save();
+  alert("নোটিশ ফাইল সফলভাবে পরিবর্তন করা হয়েছে।");
+  renderAdminSubContent();
+}
+
 async function editSyllabus(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.syllabuses[index];
   if(!item) return;
   const newTitle = prompt("সিলেবাসের নতুন শিরোনাম প্রদান করুন:", item.title);
@@ -1221,6 +1286,7 @@ async function editSyllabus(index){
 }
 
 async function deleteSyllabus(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই সিলেবাসটি মুছে ফেলতে চান?")){
     db.syllabuses.splice(index, 1);
     await save();
@@ -1265,6 +1331,7 @@ async function addRegistration(){
 }
 
 async function editRegistration(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.registrations[index];
   if(!item) return;
   const newTitle = prompt("রেজিষ্ট্রেশন নোটিশের নতুন শিরোনাম:", item.title);
@@ -1276,6 +1343,7 @@ async function editRegistration(index){
 }
 
 async function deleteRegistration(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই রেজিষ্ট্রেশন নোটিশটি মুছে ফেলতে চান?")){
     db.registrations.splice(index, 1);
     await save();
@@ -1318,6 +1386,7 @@ async function addFormFillup(){
 }
 
 async function editFormFillup(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.formFillups[index];
   if(!item) return;
   const newTitle = prompt("ফর্ম ফিলাপ নোটিশের নতুন শিরোনাম:", item.title);
@@ -1329,6 +1398,7 @@ async function editFormFillup(index){
 }
 
 async function deleteFormFillup(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই নোটিশটি মুছে ফেলতে চান?")){
     db.formFillups.splice(index, 1);
     await save();
@@ -1370,6 +1440,7 @@ async function addTeacher(){
 }
 
 async function editTeacher(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.teachers[index];
   if(!item) return;
   const newName = prompt("নতুন নাম প্রবেশ করান:", item.name);
@@ -1383,6 +1454,7 @@ async function editTeacher(index){
 }
 
 async function deleteTeacher(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই প্রোফাইলটি মুছে ফেলতে চান?")){
     db.teachers.splice(index, 1);
     await save();
@@ -1445,6 +1517,7 @@ async function addRoutine(){
 }
 
 async function editRoutine(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.routines[index];
   if(!item) return;
   const newTitle = prompt("রুটিনের নতুন শিরোনাম:", item.title);
@@ -1456,6 +1529,7 @@ async function editRoutine(index){
 }
 
 async function deleteRoutine(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই রুটিনটি মুছে ফেলতে চান?")){
     db.routines.splice(index, 1);
     await save();
@@ -1493,6 +1567,7 @@ async function addEbook(){
 }
 
 async function editEbook(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.ebooks[index];
   if(!item) return;
   const newTitle = prompt("বইয়ের নতুন শিরোনাম:", item.title);
@@ -1504,6 +1579,7 @@ async function editEbook(index){
 }
 
 async function deleteEbook(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই ই-বুকটি মুছে ফেলতে চান?")){
     db.ebooks.splice(index, 1);
     await save();
@@ -1540,6 +1616,7 @@ async function addCalendar(){
 }
 
 async function editCalendar(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.calendars[index];
   if(!item) return;
   const newTitle = prompt("ক্যালেন্ডারের নতুন শিরোনাম:", item.title);
@@ -1551,6 +1628,7 @@ async function editCalendar(index){
 }
 
 async function deleteCalendar(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই ক্যালেন্ডারটি মুছে ফেলতে চান?")){
     db.calendars.splice(index, 1);
     await save();
@@ -1584,6 +1662,7 @@ async function saveChairmanMessage(){
 }
 
 async function removeChairmanPhoto(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি সভাপতির ছবি মুছে ফেলতে চান?")){
     if(db.chairman) db.chairman.imageUrl = "";
     await save();
@@ -1617,6 +1696,7 @@ async function saveHeadTeacherMessage(){
 }
 
 async function removeHeadTeacherPhoto(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি প্রধান শিক্ষকের ছবি মুছে ফেলতে চান?")){
     if(db.headTeacher) db.headTeacher.imageUrl = "";
     await save();
@@ -1679,6 +1759,7 @@ async function addNotice(){
 }
 
 async function editNotice(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.notices[index];
   if(!item) return;
   const newTitle = prompt("নোটিশের নতুন শিরোনাম:", item.title);
@@ -1690,6 +1771,7 @@ async function editNotice(index){
 }
 
 async function deleteNotice(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই নোটিশটি মুছে ফেলতে চান?")){
     db.notices.splice(index, 1);
     await save();
@@ -1737,6 +1819,7 @@ async function addAchievement(){
 }
 
 async function editAchievement(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.achievements[index];
   if(!item) return;
   const newTitle = prompt("অর্জনের নতুন শিরোনাম:", item.title);
@@ -1748,6 +1831,7 @@ async function editAchievement(index){
 }
 
 async function deleteAchievement(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই অর্জনটি মুছে ফেলতে চান?")){
     db.achievements.splice(index, 1);
     await save();
@@ -1785,6 +1869,7 @@ async function addGallery(){
 }
 
 async function editGallery(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const item = db.gallery[index];
   if(!item) return;
   const newTitle = prompt("ছবির নতুন শিরোনাম:", item.title);
@@ -1796,6 +1881,7 @@ async function editGallery(index){
 }
 
 async function deleteGallery(index){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই ছবিটি গ্যালারি থেকে মুছে ফেলতে চান?")){
     db.gallery.splice(index, 1);
     await save();
