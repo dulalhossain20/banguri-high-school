@@ -49,21 +49,78 @@ footer{background:#102b46;color:#dbe8f5;padding:25px 0}.small{font-size:13px}
 
 <main class="wrap" id="app"></main>
 
-<footer><div class="wrap">
-  <b>বাঙ্গুরী উচ্চ বিদ্যালয়</b><br>
-  <span class="small">দেবিদ্বার, কুমিল্লা | শিক্ষা • শৃঙ্খলা • মানবিকতা • প্রযুক্তি</span>
+<footer><div class="wrap" style="text-align:center">
+  <b>ব্যবস্থাপনায়: মোঃ দুলাল হোসেন</b>
 </div></footer>
 
 <script>
 const KEY="banguriSchoolFreshV2";
+const DB_NAME="BanguriSchoolDB";
+const STORE_NAME="appState";
+let idb=null;
+
+function initDB(){
+  return new Promise(resolve=>{
+    if(!window.indexedDB) return resolve(false);
+    try {
+      const req=indexedDB.open(DB_NAME,1);
+      req.onupgradeneeded=e=>{
+        const d=e.target.result;
+        if(!d.objectStoreNames.contains(STORE_NAME)){
+          d.createObjectStore(STORE_NAME);
+        }
+      };
+      req.onsuccess=e=>{
+        idb=e.target.result;
+        resolve(true);
+      };
+      req.onerror=()=>resolve(false);
+    } catch(err){ resolve(false); }
+  });
+}
+
+function loadFromIDB(){
+  return new Promise(resolve=>{
+    if(!idb) return resolve(null);
+    try {
+      const tx=idb.transaction(STORE_NAME,"readonly");
+      const store=tx.objectStore(STORE_NAME);
+      const req=store.get("state");
+      req.onsuccess=()=>resolve(req.result||null);
+      req.onerror=()=>resolve(null);
+    } catch(err){ resolve(null); }
+  });
+}
+
+function saveToIDB(data){
+  return new Promise(resolve=>{
+    if(!idb) return resolve(false);
+    try {
+      const tx=idb.transaction(STORE_NAME,"readwrite");
+      const store=tx.objectStore(STORE_NAME);
+      store.put(data,"state");
+      tx.oncomplete=()=>resolve(true);
+      tx.onerror=()=>resolve(false);
+    } catch(err){ resolve(false); }
+  });
+}
+
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
  notices:[], results:[], teachers:[], gallery:[],
  school:{history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"}
 };
-const save=()=>localStorage.setItem(KEY,JSON.stringify(db));
+
+const save=async()=>{
+  try{
+    localStorage.setItem(KEY,JSON.stringify(db));
+  }catch(e){
+    console.warn("LocalStorage quota exceeded, relying on IndexedDB");
+  }
+  await saveToIDB(db);
+};
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
 function home(){
- app.innerHTML=`<section class="hero"><h1>বাঙ্গুরী উচ্চ বিদ্যালয়</h1><p>দেবিদ্বার, কুমিল্লা</p><p>শিক্ষা • শৃঙ্খলা • মানবিকতা • প্রযুক্তি</p>
+ app.innerHTML=`<section class="hero"><p style="font-size:18px;font-weight:bold;color:var(--blue);margin-top:0;margin-bottom:8px">শিক্ষা • শৃঙ্খলা • মানবিকতা • প্রযুক্তি</p>
  <div class="actions" style="margin-top:15px"><button class="btn" onclick="results()">ফলাফল দেখুন</button><button class="btn secondary" onclick="notices()">নোটিশ দেখুন</button></div></section>
  <div class="grid">
  <div class="card"><h3>📢 নোটিশ</h3><p class="muted">বিদ্যালয়ের সর্বশেষ বিজ্ঞপ্তি ও গুরুত্বপূর্ণ ঘোষণা।</p><button class="btn" onclick="notices()">নোটিশ বোর্ড</button></div>
@@ -80,97 +137,460 @@ function school(){
 }
 function notices(){
  app.innerHTML=`<div class="card"><h2>📢 নোটিশ বোর্ড</h2>
- ${db.notices.length?db.notices.map(n=>`<div class="card"><h3>${esc(n.title)}</h3><p>${esc(n.body).replace(/\n/g,"<br>")}</p><small class="muted">${esc(n.date)}</small></div>`).join(""):"<p class='muted'>এখনও কোনো নোটিশ প্রকাশিত হয়নি।</p>"}</div>`;
+ ${db.notices.length?db.notices.map(n=>`
+   <div class="card">
+     <h3>${esc(n.title)}</h3>
+     <p>${esc(n.body).replace(/\n/g,"<br>")}</p>
+     ${n.pdfUrl ? `<div style="margin:10px 0"><a href="${esc(n.pdfUrl)}" target="_blank" download="${esc(n.title)}.pdf" class="btn secondary" style="display:inline-block">📄 সংযুক্ত PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
+     <small class="muted">প্রকাশের তারিখ: ${esc(n.date)}</small>
+   </div>`).join(""):"<p class='muted'>এখনও কোনো নোটিশ প্রকাশিত হয়নি।</p>"}</div>`;
 }
+const CLASS_SUBJECTS = {
+  "৬ষ্ঠ": ["বাংলা", "ইংরেজি", "গণিত", "বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "কৃষি / গার্হস্থ্য শিক্ষা"],
+  "৭ম": ["বাংলা", "ইংরেজি", "গণিত", "বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "কৃষি / গার্হস্থ্য শিক্ষা"],
+  "৮ম": ["বাংলা", "ইংরেজি", "গণিত", "বিজ্ঞান", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "কৃষি / গার্হস্থ্য শিক্ষা"],
+  "৯ম": {
+    "বিজ্ঞান": ["বাংলা ১ম", "বাংলা ২য়", "ইংরেজি ১ম", "ইংরেজি ২য়", "গণিত", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান", "উচ্চতর গণিত", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি"],
+    "মানবিক": ["বাংলা ১ম", "বাংলা ২য়", "ইংরেজি ১ম", "ইংরেজি ২য়", "গণিত", "বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা", "ভূগোল ও পরিবেশ", "পৌরনীতি ও নাগরিকতা", "সাধারণ বিজ্ঞান", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "কৃষি / গার্হস্থ্য শিক্ষা"],
+    "ব্যবসায় শিক্ষা": ["বাংলা ১ম", "বাংলা ২য়", "ইংরেজি ১ম", "ইংরেজি ২য়", "গণিত", "হিসাববিজ্ঞান", "ফিন্যান্স ও ব্যাংকিং", "ব্যবসায় উদ্যোগ", "সাধারণ বিজ্ঞান", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "কৃষি / গার্হস্থ্য শিক্ষা"]
+  },
+  "১০ম": {
+    "বিজ্ঞান": ["বাংলা ১ম", "বাংলা ২য়", "ইংরেজি ১ম", "ইংরেজি ২য়", "গণিত", "পদার্থবিজ্ঞান", "রসায়ন", "জীববিজ্ঞান", "উচ্চতর গণিত", "বাংলাদেশ ও বিশ্বপরিচয়", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি"],
+    "মানবিক": ["বাংলা ১ম", "বাংলা ২য়", "ইংরেজি ১ম", "ইংরেজি ২য়", "গণিত", "বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা", "ভূগোল ও পরিবেশ", "পৌরনীতি ও নাগরিকতা", "সাধারণ বিজ্ঞান", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "কৃষি / গার্হস্থ্য শিক্ষা"],
+    "ব্যবসায় শিক্ষা": ["বাংলা ১ম", "বাংলা ২য়", "ইংরেজি ১ম", "ইংরেজি ২য়", "গণিত", "হিসাববিজ্ঞান", "ফিন্যান্স ও ব্যাংকিং", "ব্যবসায় উদ্যোগ", "সাধারণ বিজ্ঞান", "ধর্ম ও নৈতিক শিক্ষা", "তথ্য ও যোগাযোগ প্রযুক্তি", "কৃষি / গার্হস্থ্য শিক্ষা"]
+  }
+};
+
 function results(){
  app.innerHTML=`<div class="card"><h2>📊 ফলাফল অনুসন্ধান</h2>
  <label>পরীক্ষার ধরন</label><select id="exam"><option>বার্ষিক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>নির্বাচনী পরীক্ষা</option><option>মডেল টেস্ট</option></select>
- <div class="row"><div><label>শ্রেণি</label><select id="cls"><option>৬ষ্ঠ</option><option>৭ম</option><option>৮ম</option><option>৯ম</option><option>১০ম</option></select></div>
- <div><label>শিক্ষাবর্ষ</label><input id="year" value="২০২৬"></div></div>
- <label>রোল নম্বর</label><input id="roll" inputmode="numeric" placeholder="রোল লিখুন">
+ <div class="row">
+   <div><label>শ্রেণি</label><select id="cls" onchange="toggleGroupSelect('cls','groupWrap')"><option value="৬ষ্ঠ">৬ষ্ঠ</option><option value="৭ম">৭ম</option><option value="৮ম">৮ম</option><option value="৯ম">৯ম</option><option value="১০ম">১০ম</option></select></div>
+   <div id="groupWrap" style="display:none"><label>বিভাগ (গ্রুপ)</label><select id="grp"><option value="বিজ্ঞান">বিজ্ঞান</option><option value="মানবিক">মানবিক</option><option value="ব্যবসায় শিক্ষা">ব্যবসায় শিক্ষা</option></select></div>
+ </div>
+ <label>শিক্ষাবর্ষ</label><input id="year" value="২০২৬">
+ <label>রোল নম্বর</label><input id="roll" inputmode="numeric" placeholder="রোল নম্বর লিখুন">
  <button class="btn" onclick="findResult()">ফলাফল দেখুন</button></div><div id="result"></div>`;
+ toggleGroupSelect('cls','groupWrap');
 }
+
+function toggleGroupSelect(clsId, wrapId){
+  const c = document.getElementById(clsId)?.value;
+  const wrap = document.getElementById(wrapId);
+  if(!wrap) return;
+  if(c === "৯ম" || c === "১০ম"){
+    wrap.style.display = "block";
+  } else {
+    wrap.style.display = "none";
+  }
+}
+
 function grade(m){m=+m;return m>=80?"A+":m>=70?"A":m>=60?"A-":m>=50?"B":m>=40?"C":m>=33?"D":"F"}
 function point(m){m=+m;return m>=80?5:m>=70?4:m>=60?3.5:m>=50?3:m>=40?2:m>=33?1:0}
+
 function findResult(){
  const r=document.getElementById("roll").value.trim(), e=document.getElementById("exam").value, c=document.getElementById("cls").value, y=document.getElementById("year").value.trim();
- const x=db.results.find(a=>String(a.roll)==r&&a.exam==e&&a.className==c&&a.year==y);
+ let g="";
+ if(c==="৯ম" || c==="১০ম"){
+   g=document.getElementById("grp").value;
+ }
+ if(!r){
+   alert("দয়া করে রোল নম্বর প্রবেশ করান।");
+   return;
+ }
+ const x=db.results.find(a=>String(a.roll)==r && a.exam==e && a.className==c && a.year==y && (c!=="৯ম"&&c!=="১০ম" || !a.group || a.group==g));
  if(!x){document.getElementById("result").innerHTML=`<div class="notice">এই পরীক্ষার জন্য রোল ${esc(r)}-এর ফলাফল পাওয়া যায়নি।</div>`;return}
- let rows=Object.entries(x.subjects).map(([s,m])=>`<tr><td>${esc(s)}</td><td>100</td><td>${m}</td><td>${grade(m)}</td></tr>`).join("");
+ let rows=Object.entries(x.subjects).map(([s,m])=>`<tr><td>${esc(s)}</td><td>100</td><td>${m}</td><td>${grade(m)}</td><td>${point(m).toFixed(2)}</td></tr>`).join("");
  document.getElementById("result").innerHTML=`<div class="card"><h2 style="text-align:center">বাঙ্গুরী উচ্চ বিদ্যালয়</h2>
  <p style="text-align:center">${esc(x.exam)} — ${esc(x.year)}</p>
- <p><b>শিক্ষার্থীর নাম:</b> ${esc(x.name)}<br><b>শ্রেণি:</b> ${esc(x.className)} &nbsp; <b>রোল:</b> ${esc(x.roll)}</p>
- <div class="tablewrap"><table><tr><th>বিষয়</th><th>পূর্ণমান</th><th>প্রাপ্ত নম্বর</th><th>গ্রেড</th></tr>${rows}</table></div>
- <p><b>মোট নম্বর:</b> ${x.total} &nbsp; <b>GPA:</b> ${x.gpa} &nbsp; <b>ফলাফল:</b> <span class="${x.pass?'ok':'fail'}">${x.pass?'PASSED':'FAILED'}</span></p>
- <button class="btn no-print" onclick="window.print()">🖨 Print</button></div>`;
+ <p><b>শিক্ষার্থীর নাম:</b> ${esc(x.name)}<br><b>শ্রেণি:</b> ${esc(x.className)} ${x.group?`(${esc(x.group)})`:''} &nbsp; <b>রোল:</b> ${esc(x.roll)}</p>
+ <div class="tablewrap"><table><tr><th>বিষয়</th><th>পূর্ণমান</th><th>প্রাপ্ত নম্বর</th><th>গ্রেড</th><th>গ্রেড পয়েন্ট</th></tr>${rows}</table></div>
+ <p style="margin-top:15px;font-size:16px"><b>মোট নম্বর:</b> ${x.total} &nbsp; <b>GPA:</b> ${x.gpa} &nbsp; <b>ফলাফল:</b> <span class="${x.pass?'ok':'fail'}">${x.pass?'PASSED':'FAILED'}</span></p>
+ <button class="btn no-print" onclick="window.print()">🖨 Print Marksheet</button></div>`;
 }
 
 function teachers(){
  app.innerHTML=`<div class="card"><h2>👨‍🏫 শিক্ষক ও কর্মচারী</h2>${db.teachers.length?`<div class="grid">${db.teachers.map(t=>`<div class="card"><h3>${esc(t.name)}</h3><p><b>${esc(t.designation)}</b></p><p class="muted">${esc(t.qualification||'')}</p></div>`).join('')}</div>`:'<p class="muted">শিক্ষক তালিকা শিগগিরই যুক্ত করা হবে।</p>'}</div>`;
 }
 function gallery(){
- app.innerHTML=`<div class="card"><h2>📸 ফটো গ্যালারি</h2>${db.gallery.length?`<div class="grid">${db.gallery.map(g=>`<div class="card"><img src="${esc(g.url)}" alt="${esc(g.title)}" style="width:100%;border-radius:12px"><h3>${esc(g.title)}</h3></div>`).join('')}</div>`:'<p class="muted">এখনও কোনো ছবি যুক্ত করা হয়নি।</p>'}</div>`;
+ app.innerHTML=`<div class="card"><h2>📸 ফটো গ্যালারি</h2>${db.gallery.length?`<div class="grid">${db.gallery.map(g=>`<div class="card"><img src="${esc(g.url)}" alt="${esc(g.title)}" style="width:100%;height:220px;object-fit:cover;border-radius:12px"><h3>${esc(g.title)}</h3></div>`).join('')}</div>`:'<p class="muted">এখনও কোনো ছবি যুক্ত করা হয়নি।</p>'}</div>`;
 }
 function downloads(){
- app.innerHTML=`<div class="card"><h2>📥 ডাউনলোড</h2><div class="grid"><div class="card"><h3>📊 ফলাফল Excel Template</h3><p class="muted">Admin থেকে ফলাফল আপলোডের জন্য ব্যবহার করুন।</p><button class="btn" onclick="downloadTemplate()">Excel Download</button></div><div class="card"><h3>📄 প্রয়োজনীয় ফাইল</h3><p class="muted">ভবিষ্যতে বিদ্যালয়ের ফরম ও PDF এখানে যুক্ত করা যাবে।</p></div></div></div>`;
+ let templatesHtml = `
+ <div class="card">
+   <h2>📥 ফলাফল Excel টেমপ্লেট ডাউনলোড (Classes 6–10)</h2>
+   <p class="muted">ফলাফল এন্ট্রি করার জন্য স্ব-স্ব শ্রেণি ও গ্রুপের জন্য উপযুক্ত Excel (.xlsx) টেমপ্লেট ডাউনলোড করুন:</p>
+   <div class="grid" style="margin-top:15px">
+     <div class="card">
+       <h3>৬ষ্ঠ শ্রেণি</h3>
+       <button class="btn" onclick="downloadSpecificTemplate('৬ষ্ঠ')">📥 টেমপ্লেট ডাউনলোড</button>
+     </div>
+     <div class="card">
+       <h3>৭ম শ্রেণি</h3>
+       <button class="btn" onclick="downloadSpecificTemplate('৭ম')">📥 টেমপ্লেট ডাউনলোড</button>
+     </div>
+     <div class="card">
+       <h3>৮ম শ্রেণি</h3>
+       <button class="btn" onclick="downloadSpecificTemplate('৮ম')">📥 টেমপ্লেট ডাউনলোড</button>
+     </div>
+     <div class="card">
+       <h3>৯ম শ্রেণি (বিজ্ঞান)</h3>
+       <button class="btn" onclick="downloadSpecificTemplate('৯ম','বিজ্ঞান')">📥 টেমপ্লেট ডাউনলোড</button>
+     </div>
+     <div class="card">
+       <h3>৯ম শ্রেণি (মানবিক)</h3>
+       <button class="btn" onclick="downloadSpecificTemplate('৯ম','মানবিক')">📥 টেমপ্লেট ডাউনলোড</button>
+     </div>
+     <div class="card">
+       <h3>৯ম শ্রেণি (ব্যবসায় শিক্ষা)</h3>
+       <button class="btn" onclick="downloadSpecificTemplate('৯ম','ব্যবসায় শিক্ষা')">📥 টেমপ্লেট ডাউনলোড</button>
+     </div>
+     <div class="card">
+       <h3>১০ম শ্রেণি (বিজ্ঞান)</h3>
+       <button class="btn" onclick="downloadSpecificTemplate('১০ম','বিজ্ঞান')">📥 টেমপ্লেট ডাউনলোড</button>
+     </div>
+     <div class="card">
+       <h3>১০ম শ্রেণি (মানবিক)</h3>
+       <button class="btn" onclick="downloadSpecificTemplate('১০ম','মানবিক')">📥 টেমপ্লেট ডাউনলোড</button>
+     </div>
+     <div class="card">
+       <h3>১০ম শ্রেণি (ব্যবসায় শিক্ষা)</h3>
+       <button class="btn" onclick="downloadSpecificTemplate('১০ম','ব্যবসায় শিক্ষা')">📥 টেমপ্লেট ডাউনলোড</button>
+     </div>
+   </div>
+ </div>
+ <div class="card">
+   <h2>📄 গুরুত্বপূর্ণ নোটিশ ও ফাইল</h2>
+   <div id="noticeFilesList">` +
+   (db.notices.filter(n=>n.pdfUrl).length ?
+     db.notices.filter(n=>n.pdfUrl).map(n=>`<div class="notice"><b>${esc(n.title)}</b> (${esc(n.date)})<br><a href="${esc(n.pdfUrl)}" target="_blank" download="${esc(n.title)}.pdf" class="btn secondary" style="display:inline-block;margin-top:8px">📄 PDF ডাউনলোড / দেখুন</a></div>`).join('')
+     : '<p class="muted">বর্তমানে কোনো সংযোজিত PDF নোটিশ নেই।</p>')
+   + `</div>
+ </div>`;
+ app.innerHTML = templatesHtml;
+}
+
+function downloadSpecificTemplate(cls, grp=""){
+  const subjects = (cls==="৯ম" || cls==="১০ম") ? CLASS_SUBJECTS[cls][grp] : CLASS_SUBJECTS[cls];
+  if(!subjects){
+    alert("শ্রেণি ও গ্রুপের তথ্য সঠিকভাবে প্রদান করুন।");
+    return;
+  }
+  const headers = ["Roll", "Student Name", ...subjects];
+  const sampleData = ["101", "মোঃ রহিম", ...subjects.map(()=>80)];
+  const wsData = [headers, sampleData];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "ResultTemplate");
+  const filename = `Banguri_Result_Template_${cls}${grp ? '_' + grp : ''}.xlsx`;
+  XLSX.writeFile(wb, filename);
 }
 function contact(){
  app.innerHTML=`<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> বাঙ্গুরী উচ্চ বিদ্যালয়</p><p><b>ঠিকানা:</b> ${esc(db.school.contact)}</p><p><b>ই-মেইল:</b> বিদ্যালয়ের অফিসিয়াল ই-মেইল এখানে যুক্ত করা যাবে।</p><p><b>ফোন:</b> বিদ্যালয়ের অফিসিয়াল নম্বর এখানে যুক্ত করা যাবে।</p></div>`;
 }
 function admin(){
  if(sessionStorage.getItem("banguriAdmin")!=="yes"){
-   app.innerHTML=`<div class="card"><h2>🔐 Admin Login</h2><p class="muted">এই ডেমো সংস্করণে Admin Panel-এর জন্য পাসওয়ার্ড প্রয়োজন।</p>
+   app.innerHTML=`<div class="card"><h2>🔐 Admin Login</h2><p class="muted">প্রশাসক প্যানেলে প্রবেশের জন্য পাসওয়ার্ড প্রদান করুন।</p>
    <label>পাসওয়ার্ড</label><input id="pw" type="password" placeholder="পাসওয়ার্ড">
    <button class="btn" onclick="loginAdmin()">Login</button></div>`; return;
  }
  app.innerHTML=`<div class="card"><div class="actions"><h2 style="margin-right:auto">⚙ Admin Panel</h2><button class="btn secondary" onclick="logoutAdmin()">Logout</button></div></div>
- <div class="card"><h2>📢 নোটিশ যোগ করুন</h2><label>শিরোনাম</label><input id="nt"><label>বিস্তারিত</label><textarea id="nb" rows="5"></textarea><button class="btn" onclick="addNotice()">প্রকাশ করুন</button></div>
- <div class="card"><h2>📊 Excel/CSV ফলাফল Import</h2>
- <p class="muted">Excel (.xlsx/.xls) বা CSV ফাইল থেকে ফলাফল যুক্ত করুন।</p>
- <div class="row"><div><label>পরীক্ষার ধরন</label><select id="ae"><option>বার্ষিক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>নির্বাচনী পরীক্ষা</option><option>মডেল টেস্ট</option></select></div>
- <div><label>শ্রেণি</label><select id="ac"><option>৬ষ্ঠ</option><option>৭ম</option><option>৮ম</option><option>৯ম</option><option>১০ম</option></select></div></div>
- <label>শিক্ষাবর্ষ</label><input id="ay" value="২০২৬"><label>Excel/CSV ফাইল</label><input id="file" type="file" accept=".xlsx,.xls,.csv">
- <button class="btn" onclick="importResults()">Upload & Process</button><p id="msg" class="muted"></p></div>
+ <div class="card"><h2>📢 নোটিশ প্রকাশ করুন (PDF সংযুক্তিসহ)</h2>
+   <label>শিরোনাম</label><input id="nt">
+   <label>বিস্তারিত বিবরণ</label><textarea id="nb" rows="4"></textarea>
+   <label>PDF ফাইল সংযুক্তকরণ (ঐচ্ছিক)</label><input id="npdf" type="file" accept="application/pdf">
+   <button class="btn" onclick="addNotice()">প্রকাশ করুন</button>
+ </div>
+ <div class="card"><h2>📊 Excel/CSV ফলাফল Import (Classes 6–10)</h2>
+   <p class="muted">উপযুক্ত টেমপ্লেট ব্যবহার করে শিক্ষার্থীদের বিষয়ভিত্তিক নম্বর নির্বাচনপূর্বক আপলোড করুন।</p>
+   <div class="row">
+     <div><label>পরীক্ষার ধরন</label><select id="ae"><option>বার্ষিক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>নির্বাচনী পরীক্ষা</option><option>মডেল টেস্ট</option></select></div>
+     <div><label>শ্রেণি</label><select id="ac" onchange="toggleGroupSelect('ac','agroupWrap')"><option value="৬ষ্ঠ">৬ষ্ঠ</option><option value="৭ম">৭ম</option><option value="৮ম">৮ম</option><option value="৯ম">৯ম</option><option value="১০ম">১০ম</option></select></div>
+   </div>
+   <div id="agroupWrap" style="display:none"><label>বিভাগ (গ্রুপ)</label><select id="agrp"><option value="বিজ্ঞান">বিজ্ঞান</option><option value="মানবিক">মানবিক</option><option value="ব্যবসায় শিক্ষা">ব্যবসায় শিক্ষা</option></select></div>
+   <label>শিক্ষাবর্ষ</label><input id="ay" value="২০২৬">
+   <label>Excel (.xlsx) / CSV ফাইল</label><input id="file" type="file" accept=".xlsx,.xls,.csv">
+   <button class="btn" onclick="importResults()">Upload & Import Results</button>
+   <div id="msg" style="margin-top:10px"></div>
+ </div>
+ <div class="card"><h2>📸 গ্যালারিতে ছবি যোগ করুন (Direct Image Picker)</h2>
+   <label>ছবির শিরোনাম / বিষয়</label><input id="gn">
+   <label>ছবি নির্বাচন করুন (JPG, PNG, WebP)</label><input id="gfile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewImage(this,'gpreview')">
+   <div id="gpreview" style="margin:10px 0"></div>
+   <button class="btn" onclick="addGallery()">গ্যালারিতে যুক্ত করুন</button>
+ </div>
  <div class="card"><h2>👨‍🏫 শিক্ষক যোগ করুন</h2><label>নাম</label><input id="tn"><label>পদবি</label><input id="td"><label>যোগ্যতা</label><input id="tq"><button class="btn" onclick="addTeacher()">যোগ করুন</button></div>
- <div class="card"><h2>📸 গ্যালারি ছবি যোগ করুন</h2><label>ছবির নাম</label><input id="gn"><label>Image URL</label><input id="gu" placeholder="https://..."><button class="btn" onclick="addGallery()">যোগ করুন</button></div>
- <div class="card"><h2>🏫 বিদ্যালয়ের তথ্য</h2><label>ইতিহাস</label><textarea id="hist" rows="4">${esc(db.school.history)}</textarea><label>লক্ষ্য ও উদ্দেশ্য</label><textarea id="mission" rows="4">${esc(db.school.mission)}</textarea><label>যোগাযোগ</label><textarea id="contact" rows="3">${esc(db.school.contact)}</textarea><button class="btn" onclick="saveSchool()">সংরক্ষণ</button></div>
- <div class="card"><h2>ডেটা</h2><p>নোটিশ: <b>${db.notices.length}</b> | ফলাফল: <b>${db.results.length}</b> | শিক্ষক: <b>${db.teachers.length}</b> | ছবি: <b>${db.gallery.length}</b></p><button class="btn secondary" onclick="downloadTemplate()">Result Template Download</button></div>`;
+ <div class="card"><h2>🏫 বিদ্যালয়ের তথ্য সম্পাদনা</h2><label>ইতিহাস</label><textarea id="hist" rows="4">${esc(db.school.history)}</textarea><label>লক্ষ্য ও উদ্দেশ্য</label><textarea id="mission" rows="4">${esc(db.school.mission)}</textarea><label>যোগাযোগ</label><textarea id="contact" rows="3">${esc(db.school.contact)}</textarea><button class="btn" onclick="saveSchool()">সংরক্ষণ</button></div>
+ <div class="card"><h2>📊 সংরক্ষিত ডেটা সারসংক্ষেপ</h2><p>নোটিশ: <b>${db.notices.length}</b> | ফলাফল রেকর্ড: <b>${db.results.length}</b> | শিক্ষক: <b>${db.teachers.length}</b> | ছবির সংখ্যা: <b>${db.gallery.length}</b></p><button class="btn secondary" onclick="downloads()">Excel টেমপ্লেটসমূহ দেখুন</button></div>`;
+ toggleGroupSelect('ac','agroupWrap');
 }
 function loginAdmin(){if(document.getElementById("pw").value==="banguri123"){sessionStorage.setItem("banguriAdmin","yes");admin()}else alert("ভুল পাসওয়ার্ড");}
 function logoutAdmin(){sessionStorage.removeItem("banguriAdmin");admin()}
-function addNotice(){const t=document.getElementById("nt").value.trim();if(!t)return alert("শিরোনাম দিন");db.notices.unshift({title:t,body:document.getElementById("nb").value,date:new Date().toLocaleDateString("bn-BD")});save();admin()}
+function previewImage(input, previewId){
+  const file = input.files[0];
+  const div = document.getElementById(previewId);
+  if(!file || !div) return;
+  if(file.size > 5 * 1024 * 1024){
+    alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
+    input.value = "";
+    div.innerHTML = "";
+    return;
+  }
+  const rd = new FileReader();
+  rd.onload = e => {
+    div.innerHTML = `<img src="${e.target.result}" style="max-width:180px;max-height:180px;border-radius:8px;border:1px solid #cbd6e0">`;
+  };
+  rd.readAsDataURL(file);
+}
+
+async function addNotice(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const t=document.getElementById("nt").value.trim();
+  const b=document.getElementById("nb").value.trim();
+  if(!t) return alert("নোটিশের শিরোনাম প্রদান করুন।");
+
+  const pdfInput = document.getElementById("npdf");
+  let pdfDataUrl = null;
+  if(pdfInput && pdfInput.files && pdfInput.files[0]){
+    const file = pdfInput.files[0];
+    if(file.type !== "application/pdf"){
+      return alert("সংযুক্তি অবশ্যই একটি PDF ফাইল হতে হবে।");
+    }
+    if(file.size > 10 * 1024 * 1024){
+      return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।");
+    }
+    pdfDataUrl = await new Promise(resolve => {
+      const rd = new FileReader();
+      rd.onload = e => resolve(e.target.result);
+      rd.readAsDataURL(file);
+    });
+  }
+
+  db.notices.unshift({
+    title: t,
+    body: b,
+    date: new Date().toLocaleDateString("bn-BD"),
+    pdfUrl: pdfDataUrl
+  });
+  await save();
+  alert("নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
+  admin();
+}
+
 function addTeacher(){const n=document.getElementById("tn").value.trim();if(!n)return alert("নাম দিন");db.teachers.push({name:n,designation:document.getElementById("td").value,qualification:document.getElementById("tq").value});save();admin()}
-function addGallery(){const n=document.getElementById("gn").value.trim(),u=document.getElementById("gu").value.trim();if(!n||!u)return alert("নাম ও Image URL দিন");db.gallery.push({title:n,url:u});save();admin()}
+
+async function addGallery(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const n=document.getElementById("gn").value.trim();
+  const fileInput = document.getElementById("gfile");
+  if(!n) return alert("ছবির বিষয়/শিরোনাম প্রদান করুন।");
+  if(!fileInput || !fileInput.files || !fileInput.files[0]){
+    return alert("ছবি নির্বাচন করুন (Direct Image Picker)।");
+  }
+  const file = fileInput.files[0];
+  if(!["image/jpeg", "image/png", "image/webp"].includes(file.type)){
+    return alert("কেবলমাত্র JPG, PNG বা WebP ফরম্যাটের ছবি আপলোড করা যাবে।");
+  }
+  if(file.size > 5 * 1024 * 1024){
+    return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
+  }
+
+  const imgDataUrl = await new Promise(resolve => {
+    const rd = new FileReader();
+    rd.onload = e => resolve(e.target.result);
+    rd.readAsDataURL(file);
+  });
+
+  db.gallery.push({ title: n, url: imgDataUrl });
+  await save();
+  alert("গ্যালারিতে ছবি সফলভাবে যুক্ত হয়েছে।");
+  admin();
+}
 function saveSchool(){db.school.history=document.getElementById("hist").value;db.school.mission=document.getElementById("mission").value;db.school.contact=document.getElementById("contact").value;save();alert("সংরক্ষণ হয়েছে");admin()}
-function importResults(){
+async function importResults(){
+ if(sessionStorage.getItem("banguriAdmin")!=="yes"){
+   alert("অনুমতি প্রয়োজন।"); return;
+ }
  const f=document.getElementById("file").files[0]; if(!f)return alert("Excel/CSV ফাইল নির্বাচন করুন");
- const exam=document.getElementById("ae").value, cls=document.getElementById("ac").value, year=document.getElementById("ay").value.trim();
+ const exam=document.getElementById("ae").value;
+ const cls=document.getElementById("ac").value;
+ const year=document.getElementById("ay").value.trim();
+ const grp=(cls==="৯ম" || cls==="১০ম") ? document.getElementById("agrp").value : "";
+ const msgDiv = document.getElementById("msg");
+ msgDiv.innerHTML = "<p class='muted'>ফাইল প্রসেসিং হচ্ছে...</p>";
+
+ const expectedSubjects = (cls==="৯ম" || cls==="১০ম") ? CLASS_SUBJECTS[cls][grp] : CLASS_SUBJECTS[cls];
+ if(!expectedSubjects){
+   msgDiv.innerHTML = "<p class='fail'>অবৈধ শ্রেণি বা গ্রুপ নির্বাচন করা হয়েছে।</p>";
+   return;
+ }
+
  const rd=new FileReader();
- rd.onload=e=>{
+ rd.onload=async e=>{
    try{
      let rows=[];
      if(f.name.toLowerCase().endsWith(".csv")){
-       const text=e.target.result.replace(/\r/g,"").trim(); const lines=text.split("\n"); const head=lines.shift().split(",").map(x=>x.trim());
-       rows=lines.filter(Boolean).map(line=>{const c=line.split(",");const o={};head.forEach((h,i)=>o[h]=(c[i]||"").trim());return o});
+       const text=e.target.result.replace(/\r/g,"").trim();
+       const lines=text.split("\n");
+       const head=lines.shift().split(",").map(x=>x.trim().replace(/^"|"$/g,''));
+       rows=lines.filter(Boolean).map(line=>{
+         const c=line.split(",").map(x=>x.trim().replace(/^"|"$/g,''));
+         const o={}; head.forEach((h,i)=>o[h]=(c[i]||"").trim()); return o;
+       });
      }else{
-       const wb=XLSX.read(e.target.result,{type:"array"}); const ws=wb.Sheets[wb.SheetNames[0]]; rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+       const wb=XLSX.read(e.target.result,{type:"array"});
+       const ws=wb.Sheets[wb.SheetNames[0]];
+       rows=XLSX.utils.sheet_to_json(ws,{defval:""});
      }
-     let count=0;
-     for(const o of rows){
-       const subjects={}; ["Bangla","English","Mathematics","Science","BGS","Religion","ICT","Fourth Subject"].forEach(k=>{if(o[k]!==""&&o[k]!==undefined&&!isNaN(o[k]))subjects[k]=Number(o[k])});
-       const vals=Object.values(subjects); if(!o.Roll||!o["Student Name"]||!vals.length)continue;
-       const total=vals.reduce((a,b)=>a+b,0), g=(vals.reduce((a,b)=>a+point(b),0)/vals.length).toFixed(2);
-       db.results.push({roll:String(o.Roll),name:String(o["Student Name"]),exam,className:cls,year,subjects,total,gpa:g,pass:vals.every(v=>v>=33)});count++;
+
+     if(!rows || !rows.length){
+       msgDiv.innerHTML = "<p class='fail'>ফাইলটিতে কোনো তথ্য পাওয়া যায়নি।</p>";
+       return;
      }
-     save(); document.getElementById("msg").innerText=count+" জনের ফলাফল সফলভাবে প্রসেস হয়েছে।"; admin();
-   }catch(err){alert("ফাইলটি পড়তে সমস্যা হয়েছে। Template অনুযায়ী Excel/CSV দিন।")}
+
+     // Validate headers
+     const firstRowKeys = Object.keys(rows[0]).map(k=>k.trim());
+     const hasRoll = firstRowKeys.some(k=>/roll/i.test(k) || k==="রোল");
+     const hasName = firstRowKeys.some(k=>/name/i.test(k) || k==="নাম" || /student/i.test(k));
+
+     if(!hasRoll || !hasName){
+       msgDiv.innerHTML = "<p class='fail'>ফাইলে 'Roll' এবং 'Student Name' কলাম থাকা বাধ্যতামূলক।</p>";
+       return;
+     }
+
+     // Validate marks and duplicate rolls
+     const errors = [];
+     const seenRolls = new Set();
+     const parsedRecords = [];
+
+     for(let i=0; i<rows.length; i++){
+       const o = rows[i];
+       const rollKey = Object.keys(o).find(k=>/roll/i.test(k) || k==="রোল");
+       const nameKey = Object.keys(o).find(k=>/name/i.test(k) || k==="নাম" || /student/i.test(k));
+       const rollVal = String(o[rollKey]||"").trim();
+       const nameVal = String(o[nameKey]||"").trim();
+
+       if(!rollVal && !nameVal) continue; // skip blank row
+
+       if(!rollVal){
+         errors.push(`সারি ${i+2}: রোল নম্বর অনুপস্থিত।`);
+         continue;
+       }
+       if(!nameVal){
+         errors.push(`সারি ${i+2} (রোল ${rollVal}): শিক্ষার্থীর নাম অনুপস্থিত।`);
+         continue;
+       }
+       if(seenRolls.has(rollVal)){
+         errors.push(`আপলোডকৃত ফাইলে একই রোল (${rollVal}) একাধিকবার রয়েছে।`);
+       } else {
+         seenRolls.add(rollVal);
+       }
+
+       const studentSubjects = {};
+       let allPassed = true;
+
+       for(const subj of expectedSubjects){
+         // find matching key in row object
+         const matchedKey = Object.keys(o).find(k => k.trim() === subj.trim());
+         if(matchedKey === undefined || o[matchedKey] === ""){
+           errors.push(`রোল ${rollVal}-এর জন্য '${subj}' বিষয়ের নম্বর অনুপস্থিত।`);
+           continue;
+         }
+         const valNum = Number(o[matchedKey]);
+         if(isNaN(valNum) || valNum < 0 || valNum > 100){
+           errors.push(`রোল ${rollVal}-এর জন্য '${subj}' বিষয়ের নম্বর (${o[matchedKey]}) অবৈধ। নম্বর ০ থেকে ১০০-এর মধ্যে হতে হবে।`);
+         } else {
+           studentSubjects[subj] = valNum;
+           if(valNum < 33) allPassed = false;
+         }
+       }
+
+       const markVals = Object.values(studentSubjects);
+       const total = markVals.reduce((a,b)=>a+b, 0);
+       let overallGpa = "0.00";
+       if(allPassed && markVals.length === expectedSubjects.length){
+         const totalPoints = markVals.reduce((a,b)=>a+point(b), 0);
+         overallGpa = (totalPoints / markVals.length).toFixed(2);
+       } else {
+         allPassed = false;
+       }
+
+       parsedRecords.push({
+         roll: rollVal,
+         name: nameVal,
+         exam,
+         className: cls,
+         group: grp,
+         year,
+         subjects: studentSubjects,
+         total,
+         gpa: overallGpa,
+         pass: allPassed
+       });
+     }
+
+     if(errors.length > 0){
+       msgDiv.innerHTML = `<div class="notice" style="border-color:#d32f2f;background:#fde8e8"><b style="color:#b00020">ফাইল যাচাইকরণ ত্রুটি (${errors.length}):</b><br><ul style="margin:5px 0 0 20px;padding:0">${errors.map(err=>`<li>${esc(err)}</li>`).join('')}</ul></div>`;
+       return;
+     }
+
+     // Check existing conflicting records
+     const existingCount = db.results.filter(r => r.exam === exam && r.className === cls && r.year === year && (cls!=="৯ম"&&cls!=="১০ম" || r.group===grp) && seenRolls.has(String(r.roll))).length;
+
+     if(existingCount > 0){
+       const proceed = confirm(`${cls} ${grp?`(${grp})`:''} - ${exam} (${year})-এর ${existingCount} টি শিক্ষার্থীর ফলাফল পূর্বে সংরক্ষিত রয়েছে। আপনি কি এগুলো আপডেট/ওভাররাইট করতে চান?`);
+       if(!proceed){
+         msgDiv.innerHTML = "<p class='muted'>ইম্পোর্ট বাতিল করা হয়েছে।</p>";
+         return;
+       }
+     }
+
+     // Merge/Overwrite into db.results without damaging existing unrelated records
+     for(const rec of parsedRecords){
+       const idx = db.results.findIndex(r => r.exam === rec.exam && r.className === rec.className && r.year === rec.year && (cls!=="৯ম"&&cls!=="১০ম" || r.group===rec.group) && String(r.roll) === String(rec.roll));
+       if(idx >= 0){
+         db.results[idx] = rec;
+       } else {
+         db.results.push(rec);
+       }
+     }
+
+     await save();
+     msgDiv.innerHTML = `<p class="ok">সফলভাবে ${parsedRecords.length} জন শিক্ষার্থীর ফলাফল ইম্পোর্ট ও সংরক্ষণ করা হয়েছে!</p>`;
+     setTimeout(()=>admin(), 1200);
+   } catch(err){
+     msgDiv.innerHTML = `<p class="fail">ফাইল প্রসেস করতে সমস্যা হয়েছে: ${esc(err.message)}</p>`;
+   }
  };
- if(f.name.toLowerCase().endsWith(".csv"))rd.readAsText(f);else rd.readAsArrayBuffer(f);
+
+ if(f.name.toLowerCase().endsWith(".csv")){
+   rd.readAsText(f);
+ } else {
+   rd.readAsArrayBuffer(f);
+ }
 }
 function downloadTemplate(){
  const data=[["Roll","Student Name","Bangla","English","Mathematics","Science","BGS","Religion","ICT","Fourth Subject"],["101","Md Rahim",82,75,88,79,84,90,85,80]];
  const ws=XLSX.utils.aoa_to_sheet(data),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Results");XLSX.writeFile(wb,"banguri_result_template.xlsx");
 }
-home();
+(async function initApp(){
+  await initDB();
+  const idbData = await loadFromIDB();
+  if(idbData){
+    db = idbData;
+  } else {
+    await saveToIDB(db);
+  }
+  if(!db.notices) db.notices=[];
+  if(!db.results) db.results=[];
+  if(!db.teachers) db.teachers=[];
+  if(!db.gallery) db.gallery=[];
+  if(!db.school) db.school={
+    history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",
+    mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
+    contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"
+  };
+  home();
+})();
 </script>
 </body></html>
