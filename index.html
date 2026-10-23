@@ -301,11 +301,26 @@ function results(){
  <label>শিক্ষাবর্ষ</label><input id="year" value="২০২৬">
  <label>রোল নম্বর</label><input id="roll" inputmode="numeric" placeholder="রোল নম্বর লিখুন">
  <button class="btn" onclick="findResult()">ফলাফল দেখুন</button>
- <div style="margin-top:15px;padding-top:15px;border-top:1px solid #eee">
-   <b>📥 শিক্ষক ও ইম্পোর্টকারিদের জন্য ফাঁকা Excel টেমপ্লেট:</b><br>
-   <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
-     <a href="public/templates/six-template.xlsx" download="six-template.xlsx" class="btn secondary sm">📥 Classes 6-8 Template (.xlsx)</a>
-     <a href="public/templates/nine-template.xlsx" download="nine-template.xlsx" class="btn secondary sm">📥 Classes 9-10 Template (.xlsx)</a>
+ <div class="card" style="margin-top:20px">
+   <h2>📥 এক্সেল টেমপ্লেট ডাউনলোড (Download Excel Templates)</h2>
+   <p class="muted">ফলাফল এন্ট্রি করার জন্য নিচের ফাঁকা (Blank) Excel টেমপ্লেটসমূহ ডাউনলোড করুন:</p>
+   <div class="grid" style="margin-top:15px">
+     <div class="card" style="margin-bottom:0">
+       <h3>৬ষ্ঠ শ্রেণি</h3>
+       <a href="public/templates/six-template.xlsx" download="six-template.xlsx" class="btn" style="display:inline-block;text-decoration:none;text-align:center">📥 টেমপ্লেট ডাউনলোড</a>
+     </div>
+     <div class="card" style="margin-bottom:0">
+       <h3>৯ম শ্রেণি (বিজ্ঞান)</h3>
+       <a href="public/templates/nine-science-template.xlsx" download="nine-science-template.xlsx" class="btn" style="display:inline-block;text-decoration:none;text-align:center">📥 টেমপ্লেট ডাউনলোড</a>
+     </div>
+     <div class="card" style="margin-bottom:0">
+       <h3>৯ম শ্রেণি (মানবিক)</h3>
+       <a href="public/templates/nine-humanities-template.xlsx" download="nine-humanities-template.xlsx" class="btn" style="display:inline-block;text-decoration:none;text-align:center">📥 টেমপ্লেট ডাউনলোড</a>
+     </div>
+     <div class="card" style="margin-bottom:0">
+       <h3>৯ম শ্রেণি (ব্যবসায় শিক্ষা)</h3>
+       <a href="public/templates/nine-business-studies-template.xlsx" download="nine-business-studies-template.xlsx" class="btn" style="display:inline-block;text-decoration:none;text-align:center">📥 টেমপ্লেট ডাউনলোড</a>
+     </div>
    </div>
  </div>
  </div><div id="result"></div>`;
