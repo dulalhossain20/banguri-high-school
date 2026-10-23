@@ -87,9 +87,16 @@ footer{background:#102b46;color:#dbe8f5;padding:22px 0;border-top:3px solid var(
       <button class="navbtn" id="nav-syllabus" onclick="navigateTo('syllabus')">সিলেবাস</button>
       <button class="navbtn" id="nav-registration" onclick="navigateTo('registration')">রেজিষ্ট্রেশন</button>
       <button class="navbtn" id="nav-formfillup" onclick="navigateTo('formfillup')">ফর্ম ফিলাপ</button>
+      <button class="navbtn" id="nav-teachers" onclick="navigateTo('teachers')">শিক্ষক ও কর্মচারীদের তালিকা</button>
+      <button class="navbtn" id="nav-history" onclick="navigateTo('history')">বিদ্যালয়ের ইতিহাস</button>
+      <button class="navbtn" id="nav-routines" onclick="navigateTo('routines')">পরীক্ষার রুটিন</button>
+      <button class="navbtn" id="nav-ebooks" onclick="navigateTo('ebooks')">ই বুক</button>
+      <button class="navbtn" id="nav-calendar" onclick="navigateTo('calendar')">একাডেমিক ক্যালেন্ডার</button>
+      <button class="navbtn" id="nav-chairman" onclick="navigateTo('chairman')">সভাপতির বাণী</button>
+      <button class="navbtn" id="nav-headteacher" onclick="navigateTo('headteacher')">প্রধান শিক্ষকের বাণী</button>
       <button class="navbtn" id="nav-achievements" onclick="navigateTo('achievements')">বিদ্যালয়ের অর্জনসমূহ</button>
-      <button class="navbtn" id="nav-gallery" onclick="navigateTo('gallery')">ছবি গ্যালারি</button>
-      <button class="navbtn" id="nav-contact" onclick="navigateTo('contact')">যোগাযোগ</button>
+      <button class="navbtn" id="nav-gallery" onclick="navigateTo('gallery')">Photo Gallery</button>
+      <button class="navbtn" id="nav-contact" onclick="navigateTo('contact')">Contact</button>
       <button class="navbtn" id="nav-admin" onclick="navigateTo('admin')">Admin Panel</button>
     </nav>
   </div>
@@ -166,7 +173,9 @@ const DEFAULT_PASS_HASH = "6df603a9397b0777cb35f07751e11b0f18dd2b864b348936f8e0b
 
 let db = JSON.parse(localStorage.getItem(KEY)||"null") || {
  notices:[], results:[], teachers:[], gallery:[], achievements:[],
- syllabuses:[], registrations:[], formFillups:[],
+ syllabuses:[], registrations:[], formFillups:[], routines:[], ebooks:[], calendars:[],
+ chairman:{ text:"", imageUrl:"" },
+ headTeacher:{ text:"", imageUrl:"" },
  school:{
    history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",
    mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
@@ -204,12 +213,17 @@ function goBack(){
   }
 }
 
+let currentEbookClass = "সব";
+let currentEbookSubject = "সব";
+
 function updateActiveNavBtn(view){
   document.querySelectorAll(".navbtn").forEach(btn=>btn.classList.remove("active"));
   const btnMap = {
     "home":"nav-home", "results":"nav-results", "notices":"nav-notices",
     "syllabus":"nav-syllabus", "registration":"nav-registration", "formfillup":"nav-formfillup",
-    "achievements":"nav-achievements", "gallery":"nav-gallery",
+    "teachers":"nav-teachers", "history":"nav-history", "routines":"nav-routines",
+    "ebooks":"nav-ebooks", "calendar":"nav-calendar", "chairman":"nav-chairman",
+    "headteacher":"nav-headteacher", "achievements":"nav-achievements", "gallery":"nav-gallery",
     "contact":"nav-contact", "admin":"nav-admin"
   };
   const activeId = btnMap[view];
@@ -227,6 +241,13 @@ function renderView(view){
   else if(view === "formfillup") formfillup();
   else if(view === "notices") notices();
   else if(view === "results") results();
+  else if(view === "teachers") teachers();
+  else if(view === "history") historyView();
+  else if(view === "routines") routines();
+  else if(view === "ebooks") ebooks();
+  else if(view === "calendar") calendar();
+  else if(view === "chairman") chairmanView();
+  else if(view === "headteacher") headTeacherView();
   else if(view === "achievements") achievements();
   else if(view === "gallery") gallery();
   else if(view === "contact") contact();
@@ -420,6 +441,168 @@ function formfillup(){
  </div>`;
 }
 
+// Teachers & Staff Page
+function teachers(){
+ const items = db.teachers || [];
+ app.innerHTML = `${backButtonHtml()}
+ <div class="card">
+   <h2>👨‍🏫 শিক্ষক ও কর্মচারীদের তালিকা</h2>
+   <p class="muted">বাঙ্গুরী উচ্চ বিদ্যালয়ের সম্মানিত শিক্ষক-শিক্ষিকা ও কর্মচারীবৃন্দ।</p>
+   ${items.length ? `
+     <div class="grid">
+       ${items.map(t => `
+         <div class="card" style="text-align:center">
+           ${t.imageUrl ? `<img src="${esc(t.imageUrl)}" alt="${esc(t.name)}" style="width:110px;height:110px;object-fit:cover;border-radius:50%;margin:auto 0 10px;border:3px solid var(--blue)">` : `<div style="width:110px;height:110px;border-radius:50%;background:#eaf2fa;color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:bold;margin:0 auto 10px;border:3px solid var(--blue)">👤</div>`}
+           <h3 style="margin:5px 0">${esc(t.name)}</h3>
+           <p style="margin:4px 0;font-weight:bold;color:var(--blue2)">${esc(t.designation)}</p>
+           ${t.subject ? `<p class="muted" style="margin:2px 0;font-size:13px"><b>বিষয়:</b> ${esc(t.subject)}</p>` : ''}
+           ${t.category ? `<span style="display:inline-block;margin-top:6px;background:#e8f1fa;color:var(--blue);padding:3px 8px;border-radius:12px;font-size:12px;font-weight:bold">${esc(t.category)}</span>` : ''}
+         </div>
+       `).join('')}
+     </div>
+   ` : `<p class="muted">বর্তমানে শিক্ষক বা কর্মচারীদের কোনো প্রোফাইল যুক্ত করা হয়নি।</p>`}
+ </div>`;
+}
+
+// School History Page
+function historyView(){
+ const h = (db.school && db.school.history) ? db.school.history : "";
+ const img = (db.school && db.school.historyImage) ? db.school.historyImage : "";
+ app.innerHTML = `${backButtonHtml()}
+ <div class="card">
+   <h2>🏛 বিদ্যালয়ের ইতিহাস</h2>
+   ${img ? `<div style="text-align:center;margin-bottom:15px"><img src="${esc(img)}" style="max-width:100%;max-height:350px;border-radius:10px;border:1px solid var(--border)"></div>` : ''}
+   ${h ? `<div style="font-size:16px;line-height:1.7">${esc(h).replace(/\n/g,"<br>")}</div>` : `<p class="muted">বর্তমানে বিদ্যালয়ের কোনো ইতিহাস যুক্ত করা হয়নি।</p>`}
+ </div>`;
+}
+
+// Exam Routines Page
+function routines(){
+ const items = db.routines || [];
+ app.innerHTML = `${backButtonHtml()}
+ <div class="card">
+   <h2>📅 পরীক্ষার রুটিন (Exam Routines)</h2>
+   <p class="muted">বিভিন্ন শ্রেণি ও পরীক্ষার সর্বশেষ সময়সূচি ও রুটিন।</p>
+   ${items.length ? items.map(r => `
+     <div class="notice">
+       <h3>${esc(r.title)}</h3>
+       <p style="margin:4px 0"><b>শ্রেণি / পরীক্ষা:</b> ${esc(r.className)}</p>
+       <small class="muted">প্রকাশের তারিখ: ${esc(r.date)}</small>
+       ${r.pdfUrl ? `<div style="margin-top:10px"><a href="${esc(r.pdfUrl)}" target="_blank" download="${esc(r.title)}.pdf" class="btn secondary">📄 রুটিন PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
+     </div>
+   `).join('') : `<p class="muted">বর্তমানে কোনো পরীক্ষার রুটিন আপলোড করা হয়নি।</p>`}
+ </div>`;
+}
+
+// E-Books Page
+function ebooks(){
+ const items = db.ebooks || [];
+ const classOptions = ["সব", "৬ষ্ঠ", "৭ম", "৮ম", "৯ম", "১০ম"];
+
+ let filtered = items;
+ if(currentEbookClass !== "সব"){
+   filtered = filtered.filter(b => b.className === currentEbookClass);
+ }
+ if(currentEbookSubject !== "সব"){
+   filtered = filtered.filter(b => b.subject === currentEbookSubject);
+ }
+
+ const availableSubjects = ["সব", ...new Set(items.map(b => b.subject).filter(Boolean))];
+
+ app.innerHTML = `${backButtonHtml()}
+ <div class="card">
+   <h2>📚 ই বুক (E-Books)</h2>
+   <p class="muted">শ্রেণি ও বিষয়ভিত্তিক ডিজিটাল পাঠ্যবই ও ই-বুক।</p>
+
+   <div class="row" style="margin-bottom:15px">
+     <div>
+       <label>শ্রেণি অনুযায়ী ফিল্টার</label>
+       <select onchange="filterEbooks(this.value, '${esc(currentEbookSubject)}')">
+         ${classOptions.map(c => `<option value="${c}" ${c===currentEbookClass?'selected':''}>${c==='সব'?'সকল শ্রেণি':c+' শ্রেণি'}</option>`).join('')}
+       </select>
+     </div>
+     <div>
+       <label>বিষয় অনুযায়ী ফিল্টার</label>
+       <select onchange="filterEbooks('${esc(currentEbookClass)}', this.value)">
+         ${availableSubjects.map(s => `<option value="${s}" ${s===currentEbookSubject?'selected':''}>${s==='সব'?'সকল বিষয়':s}</option>`).join('')}
+       </select>
+     </div>
+   </div>
+
+   ${filtered.length ? `
+     <div class="grid">
+       ${filtered.map(b => `
+         <div class="card">
+           <h3>${esc(b.title)}</h3>
+           <p style="margin:4px 0"><b>শ্রেণি:</b> ${esc(b.className)} শ্রেণি</p>
+           <p style="margin:4px 0"><b>বিষয়:</b> ${esc(b.subject)}</p>
+           <small class="muted">আপলোডের তারিখ: ${esc(b.date)}</small>
+           ${b.pdfUrl ? `<div style="margin-top:10px"><a href="${esc(b.pdfUrl)}" target="_blank" download="${esc(b.title)}.pdf" class="btn secondary" style="display:block">📖 E-Book PDF দেখুন</a></div>` : ''}
+         </div>
+       `).join('')}
+     </div>
+   ` : `<p class="muted">নির্বাচিত শ্রেণি বা বিষয়ের জন্য কোনো ই-বুক পাওয়া যায়নি।</p>`}
+ </div>`;
+}
+
+function filterEbooks(cls, subj){
+  currentEbookClass = cls;
+  currentEbookSubject = subj;
+  ebooks();
+}
+
+// Academic Calendar Page
+function calendar(){
+ const items = db.calendars || [];
+ app.innerHTML = `${backButtonHtml()}
+ <div class="card">
+   <h2>📆 একাডেমিক ক্যালেন্ডার (Academic Calendar)</h2>
+   <p class="muted">শিক্ষাবর্ষ ভিত্তিক ছুটির তালিকা ও একাডেমিক ক্যালেন্ডার।</p>
+   ${items.length ? items.map(c => `
+     <div class="notice">
+       <h3>${esc(c.title)}</h3>
+       <p style="margin:4px 0"><b>শিক্ষাবর্ষ:</b> ${esc(c.year)}</p>
+       <small class="muted">প্রকাশের তারিখ: ${esc(c.date)}</small>
+       ${c.pdfUrl ? `<div style="margin-top:10px"><a href="${esc(c.pdfUrl)}" target="_blank" download="${esc(c.title)}.pdf" class="btn secondary">📄 ক্যালেন্ডার PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
+     </div>
+   `).join('') : `<p class="muted">বর্তমানে কোনো একাডেমিক ক্যালেন্ডার আপলোড করা হয়নি।</p>`}
+ </div>`;
+}
+
+// Chairman's Message Page
+function chairmanView(){
+ const c = db.chairman || {};
+ app.innerHTML = `${backButtonHtml()}
+ <div class="card">
+   <h2>🎙 সভাপতির বাণী</h2>
+   ${c.text || c.imageUrl ? `
+     <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+       ${c.imageUrl ? `<div style="flex:0 0 200px;text-align:center"><img src="${esc(c.imageUrl)}" style="width:200px;height:240px;object-fit:cover;border-radius:12px;border:1px solid var(--border);box-shadow:0 3px 8px rgba(0,0,0,0.1)"></div>` : ''}
+       <div style="flex:1;min-width:250px;font-size:16px;line-height:1.7">
+         ${c.text ? esc(c.text).replace(/\n/g,"<br>") : '<p class="muted">বার্তা সংযোজন করা হয়নি।</p>'}
+       </div>
+     </div>
+   ` : `<p class="muted">বর্তমানে সভাপতির কোনো বাণী যুক্ত করা হয়নি।</p>`}
+ </div>`;
+}
+
+// Head Teacher's Message Page
+function headTeacherView(){
+ const h = db.headTeacher || {};
+ app.innerHTML = `${backButtonHtml()}
+ <div class="card">
+   <h2>🎙 প্রধান শিক্ষকের বাণী</h2>
+   ${h.text || h.imageUrl ? `
+     <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
+       ${h.imageUrl ? `<div style="flex:0 0 200px;text-align:center"><img src="${esc(h.imageUrl)}" style="width:200px;height:240px;object-fit:cover;border-radius:12px;border:1px solid var(--border);box-shadow:0 3px 8px rgba(0,0,0,0.1)"></div>` : ''}
+       <div style="flex:1;min-width:250px;font-size:16px;line-height:1.7">
+         ${h.text ? esc(h.text).replace(/\n/g,"<br>") : '<p class="muted">বার্তা সংযোজন করা হয়নি।</p>'}
+       </div>
+     </div>
+   ` : `<p class="muted">বর্তমানে প্রধান শিক্ষকের কোনো বাণী যুক্ত করা হয়নি।</p>`}
+ </div>`;
+}
+
 function achievements(){
  app.innerHTML=`${backButtonHtml()}<div class="card"><h2>🏆 বিদ্যালয়ের অর্জনসমূহ</h2>
  ${db.achievements && db.achievements.length ? `
@@ -471,9 +654,16 @@ function admin(){
 
  <div class="admin-tab-bar no-print">
    <button class="admin-tab-btn ${activeAdminSubSection==='results'?'active':''}" onclick="switchAdminTab('results')">📊 ফলাফল ও Excel টেমপ্লেট</button>
-   <button class="admin-tab-btn ${activeAdminSubSection==='syllabus'?'active':''}" onclick="switchAdminTab('syllabus')">📚 সিলেবাস ব্যবস্থাপনা</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='syllabus'?'active':''}" onclick="switchAdminTab('syllabus')">📚 সিলেবাস</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='registration'?'active':''}" onclick="switchAdminTab('registration')">📝 রেজিষ্ট্রেশন</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='formfillup'?'active':''}" onclick="switchAdminTab('formfillup')">📋 ফর্ম ফিলাপ</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='teachers'?'active':''}" onclick="switchAdminTab('teachers')">👨‍🏫 শিক্ষক ও কর্মচারী</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='history'?'active':''}" onclick="switchAdminTab('history')">🏛 বিদ্যালয়ের ইতিহাস</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='routines'?'active':''}" onclick="switchAdminTab('routines')">📅 পরীক্ষার রুটিন</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='ebooks'?'active':''}" onclick="switchAdminTab('ebooks')">📖 ই বুক</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='calendar'?'active':''}" onclick="switchAdminTab('calendar')">📆 একাডেমিক ক্যালেন্ডার</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='chairman'?'active':''}" onclick="switchAdminTab('chairman')">🎙 সভাপতির বাণী</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='headteacher'?'active':''}" onclick="switchAdminTab('headteacher')">🎙 প্রধান শিক্ষকের বাণী</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='notices'?'active':''}" onclick="switchAdminTab('notices')">📢 নোটিশ বোর্ড</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='achievements'?'active':''}" onclick="switchAdminTab('achievements')">🏆 অর্জনসমূহ</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='gallery'?'active':''}" onclick="switchAdminTab('gallery')">📸 গ্যালারি</button>
@@ -489,7 +679,7 @@ function switchAdminTab(tabName){
   activeAdminSubSection = tabName;
   document.querySelectorAll(".admin-tab-btn").forEach(btn=>btn.classList.remove("active"));
   const btns = document.querySelectorAll(".admin-tab-btn");
-  const tabMap = ["results","syllabus","registration","formfillup","notices","achievements","gallery","password"];
+  const tabMap = ["results","syllabus","registration","formfillup","teachers","history","routines","ebooks","calendar","chairman","headteacher","notices","achievements","gallery","password"];
   const idx = tabMap.indexOf(tabName);
   if(idx >= 0 && btns[idx]) btns[idx].classList.add("active");
   renderAdminSubContent();
@@ -605,6 +795,198 @@ function renderAdminSubContent(){
           </div>
         `).join('') : '<p class="muted">কোনো ফর্ম ফিলাপ নোটিশ প্রকাশ করা হয়নি।</p>'}
       </div>
+    </div>`;
+  }
+  else if(activeAdminSubSection === 'teachers'){
+    container.innerHTML = `
+    <div class="card">
+      <h2>👨‍🏫 শিক্ষক ও কর্মচারী ব্যবস্থাপনা (Teachers & Staff)</h2>
+      <p class="muted">শিক্ষক ও কর্মচারীদের নাম, পদবী, বিষয় ও ছবি যুক্ত ও ব্যবস্থাপনা করুন।</p>
+      <label>নাম</label><input id="tname" placeholder="যেমন: মোঃ দেলোয়ার হোসেন">
+      <label>পদবী</label><input id="tdesig" placeholder="যেমন: সহকারী শিক্ষক / প্রধান শিক্ষক / অফিস সহকারী">
+      <label>বিষয় (ঐচ্ছিক)</label><input id="tsubj" placeholder="যেমন: গণিত / ইংরেজি (শিক্ষকদের জন্য)">
+      <label>ক্যাটাগরি</label>
+      <select id="tcat">
+        <option value="শিক্ষক">শিক্ষক (Teaching Staff)</option>
+        <option value="কর্মচারী">কর্মচারী (Non-Teaching Staff)</option>
+      </select>
+      <label>ছবি নির্বাচন (JPG, PNG, WebP)</label>
+      <input id="tfile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewImage(this,'tpreview')">
+      <div id="tpreview" style="margin:10px 0"></div>
+      <button class="btn" onclick="addTeacher()">প্রোফাইল যুক্ত করুন</button>
+
+      <div style="margin-top:25px;border-top:1px solid #eee;padding-top:15px">
+        <h3>বিদ্যমান শিক্ষক ও কর্মচারীবৃন্দ (${(db.teachers||[]).length})</h3>
+        ${(db.teachers||[]).length ? db.teachers.map((t, i) => `
+          <div class="notice">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+              <div>
+                <b>${esc(t.name)}</b> — <span style="color:var(--blue);font-weight:bold">${esc(t.designation)}</span> ${t.subject?`<small class="muted">(${esc(t.subject)})</small>`:''}
+              </div>
+              <div class="actions">
+                <button class="btn sm" onclick="editTeacher(${i})">সম্পাদনা</button>
+                <button class="btn danger sm" onclick="deleteTeacher(${i})">মুছে ফেলুন</button>
+              </div>
+            </div>
+          </div>
+        `).join('') : '<p class="muted">কোনো শিক্ষক বা কর্মচারীর বিবরণ যুক্ত করা হয়নি।</p>'}
+      </div>
+    </div>`;
+  }
+  else if(activeAdminSubSection === 'history'){
+    const h = db.school && db.school.history ? db.school.history : "";
+    container.innerHTML = `
+    <div class="card">
+      <h2>🏛 বিদ্যালয়ের ইতিহাস ব্যবস্থাপনা (School History)</h2>
+      <p class="muted">বিদ্যালয়ের ইতিহাস ও পটভূমি বাংলায় লিখুন ও আপডেট করুন।</p>
+      <label>ইতিহাস বিবরণ (বাংলা টেক্সট ও প্যারাগ্রাফ সাপোর্টেড)</label>
+      <textarea id="htext" rows="10" placeholder="বিদ্যালয়ের ইতিহাস এখানে লিখুন...">${esc(h)}</textarea>
+      <label>ইতিহাসের ছবি আপলোড / পরিবর্তন (ঐচ্ছিক)</label>
+      <input id="hfile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewImage(this,'hpreview')">
+      <div id="hpreview" style="margin:10px 0">
+        ${db.school && db.school.historyImage ? `<img src="${esc(db.school.historyImage)}" style="max-width:180px;max-height:180px;border-radius:8px">` : ''}
+      </div>
+      <button class="btn" onclick="saveHistory()">ইতিহাস সংরক্ষণ করুন</button>
+    </div>`;
+  }
+  else if(activeAdminSubSection === 'routines'){
+    container.innerHTML = `
+    <div class="card">
+      <h2>📅 পরীক্ষার রুটিন ব্যবস্থাপনা (Exam Routines)</h2>
+      <p class="muted">বিভিন্ন শ্রেণি বা পরীক্ষার রুটিন শিরোনাম ও PDF ফাইল আপলোড করুন।</p>
+      <label>রুটিনের শিরোনাম</label><input id="rtitle_routine" placeholder="যেমন: বার্ষিক পরীক্ষা ২০২৬ সময়সূচি">
+      <label>শ্রেণি / পরীক্ষা</label>
+      <select id="rclass_routine">
+        <option value="সকল শ্রেণি">সকল শ্রেণি</option>
+        <option value="৬ষ্ঠ শ্রেণি">৬ষ্ঠ শ্রেণি</option>
+        <option value="৭ম শ্রেণি">৭ম শ্রেণি</option>
+        <option value="৮ম শ্রেণি">৮ম শ্রেণি</option>
+        <option value="৯ম শ্রেণি">৯ম শ্রেণি</option>
+        <option value="১০ম শ্রেণি">১০ম শ্রেণি</option>
+        <option value="এসএসসি পরীক্ষা">এসএসসি পরীক্ষা</option>
+      </select>
+      <label>রুটিন PDF ফাইল (সর্বোচ্চ 10MB)</label>
+      <input id="rfile_routine" type="file" accept="application/pdf">
+      <button class="btn" onclick="addRoutine()">রুটিন প্রকাশ করুন</button>
+
+      <div style="margin-top:25px;border-top:1px solid #eee;padding-top:15px">
+        <h3>প্রকাশিত রুটিনসমূহ (${(db.routines||[]).length})</h3>
+        ${(db.routines||[]).length ? db.routines.map((r, i) => `
+          <div class="notice">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+              <div>
+                <b>${esc(r.title)}</b> <small class="muted">(${esc(r.className)} — ${esc(r.date)})</small>
+              </div>
+              <div class="actions">
+                ${r.pdfUrl ? `<a href="${esc(r.pdfUrl)}" target="_blank" download="${esc(r.title)}.pdf" class="btn secondary sm">📄 PDF দেখুন</a>` : ''}
+                <button class="btn sm" onclick="editRoutine(${i})">সম্পাদনা</button>
+                <button class="btn danger sm" onclick="deleteRoutine(${i})">মুছে ফেলুন</button>
+              </div>
+            </div>
+          </div>
+        `).join('') : '<p class="muted">কোনো রুটিন প্রকাশ করা হয়নি।</p>'}
+      </div>
+    </div>`;
+  }
+  else if(activeAdminSubSection === 'ebooks'){
+    container.innerHTML = `
+    <div class="card">
+      <h2>📖 ই বুক ব্যবস্থাপনা (E-Book Management)</h2>
+      <p class="muted">শ্রেণি ও বিষয়ভিত্তিক ডিজিটাল পাঠ্যবই বা ই-বুক PDF আপলোড করুন।</p>
+      <label>শ্রেণি নির্বাচন</label>
+      <select id="ebcls">
+        <option value="৬ষ্ঠ">৬ষ্ঠ শ্রেণি</option>
+        <option value="৭ম">৭ম শ্রেণি</option>
+        <option value="৮ম">৮ম শ্রেণি</option>
+        <option value="৯ম">৯ম শ্রেণি</option>
+        <option value="১০ম">১০ম শ্রেণি</option>
+      </select>
+      <label>বইয়ের শিরোনাম</label><input id="ebtitle" placeholder="যেমন: বাংলা ১ম পত্র / সাধারণ বিজ্ঞান">
+      <label>বিষয়</label><input id="ebsubj" placeholder="যেমন: বাংলা, ইংরেজি, গণিত, বিজ্ঞান...">
+      <label>বইয়ের PDF ফাইল (সর্বোচ্চ 15MB)</label>
+      <input id="ebfile" type="file" accept="application/pdf">
+      <button class="btn" onclick="addEbook()">ই বুক আপলোড করুন</button>
+
+      <div style="margin-top:25px;border-top:1px solid #eee;padding-top:15px">
+        <h3>আপলোডকৃত ই-বুকসমূহ (${(db.ebooks||[]).length})</h3>
+        ${(db.ebooks||[]).length ? db.ebooks.map((b, i) => `
+          <div class="notice">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+              <div>
+                <b>[${esc(b.className)} শ্রেণি] ${esc(b.title)}</b> <small class="muted">(${esc(b.subject)})</small>
+              </div>
+              <div class="actions">
+                ${b.pdfUrl ? `<a href="${esc(b.pdfUrl)}" target="_blank" download="${esc(b.title)}.pdf" class="btn secondary sm">📖 PDF দেখুন</a>` : ''}
+                <button class="btn sm" onclick="editEbook(${i})">সম্পাদনা</button>
+                <button class="btn danger sm" onclick="deleteEbook(${i})">মুছে ফেলুন</button>
+              </div>
+            </div>
+          </div>
+        `).join('') : '<p class="muted">কোনো ই-বুক আপলোড করা হয়নি।</p>'}
+      </div>
+    </div>`;
+  }
+  else if(activeAdminSubSection === 'calendar'){
+    container.innerHTML = `
+    <div class="card">
+      <h2>📆 একাডেমিক ক্যালেন্ডার ব্যবস্থাপনা (Academic Calendar)</h2>
+      <p class="muted">শিক্ষাবর্ষভিত্তিক ছুটির তালিকা ও একাডেমিক ক্যালেন্ডার PDF প্রকাশ করুন।</p>
+      <label>ক্যালেন্ডারের শিরোনাম</label><input id="caltitle" placeholder="যেমন: ২০২৬ শিক্ষাবর্ষের একাডেমিক ক্যালেন্ডার ও ছুটির তালিকা">
+      <label>শিক্ষাবর্ষ</label><input id="calyear" value="২০২৬">
+      <label>ক্যালেন্ডার PDF ফাইল</label><input id="calfile" type="file" accept="application/pdf">
+      <button class="btn" onclick="addCalendar()">ক্যালেন্ডার প্রকাশ করুন</button>
+
+      <div style="margin-top:25px;border-top:1px solid #eee;padding-top:15px">
+        <h3>প্রকাশিত ক্যালেন্ডারসমূহ (${(db.calendars||[]).length})</h3>
+        ${(db.calendars||[]).length ? db.calendars.map((c, i) => `
+          <div class="notice">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+              <div>
+                <b>${esc(c.title)}</b> <small class="muted">(${esc(c.year)} শিক্ষাবর্ষ)</small>
+              </div>
+              <div class="actions">
+                ${c.pdfUrl ? `<a href="${esc(c.pdfUrl)}" target="_blank" download="${esc(c.title)}.pdf" class="btn secondary sm">📄 PDF দেখুন</a>` : ''}
+                <button class="btn sm" onclick="editCalendar(${i})">সম্পাদনা</button>
+                <button class="btn danger sm" onclick="deleteCalendar(${i})">মুছে ফেলুন</button>
+              </div>
+            </div>
+          </div>
+        `).join('') : '<p class="muted">কোনো ক্যালেন্ডার আপলোড করা হয়নি।</p>'}
+      </div>
+    </div>`;
+  }
+  else if(activeAdminSubSection === 'chairman'){
+    const c = db.chairman || {};
+    container.innerHTML = `
+    <div class="card">
+      <h2>🎙 সভাপতির বাণী ব্যবস্থাপনা (Chairman's Message)</h2>
+      <p class="muted">বিদ্যালয় পরিচালনা পর্ষদের মাননীয় সভাপতির বাণী ও ছবি সম্পাদনা করুন।</p>
+      <label>বাণীর টেক্সট (বাংলা)</label>
+      <textarea id="chtext" rows="8" placeholder="সভাপতি মহোদয়ের বাণী এখানে প্রবেশ করান...">${esc(c.text||"")}</textarea>
+      <label>ছবি আপলোড / পরিবর্তন (ঐচ্ছিক)</label>
+      <input id="chfile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewImage(this,'chpreview')">
+      <div id="chpreview" style="margin:10px 0">
+        ${c.imageUrl ? `<img src="${esc(c.imageUrl)}" style="max-width:180px;max-height:180px;border-radius:8px">` : ''}
+      </div>
+      <button class="btn" onclick="saveChairmanMessage()">বাণী আপডেট করুন</button>
+      ${c.imageUrl ? `<button class="btn danger" style="margin-left:8px" onclick="removeChairmanPhoto()">ছবি মুছে ফেলুন</button>` : ''}
+    </div>`;
+  }
+  else if(activeAdminSubSection === 'headteacher'){
+    const h = db.headTeacher || {};
+    container.innerHTML = `
+    <div class="card">
+      <h2>🎙 প্রধান শিক্ষকের বাণী ব্যবস্থাপনা (Head Teacher's Message)</h2>
+      <p class="muted">বিদ্যালয়ের সম্মানিত প্রধান শিক্ষকের বাণী ও ছবি সম্পাদনা করুন।</p>
+      <label>বাণীর টেক্সট (বাংলা)</label>
+      <textarea id="htext_msg" rows="8" placeholder="প্রধান শিক্ষক মহোদয়ের বাণী এখানে প্রবেশ করান...">${esc(h.text||"")}</textarea>
+      <label>ছবি আপলোড / পরিবর্তন (ঐচ্ছিক)</label>
+      <input id="htfile" type="file" accept="image/jpeg,image/png,image/webp" onchange="previewImage(this,'htpreview')">
+      <div id="htpreview" style="margin:10px 0">
+        ${h.imageUrl ? `<img src="${esc(h.imageUrl)}" style="max-width:180px;max-height:180px;border-radius:8px">` : ''}
+      </div>
+      <button class="btn" onclick="saveHeadTeacherMessage()">বাণী আপডেট করুন</button>
+      ${h.imageUrl ? `<button class="btn danger" style="margin-left:8px" onclick="removeHeadTeacherPhoto()">ছবি মুছে ফেলুন</button>` : ''}
     </div>`;
   }
   else if(activeAdminSubSection === 'notices'){
@@ -949,6 +1331,294 @@ async function editFormFillup(index){
 async function deleteFormFillup(index){
   if(confirm("আপনি কি নিশ্চিত যে এই নোটিশটি মুছে ফেলতে চান?")){
     db.formFillups.splice(index, 1);
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+// Teachers & Staff Functions
+async function addTeacher(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const name = document.getElementById("tname").value.trim();
+  const desig = document.getElementById("tdesig").value.trim();
+  const subj = document.getElementById("tsubj").value.trim();
+  const cat = document.getElementById("tcat").value;
+  const fileInput = document.getElementById("tfile");
+
+  if(!name || !desig){ return alert("নাম এবং পদবী আবশ্যক।"); }
+
+  let imgDataUrl = null;
+  if(fileInput && fileInput.files && fileInput.files[0]){
+    const file = fileInput.files[0];
+    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
+    if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
+    imgDataUrl = await new Promise(resolve => {
+      const rd = new FileReader();
+      rd.onload = e => resolve(e.target.result);
+      rd.readAsDataURL(file);
+    });
+  }
+
+  if(!db.teachers) db.teachers = [];
+  db.teachers.push({
+    id: Date.now(),
+    name, designation: desig, subject: subj, category: cat, imageUrl: imgDataUrl
+  });
+  await save();
+  alert("শিক্ষক/কর্মচারীর তথ্য সফলভাবে যুক্ত হয়েছে।");
+  renderAdminSubContent();
+}
+
+async function editTeacher(index){
+  const item = db.teachers[index];
+  if(!item) return;
+  const newName = prompt("নতুন নাম প্রবেশ করান:", item.name);
+  if(newName !== null && newName.trim() !== ""){
+    item.name = newName.trim();
+    const newDesig = prompt("নতুন পদবী প্রবেশ করান:", item.designation);
+    if(newDesig !== null) item.designation = newDesig.trim();
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+async function deleteTeacher(index){
+  if(confirm("আপনি কি নিশ্চিত যে এই প্রোফাইলটি মুছে ফেলতে চান?")){
+    db.teachers.splice(index, 1);
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+// School History Functions
+async function saveHistory(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const text = document.getElementById("htext").value.trim();
+  const fileInput = document.getElementById("hfile");
+
+  if(!db.school) db.school = {};
+  db.school.history = text;
+
+  if(fileInput && fileInput.files && fileInput.files[0]){
+    const file = fileInput.files[0];
+    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
+    if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
+    db.school.historyImage = await new Promise(resolve => {
+      const rd = new FileReader();
+      rd.onload = e => resolve(e.target.result);
+      rd.readAsDataURL(file);
+    });
+  }
+
+  await save();
+  alert("বিদ্যালয়ের ইতিহাস সফলভাবে আপডেট হয়েছে।");
+  renderAdminSubContent();
+}
+
+// Exam Routine Functions
+async function addRoutine(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const title = document.getElementById("rtitle_routine").value.trim();
+  const cls = document.getElementById("rclass_routine").value;
+  const fileInput = document.getElementById("rfile_routine");
+
+  if(!title){ return alert("রুটিনের শিরোনাম প্রদান করুন।"); }
+  if(!fileInput || !fileInput.files || !fileInput.files[0]){ return alert("PDF ফাইল নির্বাচন করুন।"); }
+
+  const file = fileInput.files[0];
+  if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF হতে হবে।"); }
+  if(file.size > 10 * 1024 * 1024){ return alert("PDF সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
+
+  const pdfDataUrl = await new Promise(resolve => {
+    const rd = new FileReader();
+    rd.onload = e => resolve(e.target.result);
+    rd.readAsDataURL(file);
+  });
+
+  if(!db.routines) db.routines = [];
+  db.routines.unshift({
+    id: Date.now(), title, className: cls, pdfUrl: pdfDataUrl, date: new Date().toLocaleDateString("bn-BD")
+  });
+  await save();
+  alert("পরীক্ষার রুটিন সফলভাবে প্রকাশিত হয়েছে।");
+  renderAdminSubContent();
+}
+
+async function editRoutine(index){
+  const item = db.routines[index];
+  if(!item) return;
+  const newTitle = prompt("রুটিনের নতুন শিরোনাম:", item.title);
+  if(newTitle !== null && newTitle.trim() !== ""){
+    item.title = newTitle.trim();
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+async function deleteRoutine(index){
+  if(confirm("আপনি কি নিশ্চিত যে এই রুটিনটি মুছে ফেলতে চান?")){
+    db.routines.splice(index, 1);
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+// E-Book Functions
+async function addEbook(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const cls = document.getElementById("ebcls").value;
+  const title = document.getElementById("ebtitle").value.trim();
+  const subj = document.getElementById("ebsubj").value.trim();
+  const fileInput = document.getElementById("ebfile");
+
+  if(!title || !subj){ return alert("বইয়ের শিরোনাম ও বিষয় প্রদান করুন।"); }
+  if(!fileInput || !fileInput.files || !fileInput.files[0]){ return alert("PDF ফাইল নির্বাচন করুন।"); }
+
+  const file = fileInput.files[0];
+  if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই PDF হতে হবে।"); }
+
+  const pdfDataUrl = await new Promise(resolve => {
+    const rd = new FileReader();
+    rd.onload = e => resolve(e.target.result);
+    rd.readAsDataURL(file);
+  });
+
+  if(!db.ebooks) db.ebooks = [];
+  db.ebooks.unshift({
+    id: Date.now(), className: cls, title, subject: subj, pdfUrl: pdfDataUrl, date: new Date().toLocaleDateString("bn-BD")
+  });
+  await save();
+  alert("ই-বুক সফলভাবে আপলোড হয়েছে।");
+  renderAdminSubContent();
+}
+
+async function editEbook(index){
+  const item = db.ebooks[index];
+  if(!item) return;
+  const newTitle = prompt("বইয়ের নতুন শিরোনাম:", item.title);
+  if(newTitle !== null && newTitle.trim() !== ""){
+    item.title = newTitle.trim();
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+async function deleteEbook(index){
+  if(confirm("আপনি কি নিশ্চিত যে এই ই-বুকটি মুছে ফেলতে চান?")){
+    db.ebooks.splice(index, 1);
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+// Academic Calendar Functions
+async function addCalendar(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const title = document.getElementById("caltitle").value.trim();
+  const year = document.getElementById("calyear").value.trim();
+  const fileInput = document.getElementById("calfile");
+
+  if(!title || !year){ return alert("ক্যালেন্ডারের শিরোনাম ও শিক্ষাবর্ষ প্রদান করুন।"); }
+  if(!fileInput || !fileInput.files || !fileInput.files[0]){ return alert("PDF ফাইল নির্বাচন করুন।"); }
+
+  const file = fileInput.files[0];
+  if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই PDF হতে হবে।"); }
+
+  const pdfDataUrl = await new Promise(resolve => {
+    const rd = new FileReader();
+    rd.onload = e => resolve(e.target.result);
+    rd.readAsDataURL(file);
+  });
+
+  if(!db.calendars) db.calendars = [];
+  db.calendars.unshift({
+    id: Date.now(), title, year, pdfUrl: pdfDataUrl, date: new Date().toLocaleDateString("bn-BD")
+  });
+  await save();
+  alert("একাডেমিক ক্যালেন্ডার সফলভাবে প্রকাশিত হয়েছে।");
+  renderAdminSubContent();
+}
+
+async function editCalendar(index){
+  const item = db.calendars[index];
+  if(!item) return;
+  const newTitle = prompt("ক্যালেন্ডারের নতুন শিরোনাম:", item.title);
+  if(newTitle !== null && newTitle.trim() !== ""){
+    item.title = newTitle.trim();
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+async function deleteCalendar(index){
+  if(confirm("আপনি কি নিশ্চিত যে এই ক্যালেন্ডারটি মুছে ফেলতে চান?")){
+    db.calendars.splice(index, 1);
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+// Chairman's Message Functions
+async function saveChairmanMessage(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const text = document.getElementById("chtext").value.trim();
+  const fileInput = document.getElementById("chfile");
+
+  if(!db.chairman) db.chairman = { text: "", imageUrl: "" };
+  db.chairman.text = text;
+
+  if(fileInput && fileInput.files && fileInput.files[0]){
+    const file = fileInput.files[0];
+    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
+    if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
+    db.chairman.imageUrl = await new Promise(resolve => {
+      const rd = new FileReader();
+      rd.onload = e => resolve(e.target.result);
+      rd.readAsDataURL(file);
+    });
+  }
+
+  await save();
+  alert("সভাপতির বাণী সফলভাবে আপডেট হয়েছে।");
+  renderAdminSubContent();
+}
+
+async function removeChairmanPhoto(){
+  if(confirm("আপনি কি সভাপতির ছবি মুছে ফেলতে চান?")){
+    if(db.chairman) db.chairman.imageUrl = "";
+    await save();
+    renderAdminSubContent();
+  }
+}
+
+// Head Teacher's Message Functions
+async function saveHeadTeacherMessage(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const text = document.getElementById("htext_msg").value.trim();
+  const fileInput = document.getElementById("htfile");
+
+  if(!db.headTeacher) db.headTeacher = { text: "", imageUrl: "" };
+  db.headTeacher.text = text;
+
+  if(fileInput && fileInput.files && fileInput.files[0]){
+    const file = fileInput.files[0];
+    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
+    if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
+    db.headTeacher.imageUrl = await new Promise(resolve => {
+      const rd = new FileReader();
+      rd.onload = e => resolve(e.target.result);
+      rd.readAsDataURL(file);
+    });
+  }
+
+  await save();
+  alert("প্রধান শিক্ষকের বাণী সফলভাবে আপডেট হয়েছে।");
+  renderAdminSubContent();
+}
+
+async function removeHeadTeacherPhoto(){
+  if(confirm("আপনি কি প্রধান শিক্ষকের ছবি মুছে ফেলতে চান?")){
+    if(db.headTeacher) db.headTeacher.imageUrl = "";
     await save();
     renderAdminSubContent();
   }
@@ -1316,6 +1986,11 @@ async function importResults(){
   if(!db.syllabuses) db.syllabuses=[];
   if(!db.registrations) db.registrations=[];
   if(!db.formFillups) db.formFillups=[];
+  if(!db.routines) db.routines=[];
+  if(!db.ebooks) db.ebooks=[];
+  if(!db.calendars) db.calendars=[];
+  if(!db.chairman) db.chairman={ text:"", imageUrl:"" };
+  if(!db.headTeacher) db.headTeacher={ text:"", imageUrl:"" };
   if(!db.school) db.school={
     history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",
     mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
@@ -1323,7 +1998,7 @@ async function importResults(){
   };
 
   const initialHash = location.hash ? location.hash.substring(1) : "home";
-  const validViews = ["school","notices","results","syllabus","registration","formfillup","achievements","gallery","contact","admin"];
+  const validViews = ["home","notices","results","syllabus","registration","formfillup","teachers","history","routines","ebooks","calendar","chairman","headteacher","achievements","gallery","contact","admin"];
   const initialView = validViews.includes(initialHash) ? initialHash : "home";
   history.replaceState({ view: initialView }, "", location.pathname + location.search + (initialView === "home" ? "" : "#" + initialView));
   renderView(initialView);
