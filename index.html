@@ -41,15 +41,15 @@ footer{background:#102b46;color:#dbe8f5;padding:25px 0}.small{font-size:13px}
   </div>
   <div class="wrap">
     <nav>
-      <button class="navbtn" onclick="home()">হোম</button>
-      <button class="navbtn" onclick="school()">বিদ্যালয়</button>
-      <button class="navbtn" onclick="notices()">নোটিশ</button>
-      <button class="navbtn" onclick="results()">ফলাফল</button>
-      <button class="navbtn" onclick="teachers()">শিক্ষক</button>
-      <button class="navbtn" onclick="gallery()">গ্যালারি</button>
-      <button class="navbtn" onclick="downloads()">ডাউনলোড</button>
-      <button class="navbtn" onclick="contact()">যোগাযোগ</button>
-      <button class="navbtn" onclick="admin()">Admin</button>
+      <button class="navbtn" onclick="navigateTo('home')">হোম</button>
+      <button class="navbtn" onclick="navigateTo('school')">বিদ্যালয়</button>
+      <button class="navbtn" onclick="navigateTo('notices')">নোটিশ</button>
+      <button class="navbtn" onclick="navigateTo('results')">ফলাফল</button>
+      <button class="navbtn" onclick="navigateTo('teachers')">শিক্ষক</button>
+      <button class="navbtn" onclick="navigateTo('gallery')">গ্যালারি</button>
+      <button class="navbtn" onclick="navigateTo('downloads')">ডাউনলোড</button>
+      <button class="navbtn" onclick="navigateTo('contact')">যোগাযোগ</button>
+      <button class="navbtn" onclick="navigateTo('admin')">Admin</button>
     </nav>
   </div>
 </header>
@@ -126,22 +126,69 @@ const save=async()=>{
   await saveToIDB(db);
 };
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+let currentView = "home";
+let internalNavCount = 0;
+
+function backButtonHtml(){
+  return `<button class="btn secondary no-print" onclick="goBack()" style="margin-bottom:15px;display:inline-flex;align-items:center;gap:6px">← ফিরে যান</button>`;
+}
+
+function goBack(){
+  if(internalNavCount > 0){
+    history.back();
+  } else {
+    navigateTo("home");
+  }
+}
+
+function renderView(view){
+  currentView = view;
+  if(view === "school") school();
+  else if(view === "notices") notices();
+  else if(view === "results") results();
+  else if(view === "teachers") teachers();
+  else if(view === "gallery") gallery();
+  else if(view === "downloads") downloads();
+  else if(view === "contact") contact();
+  else if(view === "admin") admin();
+  else home();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+function navigateTo(view, options = {}){
+  const targetView = view || "home";
+  if(!options.isPopState){
+    if(targetView !== currentView){
+      internalNavCount++;
+      const hash = targetView === "home" ? "" : "#" + targetView;
+      history.pushState({ view: targetView }, "", location.pathname + location.search + hash);
+    }
+  }
+  renderView(targetView);
+}
+
+window.addEventListener("popstate", (e) => {
+  const stateView = (e.state && e.state.view) ? e.state.view : (location.hash ? location.hash.substring(1) : "home");
+  renderView(stateView);
+});
+
 function home(){
  app.innerHTML=`<div class="grid">
- <div class="card"><h3>📢 নোটিশ</h3><p class="muted">বিদ্যালয়ের সর্বশেষ বিজ্ঞপ্তি ও গুরুত্বপূর্ণ ঘোষণা।</p><button class="btn" onclick="notices()">নোটিশ বোর্ড</button></div>
- <div class="card"><h3>📊 ফলাফল</h3><p class="muted">পরীক্ষার ধরন → শ্রেণি → শিক্ষাবর্ষ → রোল → ফলাফল।</p><button class="btn" onclick="results()">ফলাফল অনুসন্ধান</button></div>
- <div class="card"><h3>🏫 বিদ্যালয়</h3><p class="muted">ইতিহাস, লক্ষ্য ও যোগাযোগের তথ্য।</p><button class="btn" onclick="school()">বিস্তারিত</button></div>
- <div class="card"><h3>👨‍🏫 শিক্ষক</h3><p class="muted">শিক্ষক ও কর্মচারীদের তালিকা।</p><button class="btn" onclick="teachers()">দেখুন</button></div>
- <div class="card"><h3>📸 গ্যালারি</h3><p class="muted">বিদ্যালয়ের ছবি ও স্মরণীয় মুহূর্ত।</p><button class="btn" onclick="gallery()">দেখুন</button></div>
- <div class="card"><h3>📥 ডাউনলোড</h3><p class="muted">ফরম, নোটিশ ও প্রয়োজনীয় ফাইল।</p><button class="btn" onclick="downloads()">দেখুন</button></div>
- <div class="card"><h3>⚙ Admin</h3><p class="muted">নোটিশ ও ফলাফল ব্যবস্থাপনা।</p><button class="btn" onclick="admin()">Admin Panel</button></div>
+ <div class="card"><h3>📢 নোটিশ</h3><p class="muted">বিদ্যালয়ের সর্বশেষ বিজ্ঞপ্তি ও গুরুত্বপূর্ণ ঘোষণা।</p><button class="btn" onclick="navigateTo('notices')">নোটিশ বোর্ড</button></div>
+ <div class="card"><h3>📊 ফলাফল</h3><p class="muted">পরীক্ষার ধরন → শ্রেণি → শিক্ষাবর্ষ → রোল → ফলাফল।</p><button class="btn" onclick="navigateTo('results')">ফলাফল অনুসন্ধান</button></div>
+ <div class="card"><h3>🏫 বিদ্যালয়</h3><p class="muted">ইতিহাস, লক্ষ্য ও যোগাযোগের তথ্য।</p><button class="btn" onclick="navigateTo('school')">বিস্তারিত</button></div>
+ <div class="card"><h3>👨‍🏫 শিক্ষক</h3><p class="muted">শিক্ষক ও কর্মচারীদের তালিকা।</p><button class="btn" onclick="navigateTo('teachers')">দেখুন</button></div>
+ <div class="card"><h3>📸 গ্যালারি</h3><p class="muted">বিদ্যালয়ের ছবি ও স্মরণীয় মুহূর্ত।</p><button class="btn" onclick="navigateTo('gallery')">দেখুন</button></div>
+ <div class="card"><h3>📥 ডাউনলোড</h3><p class="muted">ফরম, নোটিশ ও প্রয়োজনীয় ফাইল।</p><button class="btn" onclick="navigateTo('downloads')">দেখুন</button></div>
+ <div class="card"><h3>⚙ Admin</h3><p class="muted">নোটিশ ও ফলাফল ব্যবস্থাপনা।</p><button class="btn" onclick="navigateTo('admin')">Admin Panel</button></div>
  </div>`;
 }
 function school(){
- app.innerHTML=`<div class="card"><h2>🏫 আমাদের বিদ্যালয়</h2><h3>ইতিহাস</h3><p>${esc(db.school.history)}</p><h3>লক্ষ্য ও উদ্দেশ্য</h3><p>${esc(db.school.mission)}</p><h3>যোগাযোগ</h3><p>${esc(db.school.contact)}</p></div>`;
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>🏫 আমাদের বিদ্যালয়</h2><h3>ইতিহাস</h3><p>${esc(db.school.history)}</p><h3>লক্ষ্য ও উদ্দেশ্য</h3><p>${esc(db.school.mission)}</p><h3>যোগাযোগ</h3><p>${esc(db.school.contact)}</p></div>`;
 }
 function notices(){
- app.innerHTML=`<div class="card"><h2>📢 নোটিশ বোর্ড</h2>
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📢 নোটিশ বোর্ড</h2>
  ${db.notices.length?db.notices.map(n=>`
    <div class="card">
      <h3>${esc(n.title)}</h3>
@@ -167,7 +214,7 @@ const CLASS_SUBJECTS = {
 };
 
 function results(){
- app.innerHTML=`<div class="card"><h2>📊 ফলাফল অনুসন্ধান</h2>
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📊 ফলাফল অনুসন্ধান</h2>
  <label>পরীক্ষার ধরন</label><select id="exam"><option>বার্ষিক পরীক্ষা</option><option>অর্ধবার্ষিক পরীক্ষা</option><option>নির্বাচনী পরীক্ষা</option><option>মডেল টেস্ট</option></select>
  <div class="row">
    <div><label>শ্রেণি</label><select id="cls" onchange="toggleGroupSelect('cls','groupWrap')"><option value="৬ষ্ঠ">৬ষ্ঠ</option><option value="৭ম">৭ম</option><option value="৮ম">৮ম</option><option value="৯ম">৯ম</option><option value="১০ম">১০ম</option></select></div>
@@ -215,13 +262,13 @@ function findResult(){
 }
 
 function teachers(){
- app.innerHTML=`<div class="card"><h2>👨‍🏫 শিক্ষক ও কর্মচারী</h2>${db.teachers.length?`<div class="grid">${db.teachers.map(t=>`<div class="card"><h3>${esc(t.name)}</h3><p><b>${esc(t.designation)}</b></p><p class="muted">${esc(t.qualification||'')}</p></div>`).join('')}</div>`:'<p class="muted">শিক্ষক তালিকা শিগগিরই যুক্ত করা হবে।</p>'}</div>`;
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>👨‍🏫 শিক্ষক ও কর্মচারী</h2>${db.teachers.length?`<div class="grid">${db.teachers.map(t=>`<div class="card"><h3>${esc(t.name)}</h3><p><b>${esc(t.designation)}</b></p><p class="muted">${esc(t.qualification||'')}</p></div>`).join('')}</div>`:'<p class="muted">শিক্ষক তালিকা শিগগিরই যুক্ত করা হবে।</p>'}</div>`;
 }
 function gallery(){
- app.innerHTML=`<div class="card"><h2>📸 ফটো গ্যালারি</h2>${db.gallery.length?`<div class="grid">${db.gallery.map(g=>`<div class="card"><img src="${esc(g.url)}" alt="${esc(g.title)}" style="width:100%;height:220px;object-fit:cover;border-radius:12px"><h3>${esc(g.title)}</h3></div>`).join('')}</div>`:'<p class="muted">এখনও কোনো ছবি যুক্ত করা হয়নি।</p>'}</div>`;
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📸 ফটো গ্যালারি</h2>${db.gallery.length?`<div class="grid">${db.gallery.map(g=>`<div class="card"><img src="${esc(g.url)}" alt="${esc(g.title)}" style="width:100%;height:220px;object-fit:cover;border-radius:12px"><h3>${esc(g.title)}</h3></div>`).join('')}</div>`:'<p class="muted">এখনও কোনো ছবি যুক্ত করা হয়নি।</p>'}</div>`;
 }
 function downloads(){
- let templatesHtml = `
+ let templatesHtml = backButtonHtml() + `
  <div class="card">
    <h2>📥 ফলাফল Excel টেমপ্লেট ডাউনলোড (Classes 6–10)</h2>
    <p class="muted">ফলাফল এন্ট্রি করার জন্য স্ব-স্ব শ্রেণি ও গ্রুপের জন্য উপযুক্ত Excel (.xlsx) টেমপ্লেট ডাউনলোড করুন:</p>
@@ -291,15 +338,15 @@ function downloadSpecificTemplate(cls, grp=""){
   XLSX.writeFile(wb, filename);
 }
 function contact(){
- app.innerHTML=`<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> বাঙ্গুরী উচ্চ বিদ্যালয়</p><p><b>ঠিকানা:</b> ${esc(db.school.contact)}</p><p><b>ই-মেইল:</b> বিদ্যালয়ের অফিসিয়াল ই-মেইল এখানে যুক্ত করা যাবে।</p><p><b>ফোন:</b> বিদ্যালয়ের অফিসিয়াল নম্বর এখানে যুক্ত করা যাবে।</p></div>`;
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> বাঙ্গুরী উচ্চ বিদ্যালয়</p><p><b>ঠিকানা:</b> ${esc(db.school.contact)}</p><p><b>ই-মেইল:</b> বিদ্যালয়ের অফিসিয়াল ই-মেইল এখানে যুক্ত করা যাবে।</p><p><b>ফোন:</b> বিদ্যালয়ের অফিসিয়াল নম্বর এখানে যুক্ত করা যাবে।</p></div>`;
 }
 function admin(){
  if(sessionStorage.getItem("banguriAdmin")!=="yes"){
-   app.innerHTML=`<div class="card"><h2>🔐 Admin Login</h2><p class="muted">প্রশাসক প্যানেলে প্রবেশের জন্য পাসওয়ার্ড প্রদান করুন।</p>
+   app.innerHTML=`${backButtonHtml()}<div class="card"><h2>🔐 Admin Login</h2><p class="muted">প্রশাসক প্যানেলে প্রবেশের জন্য পাসওয়ার্ড প্রদান করুন।</p>
    <label>পাসওয়ার্ড</label><input id="pw" type="password" placeholder="পাসওয়ার্ড">
    <button class="btn" onclick="loginAdmin()">Login</button></div>`; return;
  }
- app.innerHTML=`<div class="card"><div class="actions"><h2 style="margin-right:auto">⚙ Admin Panel</h2><button class="btn secondary" onclick="logoutAdmin()">Logout</button></div></div>
+ app.innerHTML=`${backButtonHtml()}<div class="card"><div class="actions"><h2 style="margin-right:auto">⚙ Admin Panel</h2><button class="btn secondary" onclick="logoutAdmin()">Logout</button></div></div>
  <div class="card"><h2>📢 নোটিশ প্রকাশ করুন (PDF সংযুক্তিসহ)</h2>
    <label>শিরোনাম</label><input id="nt">
    <label>বিস্তারিত বিবরণ</label><textarea id="nb" rows="4"></textarea>
@@ -326,7 +373,7 @@ function admin(){
  </div>
  <div class="card"><h2>👨‍🏫 শিক্ষক যোগ করুন</h2><label>নাম</label><input id="tn"><label>পদবি</label><input id="td"><label>যোগ্যতা</label><input id="tq"><button class="btn" onclick="addTeacher()">যোগ করুন</button></div>
  <div class="card"><h2>🏫 বিদ্যালয়ের তথ্য সম্পাদনা</h2><label>ইতিহাস</label><textarea id="hist" rows="4">${esc(db.school.history)}</textarea><label>লক্ষ্য ও উদ্দেশ্য</label><textarea id="mission" rows="4">${esc(db.school.mission)}</textarea><label>যোগাযোগ</label><textarea id="contact" rows="3">${esc(db.school.contact)}</textarea><button class="btn" onclick="saveSchool()">সংরক্ষণ</button></div>
- <div class="card"><h2>📊 সংরক্ষিত ডেটা সারসংক্ষেপ</h2><p>নোটিশ: <b>${db.notices.length}</b> | ফলাফল রেকর্ড: <b>${db.results.length}</b> | শিক্ষক: <b>${db.teachers.length}</b> | ছবির সংখ্যা: <b>${db.gallery.length}</b></p><button class="btn secondary" onclick="downloads()">Excel টেমপ্লেটসমূহ দেখুন</button></div>`;
+ <div class="card"><h2>📊 সংরক্ষিত ডেটা সারসংক্ষেপ</h2><p>নোটিশ: <b>${db.notices.length}</b> | ফলাফল রেকর্ড: <b>${db.results.length}</b> | শিক্ষক: <b>${db.teachers.length}</b> | ছবির সংখ্যা: <b>${db.gallery.length}</b></p><button class="btn secondary" onclick="navigateTo('downloads')">Excel টেমপ্লেটসমূহ দেখুন</button></div>`;
  toggleGroupSelect('ac','agroupWrap');
 }
 function loginAdmin(){if(document.getElementById("pw").value==="banguri123"){sessionStorage.setItem("banguriAdmin","yes");admin()}else alert("ভুল পাসওয়ার্ড");}
@@ -595,7 +642,11 @@ function downloadTemplate(){
     mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
     contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"
   };
-  home();
+
+  const initialHash = location.hash ? location.hash.substring(1) : "home";
+  const initialView = ["school","notices","results","teachers","gallery","downloads","contact","admin"].includes(initialHash) ? initialHash : "home";
+  history.replaceState({ view: initialView }, "", location.pathname + location.search + (initialView === "home" ? "" : "#" + initialView));
+  renderView(initialView);
 })();
 </script>
 </body></html>
