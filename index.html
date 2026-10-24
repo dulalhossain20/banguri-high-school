@@ -56,6 +56,12 @@ footer{background:#102b46;color:#dbe8f5;padding:22px 0;border-top:3px solid var(
 .admin-tab-btn{border:1px solid var(--border);background:#f4f8fc;color:var(--text);padding:8px 14px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px}
 .admin-tab-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .pdf-viewer{width:100%;height:500px;border:1px solid var(--border);border-radius:8px;margin-top:10px}
+.home-layout{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+.home-sidebar .card{margin-bottom:18px}
+.sidebar-img{width:100%;max-height:240px;object-fit:cover;border-radius:10px;margin-bottom:12px;border:1px solid var(--border)}
+@media(max-width:850px){
+ .home-layout{grid-template-columns:1fr}
+}
 @media(max-width:768px){
  .brand{font-size:22px;gap:8px}
  .brand .logo{width:44px;height:44px}
@@ -324,28 +330,57 @@ window.addEventListener("popstate", (e) => {
 });
 
 function home(){
+ const ht = db.headTeacher || {};
+ const ch = db.chairman || {};
  app.innerHTML=`
- <div class="hero card">
-   <h1>🏆 বাঙ্গুরী উচ্চ বিদ্যালয়</h1>
-   <p>দেবিদ্বার, কুমিল্লা, বাংলাদেশ। সুশিক্ষা, শৃঙ্খলা ও নৈতিক মূল্যবোধ আমাদের অঙ্গীকার।</p>
- </div>
- <div class="grid">
-   <div class="card"><h3>📊 ফলাফল</h3><p class="muted">৬ষ্ঠ থেকে ১০ম শ্রেণির সকল পরীক্ষার ফলাফল দেখুন।</p><button class="btn" onclick="navigateTo('results')">ফলাফল দেখুন</button></div>
-   <div class="card"><h3>📢 নোটিশ</h3><p class="muted">বিদ্যালয়ের সর্বশেষ তথ্য ও নোটিশ বোর্ড দেখুন।</p><button class="btn" onclick="navigateTo('notices')">নোটিশ দেখুন</button></div>
-   <div class="card"><h3>📚 সিলেবাস</h3><p class="muted">৬ষ্ঠ থেকে ১০ম শ্রেণির পাঠ্যক্রম ও সিলেবাস PDF।</p><button class="btn" onclick="navigateTo('syllabus')">সিলেবাস দেখুন</button></div>
-   <div class="card"><h3>📝 রেজিষ্ট্রেশন</h3><p class="muted">৬ষ্ঠ, ৮ম ও ৯ ম শ্রেণির রেজিষ্ট্রেশন নোটিশ ও তথ্য।</p><button class="btn" onclick="navigateTo('registration')">রেজিষ্ট্রেশন তথ্য</button></div>
-   <div class="card"><h3>📋 ফর্ম ফিলাপ</h3><p class="muted">পরীক্ষার ফর্ম ফিলাপ সংক্রান্ত নোটিশ ও নির্দেশিকা।</p><button class="btn" onclick="navigateTo('formfillup')">ফর্ম ফিলাপ দেখুন</button></div>
-   <div class="card"><h3>👨‍🏫 শিক্ষক ও কর্মচারীদের তালিকা</h3><p class="muted">বিদ্যালয়ের সম্মানিত শিক্ষক-শিক্ষিকা ও কর্মচারী তালিকা।</p><button class="btn" onclick="navigateTo('teachers')">তালিকা দেখুন</button></div>
-   <div class="card"><h3>🏛 বিদ্যালয়ের ইতিহাস</h3><p class="muted">বাঙ্গুরী উচ্চ বিদ্যালয়ের ঐতিহ্য ও ইতিহাসের পটভূমি।</p><button class="btn" onclick="navigateTo('history')">ইতিহাস দেখুন</button></div>
-   <div class="card"><h3>📅 পরীক্ষার রুটিন</h3><p class="muted">শ্রেণিভিত্তিক পরীক্ষার সময়সূচি ও সময়সারণী।</p><button class="btn" onclick="navigateTo('routines')">রুটিন দেখুন</button></div>
-   <div class="card"><h3>📖 ই বুক</h3><p class="muted">শ্রেণি ও বিষয়ভিত্তিক ডিজিটাল পাঠ্যবই ও ই-বুক।</p><button class="btn" onclick="navigateTo('ebooks')">ই বুক দেখুন</button></div>
-   <div class="card"><h3>📆 একাডেমিক ক্যালেন্ডার</h3><p class="muted">শিক্ষাবর্ষভিত্তিক ছুটির তালিকা ও বর্ষপঞ্জি।</p><button class="btn" onclick="navigateTo('calendar')">ক্যালেন্ডার দেখুন</button></div>
-   <div class="card"><h3>🎙 সভাপতির বাণী</h3><p class="muted">বিদ্যালয় পরিচালনা পর্ষদের মাননীয় সভাপতির বার্তা।</p><button class="btn" onclick="navigateTo('chairman')">বাণী দেখুন</button></div>
-   <div class="card"><h3>🎙 প্রধান শিক্ষকের বাণী</h3><p class="muted">বিদ্যালয়ের সম্মানিত প্রধান শিক্ষকের বার্তা।</p><button class="btn" onclick="navigateTo('headteacher')">বাণী দেখুন</button></div>
-   <div class="card"><h3>🏆 বিদ্যালয়ের অর্জনসমূহ</h3><p class="muted">আমাদের শিক্ষা, খেলাধুলা ও সাংস্কৃতিক সাফল্য।</p><button class="btn" onclick="navigateTo('achievements')">অর্জনসমূহ দেখুন</button></div>
-   <div class="card"><h3>📸 Photo Gallery</h3><p class="muted">বিদ্যালয়ের আলোকচিত্র ও চিত্রশালা।</p><button class="btn" onclick="navigateTo('gallery')">গ্যালারি দেখুন</button></div>
-   <div class="card"><h3>📞 Contact</h3><p class="muted">বিদ্যালয়ের ঠিকানা, ই-মেইল ও যোগাযোগের তথ্য।</p><button class="btn" onclick="navigateTo('contact')">যোগাযোগ করুন</button></div>
-   <div class="card"><h3>⚙ Admin Panel</h3><p class="muted">নোটিশ, ফলাফল, সিলেবাস, শিক্ষক ও তথ্য ব্যবস্থাপনা।</p><button class="btn secondary" onclick="navigateTo('admin')">প্রশাসক প্যানেল</button></div>
+ <div class="home-layout">
+   <div class="home-main">
+     <div class="hero card">
+       <h1>🏆 বাঙ্গুরী উচ্চ বিদ্যালয়</h1>
+       <p>দেবিদ্বার, কুমিল্লা, বাংলাদেশ। সুশিক্ষা, শৃঙ্খলা ও নৈতিক মূল্যবোধ আমাদের অঙ্গীকার।</p>
+     </div>
+     <div class="card">
+       <h2>📢 নোটিশ বোর্ড</h2>
+       ${db.notices && db.notices.length ? db.notices.map(n=>`
+         <div class="notice">
+           <h3>${esc(n.title)}</h3>
+           <p>${esc(n.body).replace(/\n/g,"<br>")}</p>
+           ${n.imageUrl ? `<div style="margin:10px 0"><img src="${esc(n.imageUrl)}" style="max-width:100%;max-height:350px;border-radius:8px;border:1px solid #cbd6e0"></div>` : ''}
+           ${n.pdfUrl ? `<div style="margin:10px 0"><a href="${esc(n.pdfUrl)}" target="_blank" download="${esc(n.title)}.pdf" class="btn secondary" style="display:inline-block">📄 সংযুক্ত PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
+           <small class="muted">প্রকাশের তারিখ: ${esc(n.date)}</small>
+         </div>`).join("") : "<p class='muted'>এখনও কোনো নোটিশ প্রকাশিত হয়নি।</p>"}
+     </div>
+     <div class="grid">
+       <div class="card"><h3>📢 নোটিশ</h3><p class="muted">বিদ্যালয়ের সর্বশেষ তথ্য ও নোটিশ বোর্ড দেখুন।</p><button class="btn" onclick="navigateTo('notices')">নোটিশ দেখুন</button></div>
+       <div class="card"><h3>📊 ফলাফল</h3><p class="muted">৬ষ্ঠ থেকে ১০ম শ্রেণির সকল পরীক্ষার ফলাফল দেখুন।</p><button class="btn" onclick="navigateTo('results')">ফলাফল দেখুন</button></div>
+       <div class="card"><h3>📚 সিলেবাস</h3><p class="muted">৬ষ্ঠ থেকে ১০ম শ্রেণির পাঠ্যক্রম ও সিলেবাস PDF।</p><button class="btn" onclick="navigateTo('syllabus')">সিলেবাস দেখুন</button></div>
+       <div class="card"><h3>📝 রেজিষ্ট্রেশন</h3><p class="muted">৬ষ্ঠ, ৮ম ও ৯ ম শ্রেণির রেজিষ্ট্রেশন নোটিশ ও তথ্য।</p><button class="btn" onclick="navigateTo('registration')">রেজিষ্ট্রেশন তথ্য</button></div>
+       <div class="card"><h3>📋 ফর্ম ফিলাপ</h3><p class="muted">পরীক্ষার ফর্ম ফিলাপ সংক্রান্ত নোটিশ ও নির্দেশিকা।</p><button class="btn" onclick="navigateTo('formfillup')">ফর্ম ফিলাপ দেখুন</button></div>
+       <div class="card"><h3>👨‍🏫 শিক্ষক ও কর্মচারীদের তালিকা</h3><p class="muted">বিদ্যালয়ের সম্মানিত শিক্ষক-শিক্ষিকা ও কর্মচারী তালিকা।</p><button class="btn" onclick="navigateTo('teachers')">তালিকা দেখুন</button></div>
+       <div class="card"><h3>🏛 বিদ্যালয়ের ইতিহাস</h3><p class="muted">বাঙ্গুরী উচ্চ বিদ্যালয়ের ঐতিহ্য ও ইতিহাসের পটভূমি।</p><button class="btn" onclick="navigateTo('history')">ইতিহাস দেখুন</button></div>
+       <div class="card"><h3>📅 পরীক্ষার রুটিন</h3><p class="muted">শ্রেণিভিত্তিক পরীক্ষার সময়সূচি ও সময়সারণী।</p><button class="btn" onclick="navigateTo('routines')">রুটিন দেখুন</button></div>
+       <div class="card"><h3>📖 ই বুক</h3><p class="muted">শ্রেণি ও বিষয়ভিত্তিক ডিজিটাল পাঠ্যবই ও ই-বুক।</p><button class="btn" onclick="navigateTo('ebooks')">ই বুক দেখুন</button></div>
+       <div class="card"><h3>📆 একাডেমিক ক্যালেন্ডার</h3><p class="muted">শিক্ষাবর্ষভিত্তিক ছুটির তালিকা ও বর্ষপঞ্জি।</p><button class="btn" onclick="navigateTo('calendar')">ক্যালেন্ডার দেখুন</button></div>
+       <div class="card"><h3>🎙 সভাপতির বাণী</h3><p class="muted">বিদ্যালয় পরিচালনা পর্ষদের মাননীয় সভাপতির বার্তা।</p><button class="btn" onclick="navigateTo('chairman')">বাণী দেখুন</button></div>
+       <div class="card"><h3>🎙 প্রধান শিক্ষকের বাণী</h3><p class="muted">বিদ্যালয়ের সম্মানিত প্রধান শিক্ষকের বার্তা।</p><button class="btn" onclick="navigateTo('headteacher')">বাণী দেখুন</button></div>
+       <div class="card"><h3>🏆 বিদ্যালয়ের অর্জনসমূহ</h3><p class="muted">আমাদের শিক্ষা, খেলাধুলা ও সাংস্কৃতিক সাফল্য।</p><button class="btn" onclick="navigateTo('achievements')">অর্জনসমূহ দেখুন</button></div>
+       <div class="card"><h3>📸 Photo Gallery</h3><p class="muted">বিদ্যালয়ের আলোকচিত্র ও চিত্রশালা।</p><button class="btn" onclick="navigateTo('gallery')">গ্যালারি দেখুন</button></div>
+       <div class="card"><h3>📞 Contact</h3><p class="muted">বিদ্যালয়ের ঠিকানা, ই-মেইল ও যোগাযোগের তথ্য।</p><button class="btn" onclick="navigateTo('contact')">যোগাযোগ করুন</button></div>
+       <div class="card"><h3>⚙ Admin Panel</h3><p class="muted">নোটিশ, ফলাফল, সিলেবাস, শিক্ষক ও তথ্য ব্যবস্থাপনা।</p><button class="btn secondary" onclick="navigateTo('admin')">প্রশাসক প্যানেল</button></div>
+     </div>
+   </div>
+   <aside class="home-sidebar">
+     <div class="card">
+       ${ht.imageUrl ? `<img src="${esc(ht.imageUrl)}" alt="প্রধান শিক্ষক" class="sidebar-img">` : ''}
+       <h3>🎙 প্রধান শিক্ষকের বাণী</h3>
+       <p style="line-height:1.6;font-size:14px;color:var(--text)">${ht.text ? esc(ht.text).replace(/\n/g,"<br>") : 'কোনো বার্তা যুক্ত করা হয়নি।'}</p>
+     </div>
+     <div class="card">
+       ${ch.imageUrl ? `<img src="${esc(ch.imageUrl)}" alt="সভাপতি" class="sidebar-img">` : ''}
+       <h3>🎙 সভাপতির বাণী</h3>
+       <p style="line-height:1.6;font-size:14px;color:var(--text)">${ch.text ? esc(ch.text).replace(/\n/g,"<br>") : 'কোনো বার্তা যুক্ত করা হয়নি।'}</p>
+     </div>
+   </aside>
  </div>`;
 }
 
