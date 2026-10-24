@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>বাঙ্গুরী উচ্চ বিদ্যালয় | দেবিদ্বার, কুমিল্লা</title>
 <meta name="description" content="বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা — নোটিশ, ফলাফল, সিলেবাস, রেজিষ্ট্রেশন, ফর্ম ফিলাপ, বিদ্যালয়ের অর্জন, গ্যালারি ও যোগাযোগ।">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -248,7 +251,11 @@ const save=async()=>{
   }catch(e){
     console.warn("LocalStorage quota exceeded, relying on IndexedDB");
   }
-  await saveToIDB(db);
+  try{
+    await saveToIDB(db);
+  }catch(e){
+    console.warn("IndexedDB save failed", e);
+  }
 };
 
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
@@ -2186,6 +2193,14 @@ async function importResults(){
 }
 
 (async function initApp(){
+  if('serviceWorker' in navigator){
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for(let reg of registrations){
+        await reg.unregister();
+      }
+    } catch(e){}
+  }
   await initDB();
   const idbData = await loadFromIDB();
   if(idbData){
