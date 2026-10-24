@@ -235,7 +235,9 @@ let db = JSON.parse(localStorage.getItem(KEY)||"null") || {
    history: "বাঙ্গুরী উচ্চ বিদ্যালয় কুমিল্লা জেলার দেবিদ্বার উপজেলায় অবস্থিত একটি ঐতিহ্যবাহী শিক্ষাপ্রতিষ্ঠান। এটি এলাকার শিক্ষার আলো ছড়াতে এবং শিক্ষার্থীদের আদর্শ নাগরিক হিসেবে গড়ে তুলতে সুদীর্ঘকাল ধরে গুরুত্বপূর্ণ ভূমিকা পালন করে আসছে। প্রতিষ্ঠানটিতে মানসম্মত শিক্ষা, সুশৃঙ্খল পরিবেশ, খেলাধুলা ও সহপাঠ্যক্রমিক কার্যক্রমের ওপর বিশেষ গুরুত্ব প্রদান করা হয়।",
    historyImage: "school-building.png",
    mission: "শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
-   contact: "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"
+   contact: "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।",
+   email: "bangurihighschool@gmail.com",
+   phone: "+8801700000000"
  },
  adminPassHash: null
 };
@@ -335,7 +337,7 @@ function home(){
  app.innerHTML=`
  <div class="slogan-row card" style="text-align:center;padding:22px 20px;margin-bottom:20px;border:1px solid var(--border);border-radius:15px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.03)">
    <div style="font-size:22px;font-weight:700;color:var(--blue);line-height:1.5">
-     দেবিদ্বার, কুমিল্লা, বাংলাদেশ। সুশিক্ষা, শৃঙ্খলা ও নৈতিক মূল্যবোধ আমাদের অঙ্গীকার।
+     সুশিক্ষা, শৃঙ্খলা ও নৈতিক মূল্যবোধ আমাদের অঙ্গীকার।
    </div>
  </div>
  <div class="home-layout">
@@ -361,8 +363,6 @@ function home(){
        <div class="card"><h3>📅 পরীক্ষার রুটিন</h3><p class="muted">শ্রেণিভিত্তিক পরীক্ষার সময়সূচি ও সময়সারণী।</p><button class="btn" onclick="navigateTo('routines')">রুটিন দেখুন</button></div>
        <div class="card"><h3>📖 ই বুক</h3><p class="muted">শ্রেণি ও বিষয়ভিত্তিক ডিজিটাল পাঠ্যবই ও ই-বুক।</p><button class="btn" onclick="navigateTo('ebooks')">ই বুক দেখুন</button></div>
        <div class="card"><h3>📆 একাডেমিক ক্যালেন্ডার</h3><p class="muted">শিক্ষাবর্ষভিত্তিক ছুটির তালিকা ও বর্ষপঞ্জি।</p><button class="btn" onclick="navigateTo('calendar')">ক্যালেন্ডার দেখুন</button></div>
-       <div class="card"><h3>🎙 সভাপতির বাণী</h3><p class="muted">বিদ্যালয় পরিচালনা পর্ষদের মাননীয় সভাপতির বার্তা।</p><button class="btn" onclick="navigateTo('chairman')">বাণী দেখুন</button></div>
-       <div class="card"><h3>🎙 প্রধান শিক্ষকের বাণী</h3><p class="muted">বিদ্যালয়ের সম্মানিত প্রধান শিক্ষকের বার্তা।</p><button class="btn" onclick="navigateTo('headteacher')">বাণী দেখুন</button></div>
        <div class="card"><h3>🏆 বিদ্যালয়ের অর্জনসমূহ</h3><p class="muted">আমাদের শিক্ষা, খেলাধুলা ও সাংস্কৃতিক সাফল্য।</p><button class="btn" onclick="navigateTo('achievements')">অর্জনসমূহ দেখুন</button></div>
        <div class="card"><h3>📸 Photo Gallery</h3><p class="muted">বিদ্যালয়ের আলোকচিত্র ও চিত্রশালা।</p><button class="btn" onclick="navigateTo('gallery')">গ্যালারি দেখুন</button></div>
        <div class="card"><h3>📞 Contact</h3><p class="muted">বিদ্যালয়ের ঠিকানা, ই-মেইল ও যোগাযোগের তথ্য।</p><button class="btn" onclick="navigateTo('contact')">যোগাযোগ করুন</button></div>
@@ -717,7 +717,10 @@ function gallery(){
 }
 
 function contact(){
- app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> বাঙ্গুরী উচ্চ বিদ্যালয়</p><p><b>ঠিকানা:</b> ${esc(db.school.contact)}</p><p><b>ই-মেইল:</b> bangurihighschool@gmail.com</p><p><b>ফোন:</b> +8801700000000</p></div>`;
+ const address = (db.school && db.school.contact) ? db.school.contact : "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।";
+ const email = (db.school && db.school.email) ? db.school.email : "bangurihighschool@gmail.com";
+ const phone = (db.school && db.school.phone) ? db.school.phone : "+8801700000000";
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> বাঙ্গুরী উচ্চ বিদ্যালয়</p><p><b>ঠিকানা:</b> ${esc(address)}</p><p><b>ই-মেইল:</b> ${esc(email)}</p><p><b>ফোন:</b> ${esc(phone)}</p></div>`;
 }
 
 async function checkAdminPass(pass){
@@ -759,6 +762,7 @@ function admin(){
    <button class="admin-tab-btn ${activeAdminSubSection==='notices'?'active':''}" onclick="switchAdminTab('notices')">📢 নোটিশ বোর্ড</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='achievements'?'active':''}" onclick="switchAdminTab('achievements')">🏆 অর্জনসমূহ</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='gallery'?'active':''}" onclick="switchAdminTab('gallery')">📸 গ্যালারি</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='contact_admin'?'active':''}" onclick="switchAdminTab('contact_admin')">📞 যোগাযোগ তথ্য</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='password'?'active':''}" onclick="switchAdminTab('password')">🔑 পাসওয়ার্ড পরিবর্তন</button>
  </div>
 
@@ -771,7 +775,7 @@ function switchAdminTab(tabName){
   activeAdminSubSection = tabName;
   document.querySelectorAll(".admin-tab-btn").forEach(btn=>btn.classList.remove("active"));
   const btns = document.querySelectorAll(".admin-tab-btn");
-  const tabMap = ["results","syllabus","registration","formfillup","teachers","history","routines","ebooks","calendar","chairman","headteacher","notices","achievements","gallery","password"];
+  const tabMap = ["results","syllabus","registration","formfillup","teachers","history","routines","ebooks","calendar","chairman","headteacher","notices","achievements","gallery","contact_admin","password"];
   const idx = tabMap.indexOf(tabName);
   if(idx >= 0 && btns[idx]) btns[idx].classList.add("active");
   renderAdminSubContent();
@@ -1162,6 +1166,23 @@ function renderAdminSubContent(){
           </div>
         `).join('')}
       </div>
+    </div>`;
+  }
+  else if(activeAdminSubSection === 'contact_admin'){
+    const address = (db.school && db.school.contact) ? db.school.contact : "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।";
+    const email = (db.school && db.school.email) ? db.school.email : "bangurihighschool@gmail.com";
+    const phone = (db.school && db.school.phone) ? db.school.phone : "+8801700000000";
+    container.innerHTML = `
+    <div class="card">
+      <h2>📞 যোগাযোগ তথ্য ব্যবস্থাপনা (Contact Information)</h2>
+      <p class="muted">বিদ্যালয়ের যোগাযোগের ঠিকানা, ই-মেইল ও ফোন নম্বর আপডেট করুন।</p>
+      <label>ঠিকানা (Address)</label>
+      <input id="contactAddress" value="${esc(address)}" placeholder="যেমন: বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।">
+      <label>ই-মেইল (Email)</label>
+      <input id="contactEmail" value="${esc(email)}" placeholder="যেমন: bangurihighschool@gmail.com">
+      <label>ফোন (Phone)</label>
+      <input id="contactPhone" value="${esc(phone)}" placeholder="যেমন: +8801700000000">
+      <button class="btn" onclick="saveContactInfo()">যোগাযোগ তথ্য সংরক্ষণ করুন</button>
     </div>`;
   }
   else if(activeAdminSubSection === 'password'){
@@ -1576,6 +1597,22 @@ async function saveHistory(){
 
   await save();
   alert("বিদ্যালয়ের ইতিহাস সফলভাবে আপডেট হয়েছে।");
+  renderAdminSubContent();
+}
+
+async function saveContactInfo(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  const address = document.getElementById("contactAddress").value.trim();
+  const email = document.getElementById("contactEmail").value.trim();
+  const phone = document.getElementById("contactPhone").value.trim();
+
+  if(!db.school) db.school = {};
+  db.school.contact = address;
+  db.school.email = email;
+  db.school.phone = phone;
+
+  await save();
+  alert("যোগাযোগ তথ্য সফলভাবে আপডেট হয়েছে।");
   renderAdminSubContent();
 }
 
@@ -2172,8 +2209,12 @@ async function importResults(){
   if(!db.school) db.school={
     history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",
     mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
-    contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।"
+    contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।",
+    email:"bangurihighschool@gmail.com",
+    phone:"+8801700000000"
   };
+  if(!db.school.email) db.school.email = "bangurihighschool@gmail.com";
+  if(!db.school.phone) db.school.phone = "+8801700000000";
 
   const initialHash = location.hash ? location.hash.substring(1) : "home";
   const validViews = ["home","notices","results","syllabus","registration","formfillup","teachers","history","routines","ebooks","calendar","chairman","headteacher","achievements","gallery","contact","admin"];
