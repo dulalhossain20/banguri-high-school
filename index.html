@@ -1162,24 +1162,24 @@ function renderAdminSubContent(){
     container.innerHTML = `
     <div class="card">
       <h2>💾 ডেটা প্রকাশ ও ব্যাকআপ ব্যবস্থাপনা (Publish & Backup)</h2>
-      <p class="muted">এই প্যানেলে আপনার তথ্যসমূহ আপডেট করার পর <b>data.json</b> ডাউনলোড করে ওয়েবসাইটের মূল রিপোজিটরিতে আপডেট করুন। এর ফলে সকল দর্শনার্থী আপনার সাম্প্রতিক তথ্যসমূহ দেখতে পাবেন।</p>
+      <p class="muted">এডমিন প্যানেলে তথ্য যুক্ত বা আপডেট করার পর এই পৃষ্ঠা থেকে ব্যাকআপ গ্রহণ করতে পারবেন এবং প্রকাশিত <b>data.json</b> ফাইল নামিয়ে নিয়ে মূল রিপোজিটরিতে আপলোড করলে সাধারণ দর্শনার্থীরা লাইভ দেখতে পাবেন।</p>
 
       <div style="margin:20px 0;padding:15px;background:#f8fafd;border:1px solid var(--border);border-radius:10px">
-        <h3>📥 ১. data.json প্রকাশ ফাইল ডাউনলোড</h3>
-        <p>বর্তমান তথ্যসহ ডেটাফাইল ডাউনলোড করতে নিচের বোতামে চাপুন:</p>
-        <button class="btn" onclick="exportDataJson()">📥 data.json ডাউনলোড করুন</button>
+        <h3>📥 ১. আপনার ফোনের/ডিভাইসের বর্তমান ডেটা ব্যাকআপ ও data.json ডাউনলোড</h3>
+        <p>আপনার ডিভাইসে সংগৃহীত বা এন্ট্রি করা নোটিশ, শিক্ষক তালিকা, বাণী ও অন্যান্য সকল হালনাগাদ তথ্যসহ <b>data.json</b> ডাউনলোড করতে নিচের বোতামে চাপুন:</p>
+        <button class="btn" onclick="exportDataJson()">📥 data.json ব্যাকআপ ডাউনলোড করুন</button>
       </div>
 
       <div style="margin:20px 0;padding:15px;background:#f8fafd;border:1px solid var(--border);border-radius:10px">
-        <h3>📤 ২. JSON ডেটাফাইল ইম্পোর্ট</h3>
-        <p>পূর্বে সংরক্ষিত বা অন্য ডিভাইস থেকে প্রাপ্ত <b>data.json</b> বা ব্যাকআপ ফাইল আপলোড করুন:</p>
+        <h3>📤 ২. JSON ডেটাফাইল ইম্পোর্ট (অন্য ডিভাইস বা ব্যাকআপ ফাইল থেকে)</h3>
+        <p>পূর্বে সংরক্ষিত বা অন্য ডিভাইস থেকে প্রাপ্ত <b>data.json</b> বা ব্যাকআপ ফাইল লোড করতে ফাইল নির্বাচন করুন:</p>
         <input type="file" id="jsonImportFile" accept=".json" style="margin-bottom:10px"><br>
         <button class="btn secondary" onclick="importDataJson()">📤 ডেটাফাইল ইম্পোর্ট ও লোড করুন</button>
       </div>
 
       <div style="margin:20px 0;padding:15px;background:#fff8e8;border:1px solid #f0a400;border-radius:10px">
         <h3>🔄 ৩. সার্ভার পাবলিশড ডেটা রিলোড (Reset Local Changes)</h3>
-        <p class="muted">আপনার ব্রাউজারের সাময়িক পরিবর্তন মুছে ফেলে মূল প্রকাশিত <b>data.json</b> পুনরায় লোড করতে চান?</p>
+        <p class="muted">আপনার ব্রাউজারের সাময়িক পরিবর্তন মুছে ফেলে ওয়েবসাইটে সরাসরি প্রকাশিত <b>data.json</b> পুনরায় লোড করতে চান?</p>
         <button class="btn danger" onclick="resetToPublicData()">🔄 data.json পুনরায় লোড করুন</button>
       </div>
     </div>`;
@@ -1616,13 +1616,18 @@ async function saveContactInfo(){
 }
 
 function exportDataJson(){
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+  const jsonStr = JSON.stringify(db, null, 2);
+  const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
   const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", "data.json");
+  downloadAnchor.href = url;
+  downloadAnchor.download = "data.json";
   document.body.appendChild(downloadAnchor);
   downloadAnchor.click();
-  downloadAnchor.remove();
+  setTimeout(() => {
+    downloadAnchor.remove();
+    URL.revokeObjectURL(url);
+  }, 100);
 }
 
 function importDataJson(){
