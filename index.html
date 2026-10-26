@@ -180,72 +180,37 @@ async function hashPassword(str){
 // Default state with initial SHA-256 hash for default password "banguri123"
 const DEFAULT_PASS_HASH = "6df603a9397b0777cb35f07751e11b0f18dd2b864b348936f8e0b7a44bc60780";
 
-let db = JSON.parse(localStorage.getItem(KEY)||"null") || {
- notices:[
-   { id: 1, title: "২০২৬ শিক্ষাবর্ষের বার্ষিক ক্রীড়া প্রতিযোগিতা ও সাংস্কৃতিক অনুষ্ঠান সংক্রান্ত নোটিশ", body: "আগামী ১৫ ফেব্রুয়ারি ২০২৬ তারিখ বাঙ্গুরী উচ্চ বিদ্যালয়ের বার্ষিক ক্রীড়া প্রতিযোগিতা অনুষ্ঠিত হবে। সকল শিক্ষার্থীকে নির্ধারিত সময়ে উপস্থিত থাকার জন্য নির্দেশ প্রদান করা হলো।", date: "১০/০১/২০২৬", pdfUrl: "", imageUrl: "school-building.png" },
-   { id: 2, title: "অভিভাবক সমাবেশ ও শ্রেণি পরীক্ষা সংক্রান্ত জরুরি বিজ্ঞপ্তি", body: "সকল শ্রেণির অভিভাবকগণকে জানানো যাচ্ছে যে আগামী ২০ জানুয়ারি অভিভাবক সমাবেশ অনুষ্ঠিত হবে।", date: "০৫/০১/২০২৬", pdfUrl: "", imageUrl: "" }
- ],
- results:[],
- teachers:[
-   { id: 1, name: "মোঃ দুলাল হোসেন", designation: "প্রধান শিক্ষক", subject: "গণিত", category: "শিক্ষক", imageUrl: "school-logo.jpg" },
-   { id: 2, name: "আব্দুল কুদ্দুস", designation: "সহকারী প্রধান শিক্ষক", subject: "ইংরেজি", category: "শিক্ষক", imageUrl: "" },
-   { id: 3, name: "মোসাঃ পারভীন আক্তার", designation: "সহকারী শিক্ষক", subject: "বিজ্ঞান", category: "শিক্ষক", imageUrl: "" },
-   { id: 4, name: "মোঃ রফিকুল ইসলাম", designation: "সহকারী শিক্ষক", subject: "বাংলাদেশ ও বিশ্বপরিচয়", category: "শিক্ষক", imageUrl: "" },
-   { id: 5, name: "মোঃ আল-আমিন", designation: "অফিস সহকারী", subject: "প্রশাসন", category: "কর্মচারী", imageUrl: "" }
- ],
- gallery:[
-   { title: "বিদ্যালয় ভবন ও প্রাঙ্গণ", url: "school-building.png" },
-   { title: "বিদ্যালয়ের অফিশিয়াল লোগো", url: "school-logo.jpg" }
- ],
- achievements:[
-   { id: 1, title: "উপজেলা পর্যায়ে বিতর্ক প্রতিযোগিতায় ১ম স্থান অর্জন", description: "দেবিদ্বার উপজেলা পর্যায়ে আয়োজিত আন্তঃস্কুল বিতর্ক প্রতিযোগিতায় বাঙ্গুরী উচ্চ বিদ্যালয় চ্যাম্পিয়ন হওয়ার গৌরব অর্জন করেছে।", date: "২০২৫", imageUrl: "school-building.png" },
-   { id: 2, title: "এসএসসি পরীক্ষায় শতভাগ পাস ও জিপিএ-৫ প্রাপ্তি", description: "গত এসএসসি পরীক্ষায় বিদ্যালয়ের শিক্ষার্থীরা মেধার স্বাক্ষর রেখে চমৎকার সাফল্য অর্জন করেছে।", date: "২০২৫", imageUrl: "" }
- ],
- syllabuses:[
-   { id: 1, className: "৬ষ্ঠ", title: "৬ষ্ঠ শ্রেণি বার্ষিক পরীক্ষা সিলেবাস ২০২৬", date: "০১/০১/২০২৬", pdfUrl: "" },
-   { id: 2, className: "৮ম", title: "৮ম শ্রেণি বার্ষিক পরীক্ষা সিলেবাস ২০২৬", date: "০১/০১/২০২৬", pdfUrl: "" },
-   { id: 3, className: "৯ম", title: "৯ম শ্রেণি বিষয়ভিত্তিক সিলেবাস ২০২৬", date: "০১/০১/২০২৬", pdfUrl: "" }
- ],
- registrations:[
-   { id: 1, className: "৬ষ্ঠ", title: "৬ষ্ঠ শ্রেণির ভর্তি ও রেজিষ্ট্রেশন কার্যক্রম", description: "৬ষ্ঠ শ্রেণির নবীন শিক্ষার্থীদের ভর্তি ও প্রয়োজনীয় তথ্য সংগ্রহের কার্যক্রম শুরু হয়েছে।", date: "০২/০১/২০২৬", pdfUrl: "" },
-   { id: 2, className: "৯ম", title: "৯ম শ্রেণির শিক্ষা বোর্ড রেজিষ্ট্রেশন বিজ্ঞপ্তি", description: "কুমিল্লা শিক্ষা বোর্ডের অধীনে ৯ম শ্রেণির শিক্ষার্থীদের রেজিষ্ট্রেশন ফরম পূরণ চলছে।", date: "১০/০১/২০২৬", pdfUrl: "" }
- ],
- formFillups:[
-   { id: 1, title: "এসএসসি পরীক্ষা ২০২৬ ফর্ম ফিলাপ বিজ্ঞপ্তি", description: "এসএসসি পরীক্ষা ২০২৬-এর নির্বাচনী পরীক্ষায় উত্তীর্ণ শিক্ষার্থীদের ফর্ম ফিলাপ সংক্রান্ত নির্দেশনা।", date: "০৫/০১/২০২৬", pdfUrl: "" }
- ],
- routines:[
-   { id: 1, title: "অর্ধবার্ষিক পরীক্ষা ২০২৬ সময়সূচি", className: "সকল শ্রেণি", date: "১০/০১/২০২৬", pdfUrl: "" }
- ],
- ebooks:[
-   { id: 1, className: "৬ষ্ঠ", title: "বাংলা ১ম পত্র (আনন্দপাঠ)", subject: "বাংলা", pdfUrl: "", date: "০১/০১/২০২৬" },
-   { id: 2, className: "৭ম", title: "English for Today", subject: "ইংরেজি", pdfUrl: "", date: "০১/০১/২০২৬" },
-   { id: 3, className: "৮ম", title: "গণিত (Mathematics)", subject: "গণিত", pdfUrl: "", date: "০১/০১/২০২৬" },
-   { id: 4, className: "৯ম", title: "পদার্থবিজ্ঞান (Physics)", subject: "বিজ্ঞান", pdfUrl: "", date: "০১/০১/২০২৬" },
-   { id: 5, className: "১০ম", title: "বাংলাদেশের ইতিহাস ও বিশ্বসভ্যতা", subject: "মানবিক", pdfUrl: "", date: "০১/০১/২০২৬" }
- ],
- calendars:[
-   { id: 1, title: "২০২৬ শিক্ষাবর্ষের একাডেমিক ক্যালেন্ডার ও ছুটির তালিকা", year: "২০২৬", date: "০১/০১/২০২৬", pdfUrl: "" }
- ],
- chairman:{
-   text: "বাঙ্গুরী উচ্চ বিদ্যালয়ের পরিচালনা পর্ষদের পক্ষ থেকে সকলকে আন্তরিক শুভেচ্ছা ও অভিনন্দন। আমাদের লক্ষ্য শিক্ষার্থীদের সুশিক্ষা ও নৈতিক মূল্যবোধে সমৃদ্ধ গড়ে তোলা। অভিভাবক, শিক্ষক ও শিক্ষার্থীদের যৌথ প্রচেষ্টায় বাঙ্গুরী উচ্চ বিদ্যালয় উত্তরোত্তর সমৃদ্ধির পথে এগিয়ে যাচ্ছে।",
-   imageUrl: "school-building.png"
- },
- headTeacher:{
-   text: "প্রিয় শিক্ষার্থীবৃন্দ ও সুধীমণ্ডলী, বাঙ্গুরী উচ্চ বিদ্যালয়ে আপনাকে স্বাগতম। আমরা বিশ্বাস করি গুণগত শিক্ষা ও শৃঙ্খলাই একটি উজ্জ্বল ভবিষ্যতের মূল চাবিকাঠি। আমাদের দক্ষ শিক্ষকবৃন্দ ও আধুনিক শিক্ষা পদ্ধতি শিক্ষার্থীদের মেধা বিকাশ ও চরিত্র গঠনে নিরলসভাবে কাজ করে যাচ্ছে।",
-   imageUrl: "school-logo.jpg"
- },
- school:{
-   history: "বাঙ্গুরী উচ্চ বিদ্যালয় কুমিল্লা জেলার দেবিদ্বার উপজেলায় অবস্থিত একটি ঐতিহ্যবাহী শিক্ষাপ্রতিষ্ঠান। এটি এলাকার শিক্ষার আলো ছড়াতে এবং শিক্ষার্থীদের আদর্শ নাগরিক হিসেবে গড়ে তুলতে সুদীর্ঘকাল ধরে গুরুত্বপূর্ণ ভূমিকা পালন করে আসছে। প্রতিষ্ঠানটিতে মানসম্মত শিক্ষা, সুশৃঙ্খল পরিবেশ, খেলাধুলা ও সহপাঠ্যক্রমিক কার্যক্রমের ওপর বিশেষ গুরুত্ব প্রদান করা হয়।",
-   historyImage: "school-building.png",
-   mission: "শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
-   contact: "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।",
-   email: "bangurihighschool@gmail.com",
-   phone: "+8801700000000"
- },
- adminPassHash: null
-};
+function getCleanSchema(){
+  return {
+    notices: [],
+    results: [],
+    teachers: [],
+    gallery: [],
+    achievements: [],
+    syllabuses: [],
+    registrations: [],
+    formFillups: [],
+    routines: [],
+    ebooks: [],
+    calendars: [],
+    chairman: { text: "", imageUrl: "" },
+    headTeacher: { text: "", imageUrl: "" },
+    school: {
+      history: "",
+      historyImage: "",
+      mission: "শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
+      contact: "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।",
+      email: "bangurihighschool@gmail.com",
+      phone: ""
+    },
+    adminPassHash: null
+  };
+}
+
+let db = JSON.parse(localStorage.getItem(KEY)||"null") || getCleanSchema();
 
 const save=async()=>{
+  db.isLocalAdminModified = true;
   try{
     localStorage.setItem(KEY,JSON.stringify(db));
   }catch(e){
@@ -358,7 +323,7 @@ function home(){
            ${n.imageUrl ? `<div style="margin:10px 0"><img src="${esc(n.imageUrl)}" style="max-width:100%;max-height:350px;border-radius:8px;border:1px solid #cbd6e0"></div>` : ''}
            ${n.pdfUrl ? `<div style="margin:10px 0"><a href="${esc(n.pdfUrl)}" target="_blank" download="${esc(n.title)}.pdf" class="btn secondary" style="display:inline-block">📄 সংযুক্ত PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
            <small class="muted">প্রকাশের তারিখ: ${esc(n.date)}</small>
-         </div>`).join("") : "<p class='muted'>এখনও কোনো নোটিশ প্রকাশিত হয়নি।</p>"}
+         </div>`).join("") : "<p class='muted'>বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>"}
      </div>
      <div class="grid">
        <div class="card"><h3>📊 ফলাফল</h3><p class="muted">৬ষ্ঠ থেকে ১০ম শ্রেণির সকল পরীক্ষার ফলাফল দেখুন।</p><button class="btn" onclick="navigateTo('results')">ফলাফল দেখুন</button></div>
@@ -380,12 +345,12 @@ function home(){
      <div class="card">
        ${ht.imageUrl ? `<img src="${esc(ht.imageUrl)}" alt="প্রধান শিক্ষক" class="sidebar-img">` : ''}
        <h3>🎙 প্রধান শিক্ষকের বাণী</h3>
-       <p style="line-height:1.6;font-size:14px;color:var(--text)">${ht.text ? esc(ht.text).replace(/\n/g,"<br>") : 'কোনো বার্তা যুক্ত করা হয়নি।'}</p>
+       <p style="line-height:1.6;font-size:14px;color:var(--text)">${ht.text ? esc(ht.text).replace(/\n/g,"<br>") : '<span class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</span>'}</p>
      </div>
      <div class="card">
        ${ch.imageUrl ? `<img src="${esc(ch.imageUrl)}" alt="সভাপতি" class="sidebar-img">` : ''}
        <h3>🎙 সভাপতির বাণী</h3>
-       <p style="line-height:1.6;font-size:14px;color:var(--text)">${ch.text ? esc(ch.text).replace(/\n/g,"<br>") : 'কোনো বার্তা যুক্ত করা হয়নি।'}</p>
+       <p style="line-height:1.6;font-size:14px;color:var(--text)">${ch.text ? esc(ch.text).replace(/\n/g,"<br>") : '<span class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</span>'}</p>
      </div>
    </aside>
  </div>`;
@@ -393,14 +358,14 @@ function home(){
 
 function notices(){
  app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📢 নোটিশ বোর্ড</h2>
- ${db.notices.length ? db.notices.map(n=>`
+ ${db.notices && db.notices.length ? db.notices.map(n=>`
    <div class="notice">
      <h3>${esc(n.title)}</h3>
      <p>${esc(n.body).replace(/\n/g,"<br>")}</p>
      ${n.imageUrl ? `<div style="margin:10px 0"><img src="${esc(n.imageUrl)}" style="max-width:100%;max-height:350px;border-radius:8px;border:1px solid #cbd6e0"></div>` : ''}
      ${n.pdfUrl ? `<div style="margin:10px 0"><a href="${esc(n.pdfUrl)}" target="_blank" download="${esc(n.title)}.pdf" class="btn secondary" style="display:inline-block">📄 সংযুক্ত PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
      <small class="muted">প্রকাশের তারিখ: ${esc(n.date)}</small>
-   </div>`).join("") : "<p class='muted'>এখনও কোনো নোটিশ প্রকাশিত হয়নি।</p>"}</div>`;
+   </div>`).join("") : "<p class='muted'>বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>"}</div>`;
 }
 
 const CLASS_SUBJECTS = {
@@ -492,7 +457,7 @@ function syllabus(selectedClass = currentSyllabusClass){
            <a href="${esc(s.pdfUrl)}" target="_blank" download="${esc(s.title)}.pdf" class="btn secondary">📄 PDF ডাউনলোড / দেখুন</a>
          </div>
        </div>
-     `).join('') : `<p class="muted">এই শ্রেণির জন্য বর্তমানে কোনো সিলেবাস পাওয়া যায়নি।</p>`}
+     `).join('') : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
    </div>
  </div>`;
 }
@@ -518,7 +483,7 @@ function registration(selectedClass = currentRegClass){
          <small class="muted">প্রকাশের তারিখ: ${esc(r.date)}</small>
          ${r.pdfUrl ? `<div style="margin-top:10px"><a href="${esc(r.pdfUrl)}" target="_blank" download="${esc(r.title)}.pdf" class="btn secondary">📄 সংযুক্ত PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
        </div>
-     `).join('') : `<p class="muted">এই শ্রেণির জন্য বর্তমানে কোনো রেজিষ্ট্রেশন নোটিশ বা ডকুমেন্ট আপলোড করা হয়নি।</p>`}
+     `).join('') : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
    </div>
  </div>`;
 }
@@ -536,7 +501,7 @@ function formfillup(){
        <small class="muted">প্রকাশের তারিখ: ${esc(f.date)}</small>
        ${f.pdfUrl ? `<div style="margin-top:10px"><a href="${esc(f.pdfUrl)}" target="_blank" download="${esc(f.title)}.pdf" class="btn secondary">📄 সংযুক্ত PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
      </div>
-   `).join('') : `<p class="muted">বর্তমানে কোনো ফর্ম ফিলাপ নোটিশ প্রকাশিত হয়নি।</p>`}
+   `).join('') : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
  </div>`;
 }
 
@@ -559,7 +524,7 @@ function teachers(){
          </div>
        `).join('')}
      </div>
-   ` : `<p class="muted">বর্তমানে শিক্ষক বা কর্মচারীদের কোনো প্রোফাইল যুক্ত করা হয়নি।</p>`}
+   ` : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
  </div>`;
 }
 
@@ -571,7 +536,7 @@ function historyView(){
  <div class="card">
    <h2>🏛 বিদ্যালয়ের ইতিহাস</h2>
    ${img ? `<div style="text-align:center;margin-bottom:15px"><img src="${esc(img)}" style="max-width:100%;max-height:350px;border-radius:10px;border:1px solid var(--border)"></div>` : ''}
-   ${h ? `<div style="font-size:16px;line-height:1.7">${esc(h).replace(/\n/g,"<br>")}</div>` : `<p class="muted">বর্তমানে বিদ্যালয়ের কোনো ইতিহাস যুক্ত করা হয়নি।</p>`}
+   ${h ? `<div style="font-size:16px;line-height:1.7">${esc(h).replace(/\n/g,"<br>")}</div>` : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
  </div>`;
 }
 
@@ -589,7 +554,7 @@ function routines(){
        <small class="muted">প্রকাশের তারিখ: ${esc(r.date)}</small>
        ${r.pdfUrl ? `<div style="margin-top:10px"><a href="${esc(r.pdfUrl)}" target="_blank" download="${esc(r.title)}.pdf" class="btn secondary">📄 রুটিন PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
      </div>
-   `).join('') : `<p class="muted">বর্তমানে কোনো পরীক্ষার রুটিন আপলোড করা হয়নি।</p>`}
+   `).join('') : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
  </div>`;
 }
 
@@ -640,7 +605,7 @@ function ebooks(){
          </div>
        `).join('')}
      </div>
-   ` : `<p class="muted">নির্বাচিত শ্রেণি বা বিষয়ের জন্য কোনো ই-বুক পাওয়া যায়নি।</p>`}
+   ` : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
  </div>`;
 }
 
@@ -664,7 +629,7 @@ function calendar(){
        <small class="muted">প্রকাশের তারিখ: ${esc(c.date)}</small>
        ${c.pdfUrl ? `<div style="margin-top:10px"><a href="${esc(c.pdfUrl)}" target="_blank" download="${esc(c.title)}.pdf" class="btn secondary">📄 ক্যালেন্ডার PDF দেখুন / ডাউনলোড করুন</a></div>` : ''}
      </div>
-   `).join('') : `<p class="muted">বর্তমানে কোনো একাডেমিক ক্যালেন্ডার আপলোড করা হয়নি।</p>`}
+   `).join('') : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
  </div>`;
 }
 
@@ -678,10 +643,10 @@ function chairmanView(){
      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
        ${c.imageUrl ? `<div style="flex:0 0 200px;text-align:center"><img src="${esc(c.imageUrl)}" style="width:200px;height:240px;object-fit:cover;border-radius:12px;border:1px solid var(--border);box-shadow:0 3px 8px rgba(0,0,0,0.1)"></div>` : ''}
        <div style="flex:1;min-width:250px;font-size:16px;line-height:1.7">
-         ${c.text ? esc(c.text).replace(/\n/g,"<br>") : '<p class="muted">বার্তা সংযোজন করা হয়নি।</p>'}
+         ${c.text ? esc(c.text).replace(/\n/g,"<br>") : '<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>'}
        </div>
      </div>
-   ` : `<p class="muted">বর্তমানে সভাপতির কোনো বাণী যুক্ত করা হয়নি।</p>`}
+   ` : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
  </div>`;
 }
 
@@ -695,10 +660,10 @@ function headTeacherView(){
      <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start">
        ${h.imageUrl ? `<div style="flex:0 0 200px;text-align:center"><img src="${esc(h.imageUrl)}" style="width:200px;height:240px;object-fit:cover;border-radius:12px;border:1px solid var(--border);box-shadow:0 3px 8px rgba(0,0,0,0.1)"></div>` : ''}
        <div style="flex:1;min-width:250px;font-size:16px;line-height:1.7">
-         ${h.text ? esc(h.text).replace(/\n/g,"<br>") : '<p class="muted">বার্তা সংযোজন করা হয়নি।</p>'}
+         ${h.text ? esc(h.text).replace(/\n/g,"<br>") : '<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>'}
        </div>
      </div>
-   ` : `<p class="muted">বর্তমানে প্রধান শিক্ষকের কোনো বাণী যুক্ত করা হয়নি।</p>`}
+   ` : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
  </div>`;
 }
 
@@ -715,19 +680,19 @@ function achievements(){
        </div>
      `).join('')}
    </div>
- ` : `<p class="muted">এখনও কোনো অর্জন যুক্ত করা হয়নি।</p>`}
+ ` : `<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>`}
  </div>`;
 }
 
 function gallery(){
- app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📸 ফটো গ্যালারি</h2>${db.gallery.length?`<div class="grid">${db.gallery.map(g=>`<div class="card"><img src="${esc(g.url)}" alt="${esc(g.title)}" style="width:100%;height:200px;object-fit:cover;border-radius:10px"><h3>${esc(g.title)}</h3></div>`).join('')}</div>`:'<p class="muted">এখনও কোনো ছবি যুক্ত করা হয়নি।</p>'}</div>`;
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📸 ফটো গ্যালারি</h2>${db.gallery.length?`<div class="grid">${db.gallery.map(g=>`<div class="card"><img src="${esc(g.url)}" alt="${esc(g.title)}" style="width:100%;height:200px;object-fit:cover;border-radius:10px"><h3>${esc(g.title)}</h3></div>`).join('')}</div>`:'<p class="muted">বর্তমানে কোনো তথ্য প্রকাশ করা হয়নি</p>'}</div>`;
 }
 
 function contact(){
  const address = (db.school && db.school.contact) ? db.school.contact : "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।";
  const email = (db.school && db.school.email) ? db.school.email : "bangurihighschool@gmail.com";
- const phone = (db.school && db.school.phone) ? db.school.phone : "+8801700000000";
- app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> বাঙ্গুরী উচ্চ বিদ্যালয়</p><p><b>ঠিকানা:</b> ${esc(address)}</p><p><b>ই-মেইল:</b> ${esc(email)}</p><p><b>ফোন:</b> ${esc(phone)}</p></div>`;
+ const phone = (db.school && db.school.phone) ? db.school.phone : "";
+ app.innerHTML=`${backButtonHtml()}<div class="card"><h2>📞 যোগাযোগ</h2><p><b>বিদ্যালয়:</b> Banguri High School (বাঙ্গুরী উচ্চ বিদ্যালয়)</p><p><b>ঠিকানা:</b> ${esc(address)}</p><p><b>ই-মেইল:</b> ${esc(email)}</p>${phone ? `<p><b>ফোন:</b> ${esc(phone)}</p>` : ''}</div>`;
 }
 
 async function checkAdminPass(pass){
@@ -770,6 +735,7 @@ function admin(){
    <button class="admin-tab-btn ${activeAdminSubSection==='achievements'?'active':''}" onclick="switchAdminTab('achievements')">🏆 অর্জনসমূহ</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='gallery'?'active':''}" onclick="switchAdminTab('gallery')">📸 গ্যালারি</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='contact_admin'?'active':''}" onclick="switchAdminTab('contact_admin')">📞 যোগাযোগ তথ্য</button>
+   <button class="admin-tab-btn ${activeAdminSubSection==='publish'?'active':''}" onclick="switchAdminTab('publish')">💾 ডেটা প্রকাশ ও ব্যাকআপ</button>
    <button class="admin-tab-btn ${activeAdminSubSection==='password'?'active':''}" onclick="switchAdminTab('password')">🔑 পাসওয়ার্ড পরিবর্তন</button>
  </div>
 
@@ -782,7 +748,7 @@ function switchAdminTab(tabName){
   activeAdminSubSection = tabName;
   document.querySelectorAll(".admin-tab-btn").forEach(btn=>btn.classList.remove("active"));
   const btns = document.querySelectorAll(".admin-tab-btn");
-  const tabMap = ["results","syllabus","registration","formfillup","teachers","history","routines","ebooks","calendar","chairman","headteacher","notices","achievements","gallery","contact_admin","password"];
+  const tabMap = ["results","syllabus","registration","formfillup","teachers","history","routines","ebooks","calendar","chairman","headteacher","notices","achievements","gallery","contact_admin","publish","password"];
   const idx = tabMap.indexOf(tabName);
   if(idx >= 0 && btns[idx]) btns[idx].classList.add("active");
   renderAdminSubContent();
@@ -1178,7 +1144,7 @@ function renderAdminSubContent(){
   else if(activeAdminSubSection === 'contact_admin'){
     const address = (db.school && db.school.contact) ? db.school.contact : "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।";
     const email = (db.school && db.school.email) ? db.school.email : "bangurihighschool@gmail.com";
-    const phone = (db.school && db.school.phone) ? db.school.phone : "+8801700000000";
+    const phone = (db.school && db.school.phone) ? db.school.phone : "";
     container.innerHTML = `
     <div class="card">
       <h2>📞 যোগাযোগ তথ্য ব্যবস্থাপনা (Contact Information)</h2>
@@ -1190,6 +1156,32 @@ function renderAdminSubContent(){
       <label>ফোন (Phone)</label>
       <input id="contactPhone" value="${esc(phone)}" placeholder="যেমন: +8801700000000">
       <button class="btn" onclick="saveContactInfo()">যোগাযোগ তথ্য সংরক্ষণ করুন</button>
+    </div>`;
+  }
+  else if(activeAdminSubSection === 'publish'){
+    container.innerHTML = `
+    <div class="card">
+      <h2>💾 ডেটা প্রকাশ ও ব্যাকআপ ব্যবস্থাপনা (Publish & Backup)</h2>
+      <p class="muted">এই প্যানেলে আপনার তথ্যসমূহ আপডেট করার পর <b>data.json</b> ডাউনলোড করে ওয়েবসাইটের মূল রিপোজিটরিতে আপডেট করুন। এর ফলে সকল দর্শনার্থী আপনার সাম্প্রতিক তথ্যসমূহ দেখতে পাবেন।</p>
+
+      <div style="margin:20px 0;padding:15px;background:#f8fafd;border:1px solid var(--border);border-radius:10px">
+        <h3>📥 ১. data.json প্রকাশ ফাইল ডাউনলোড</h3>
+        <p>বর্তমান তথ্যসহ ডেটাফাইল ডাউনলোড করতে নিচের বোতামে চাপুন:</p>
+        <button class="btn" onclick="exportDataJson()">📥 data.json ডাউনলোড করুন</button>
+      </div>
+
+      <div style="margin:20px 0;padding:15px;background:#f8fafd;border:1px solid var(--border);border-radius:10px">
+        <h3>📤 ২. JSON ডেটাফাইল ইম্পোর্ট</h3>
+        <p>পূর্বে সংরক্ষিত বা অন্য ডিভাইস থেকে প্রাপ্ত <b>data.json</b> বা ব্যাকআপ ফাইল আপলোড করুন:</p>
+        <input type="file" id="jsonImportFile" accept=".json" style="margin-bottom:10px"><br>
+        <button class="btn secondary" onclick="importDataJson()">📤 ডেটাফাইল ইম্পোর্ট ও লোড করুন</button>
+      </div>
+
+      <div style="margin:20px 0;padding:15px;background:#fff8e8;border:1px solid #f0a400;border-radius:10px">
+        <h3>🔄 ৩. সার্ভার পাবলিশড ডেটা রিলোড (Reset Local Changes)</h3>
+        <p class="muted">আপনার ব্রাউজারের সাময়িক পরিবর্তন মুছে ফেলে মূল প্রকাশিত <b>data.json</b> পুনরায় লোড করতে চান?</p>
+        <button class="btn danger" onclick="resetToPublicData()">🔄 data.json পুনরায় লোড করুন</button>
+      </div>
     </div>`;
   }
   else if(activeAdminSubSection === 'password'){
@@ -1621,6 +1613,60 @@ async function saveContactInfo(){
   await save();
   alert("যোগাযোগ তথ্য সফলভাবে আপডেট হয়েছে।");
   renderAdminSubContent();
+}
+
+function exportDataJson(){
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", "data.json");
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+function importDataJson(){
+  const fileInput = document.getElementById("jsonImportFile");
+  if(!fileInput || !fileInput.files.length){
+    alert("অনুগ্রহ করে একটি JSON ফাইল নির্বাচন করুন।");
+    return;
+  }
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if(typeof parsed !== 'object' || parsed === null){
+        throw new Error("অবৈধ ডেটা ফরম্যাট");
+      }
+      db = parsed;
+      db.isLocalAdminModified = true;
+      await save();
+      alert("সফলভাবে ডেটা ইম্পোর্ট ও আপডেট করা হয়েছে!");
+      admin();
+    } catch(err){
+      alert("JSON ফাইল ইম্পোর্ট করতে সমস্যা হয়েছে: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function resetToPublicData(){
+  if(!confirm("আপনি কি ব্রাউজারের সাময়িক পরিবর্তন মুছে দিয়ে মূল data.json ডেটা লোড করতে চান?")) return;
+  try {
+    const res = await fetch('data.json?v=' + Date.now(), { cache: 'no-store' });
+    if(res.ok){
+      db = await res.json();
+      delete db.isLocalAdminModified;
+      await save();
+      alert("মূল data.json সফলভাবে রিলোড করা হয়েছে!");
+      admin();
+    } else {
+      alert("data.json লোড করা সম্ভব হয়নি।");
+    }
+  } catch(e){
+    alert("ত্রুটি: " + e.message);
+  }
 }
 
 // Exam Routine Functions
@@ -2202,12 +2248,32 @@ async function importResults(){
     } catch(e){}
   }
   await initDB();
-  const idbData = await loadFromIDB();
-  if(idbData){
-    db = idbData;
-  } else {
-    await saveToIDB(db);
+
+  let publicData = null;
+  try {
+    const res = await fetch('data.json?v=' + Date.now(), { cache: 'no-store' });
+    if(res.ok){
+      publicData = await res.json();
+    }
+  } catch(e){
+    console.warn("Could not fetch data.json", e);
   }
+
+  const idbData = await loadFromIDB();
+  const localData = idbData || JSON.parse(localStorage.getItem(KEY)||"null");
+
+  if(publicData){
+    if(localData && localData.isLocalAdminModified){
+      db = localData;
+    } else {
+      db = publicData;
+    }
+  } else if(localData){
+    db = localData;
+  } else {
+    db = getCleanSchema();
+  }
+
   if(!db.notices) db.notices=[];
   if(!db.results) db.results=[];
   if(!db.teachers) db.teachers=[];
@@ -2222,14 +2288,17 @@ async function importResults(){
   if(!db.chairman) db.chairman={ text:"", imageUrl:"" };
   if(!db.headTeacher) db.headTeacher={ text:"", imageUrl:"" };
   if(!db.school) db.school={
-    history:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা। বিদ্যালয়ের ইতিহাস ও তথ্য এখানে যুক্ত করা যাবে।",
+    history:"",
+    historyImage:"",
     mission:"শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
     contact:"বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।",
     email:"bangurihighschool@gmail.com",
-    phone:"+8801700000000"
+    phone:""
   };
   if(!db.school.email) db.school.email = "bangurihighschool@gmail.com";
-  if(!db.school.phone) db.school.phone = "+8801700000000";
+  if(!db.school.contact) db.school.contact = "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।";
+
+  await save();
 
   const initialHash = location.hash ? location.hash.substring(1) : "home";
   const validViews = ["home","notices","results","syllabus","registration","formfillup","teachers","history","routines","ebooks","calendar","chairman","headteacher","achievements","gallery","contact","admin"];
