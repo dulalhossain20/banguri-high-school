@@ -1,0 +1,30 @@
+{
+  "notices": [],
+  "results": [],
+  "teachers": [],
+  "gallery": [],
+  "achievements": [],
+  "syllabuses": [],
+  "registrations": [],
+  "formFillups": [],
+  "routines": [],
+  "ebooks": [],
+  "calendars": [],
+  "chairman": {
+    "text": "",
+    "imageUrl": ""
+  },
+  "headTeacher": {
+    "text": "",
+    "imageUrl": ""
+  },
+  "school": {
+    "history": "",
+    "historyImage": "",
+    "mission": "শিক্ষার্থীদের মানসম্মত শিক্ষা, নৈতিকতা, মানবিক মূল্যবোধ ও প্রযুক্তিনির্ভর দক্ষতায় গড়ে তোলা।",
+    "contact": "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।",
+    "email": "bangurihighschool@gmail.com",
+    "phone": ""
+  },
+  "adminPassHash": null
+}
