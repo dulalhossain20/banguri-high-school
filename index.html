@@ -1381,23 +1381,21 @@ async function addSyllabus(){
   if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF ফাইল হতে হবে।"); }
   if(file.size > 10 * 1024 * 1024){ return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
 
-  const pdfDataUrl = await new Promise(resolve => {
-    const rd = new FileReader();
-    rd.onload = e => resolve(e.target.result);
-    rd.readAsDataURL(file);
-  });
+  const pdfUrl = await uploadFileToServer(file, file.name, file.type);
 
   if(!db.syllabuses) db.syllabuses = [];
   db.syllabuses.unshift({
     id: Date.now(),
     className: cls,
     title: title,
-    pdfUrl: pdfDataUrl,
+    pdfUrl: pdfUrl,
     date: new Date().toLocaleDateString("bn-BD")
   });
-  await save();
-  alert("সিলেবাস সফলভাবে প্রকাশিত হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ সিলেবাস সফলভাবে প্রকাশিত হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 
@@ -1412,16 +1410,13 @@ async function replaceItemFile(storeKey, index, fileProp, fileInput){
     return alert("ফাইলের আকার সর্বোচ্চ 15MB হতে হবে।");
   }
 
-  const dataUrl = await new Promise(resolve => {
-    const rd = new FileReader();
-    rd.onload = e => resolve(e.target.result);
-    rd.readAsDataURL(file);
-  });
-
-  item[fileProp] = dataUrl;
-  await save();
-  alert("ফাইল সফলভাবে পরিবর্তন করা হয়েছে।");
-  renderAdminSubContent();
+  const fileUrl = await uploadFileToServer(file, file.name, file.type);
+  item[fileProp] = fileUrl;
+  const saved = await save();
+  if(saved){
+    alert("✅ ফাইল সফলভাবে পরিবর্তন করা হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function replaceNoticeFile(index, fileInput){
@@ -1435,23 +1430,21 @@ async function replaceNoticeFile(index, fileInput){
     return alert("ফাইলের আকার সর্বোচ্চ 15MB হতে হবে।");
   }
 
-  const dataUrl = await new Promise(resolve => {
-    const rd = new FileReader();
-    rd.onload = e => resolve(e.target.result);
-    rd.readAsDataURL(file);
-  });
+  const fileUrl = await uploadFileToServer(file, file.name, file.type);
 
   if(file.type === "application/pdf"){
-    item.pdfUrl = dataUrl;
+    item.pdfUrl = fileUrl;
   } else if(["image/jpeg", "image/png", "image/webp"].includes(file.type)){
-    item.imageUrl = dataUrl;
+    item.imageUrl = fileUrl;
   } else {
     return alert("শুধুমাত্র PDF বা JPG/PNG/WebP ফাইল নির্বাচন করুন।");
   }
 
-  await save();
-  alert("নোটিশ ফাইল সফলভাবে পরিবর্তন করা হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ নোটিশ ফাইল সফলভাবে পরিবর্তন করা হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function editSyllabus(index){
@@ -1461,8 +1454,8 @@ async function editSyllabus(index){
   const newTitle = prompt("সিলেবাসের নতুন শিরোনাম প্রদান করুন:", item.title);
   if(newTitle !== null && newTitle.trim() !== ""){
     item.title = newTitle.trim();
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1470,8 +1463,8 @@ async function deleteSyllabus(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই সিলেবাসটি মুছে ফেলতে চান?")){
     db.syllabuses.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1485,16 +1478,12 @@ async function addRegistration(){
 
   if(!title){ return alert("রেজিষ্ট্রেশন নোটিশের শিরোনাম প্রদান করুন।"); }
 
-  let pdfDataUrl = null;
+  let pdfUrl = null;
   if(fileInput && fileInput.files && fileInput.files[0]){
     const file = fileInput.files[0];
     if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF ফাইল হতে হবে।"); }
     if(file.size > 10 * 1024 * 1024){ return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
-    pdfDataUrl = await new Promise(resolve => {
-      const rd = new FileReader();
-      rd.onload = e => resolve(e.target.result);
-      rd.readAsDataURL(file);
-    });
+    pdfUrl = await uploadFileToServer(file, file.name, file.type);
   }
 
   if(!db.registrations) db.registrations = [];
@@ -1503,12 +1492,14 @@ async function addRegistration(){
     className: cls,
     title: title,
     description: desc,
-    pdfUrl: pdfDataUrl,
+    pdfUrl: pdfUrl,
     date: new Date().toLocaleDateString("bn-BD")
   });
-  await save();
-  alert("রেজিষ্ট্রেশন নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ রেজিষ্ট্রেশন নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function editRegistration(index){
@@ -1518,8 +1509,8 @@ async function editRegistration(index){
   const newTitle = prompt("রেজিষ্ট্রেশন নোটিশের নতুন শিরোনাম:", item.title);
   if(newTitle !== null && newTitle.trim() !== ""){
     item.title = newTitle.trim();
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1527,8 +1518,8 @@ async function deleteRegistration(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই রেজিষ্ট্রেশন নোটিশটি মুছে ফেলতে চান?")){
     db.registrations.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1541,16 +1532,12 @@ async function addFormFillup(){
 
   if(!title){ return alert("নোটিশের শিরোনাম প্রদান করুন।"); }
 
-  let pdfDataUrl = null;
+  let pdfUrl = null;
   if(fileInput && fileInput.files && fileInput.files[0]){
     const file = fileInput.files[0];
     if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF ফাইল হতে হবে।"); }
     if(file.size > 10 * 1024 * 1024){ return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
-    pdfDataUrl = await new Promise(resolve => {
-      const rd = new FileReader();
-      rd.onload = e => resolve(e.target.result);
-      rd.readAsDataURL(file);
-    });
+    pdfUrl = await uploadFileToServer(file, file.name, file.type);
   }
 
   if(!db.formFillups) db.formFillups = [];
@@ -1558,12 +1545,14 @@ async function addFormFillup(){
     id: Date.now(),
     title: title,
     description: desc,
-    pdfUrl: pdfDataUrl,
+    pdfUrl: pdfUrl,
     date: new Date().toLocaleDateString("bn-BD")
   });
-  await save();
-  alert("ফর্ম ফিলাপ নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ ফর্ম ফিলাপ নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function editFormFillup(index){
@@ -1573,8 +1562,8 @@ async function editFormFillup(index){
   const newTitle = prompt("ফর্ম ফিলাপ নোটিশের নতুন শিরোনাম:", item.title);
   if(newTitle !== null && newTitle.trim() !== ""){
     item.title = newTitle.trim();
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1582,8 +1571,8 @@ async function deleteFormFillup(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই নোটিশটি মুছে ফেলতে চান?")){
     db.formFillups.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1598,26 +1587,24 @@ async function addTeacher(){
 
   if(!name || !desig){ return alert("নাম এবং পদবী আবশ্যক।"); }
 
-  let imgDataUrl = null;
+  let imgUrl = null;
   if(fileInput && fileInput.files && fileInput.files[0]){
     const file = fileInput.files[0];
     if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
     if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
-    imgDataUrl = await new Promise(resolve => {
-      const rd = new FileReader();
-      rd.onload = e => resolve(e.target.result);
-      rd.readAsDataURL(file);
-    });
+    imgUrl = await uploadFileToServer(file, file.name, file.type);
   }
 
   if(!db.teachers) db.teachers = [];
   db.teachers.push({
     id: Date.now(),
-    name, designation: desig, subject: subj, category: cat, imageUrl: imgDataUrl
+    name, designation: desig, subject: subj, category: cat, imageUrl: imgUrl
   });
-  await save();
-  alert("শিক্ষক/কর্মচারীর তথ্য সফলভাবে যুক্ত হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ শিক্ষক/কর্মচারীর তথ্য সফলভাবে যুক্ত হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function editTeacher(index){
@@ -1638,8 +1625,8 @@ async function deleteTeacher(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই প্রোফাইলটি মুছে ফেলতে চান?")){
     db.teachers.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1656,16 +1643,14 @@ async function saveHistory(){
     const file = fileInput.files[0];
     if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
     if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
-    db.school.historyImage = await new Promise(resolve => {
-      const rd = new FileReader();
-      rd.onload = e => resolve(e.target.result);
-      rd.readAsDataURL(file);
-    });
+    db.school.historyImage = await uploadFileToServer(file, file.name, file.type);
   }
 
-  await save();
-  alert("বিদ্যালয়ের ইতিহাস সফলভাবে আপডেট হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ বিদ্যালয়ের ইতিহাস সফলভাবে আপডেট হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function saveContactInfo(){
@@ -1679,27 +1664,40 @@ async function saveContactInfo(){
   db.school.email = email;
   db.school.phone = phone;
 
-  await save();
-  alert("যোগাযোগ তথ্য সফলভাবে আপডেট হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ যোগাযোগ তথ্য সফলভাবে আপডেট হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
-function exportDataJson(){
-  const jsonStr = JSON.stringify(db, null, 2);
-  const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.href = url;
-  downloadAnchor.download = "data.json";
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  setTimeout(() => {
-    downloadAnchor.remove();
-    URL.revokeObjectURL(url);
-  }, 100);
+async function exportDataJson(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
+  try {
+    let exportObj = db;
+    const res = await fetch('/api/data?v=' + Date.now(), { cache: 'no-store' });
+    if(res.ok){
+      exportObj = await res.json();
+    }
+    const jsonStr = JSON.stringify(exportObj, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.href = url;
+    downloadAnchor.download = "data.json";
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    setTimeout(() => {
+      downloadAnchor.remove();
+      URL.revokeObjectURL(url);
+    }, 100);
+  } catch(e) {
+    alert("ডেটা এক্সপোর্ট করতে সমস্যা হয়েছে: " + e.message);
+  }
 }
 
 function importDataJson(){
+  if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const fileInput = document.getElementById("jsonImportFile");
   if(!fileInput || !fileInput.files.length){
     alert("অনুগ্রহ করে একটি JSON ফাইল নির্বাচন করুন।");
@@ -1713,11 +1711,25 @@ function importDataJson(){
       if(typeof parsed !== 'object' || parsed === null){
         throw new Error("অবৈধ ডেটা ফরম্যাট");
       }
+      const keys = ["notices","results","teachers","gallery","achievements","syllabuses","registrations","formFillups","routines","ebooks","calendars","chairman","headTeacher","school"];
+      const hasKey = keys.some(k => k in parsed);
+      if(!hasKey){
+        throw new Error("ফাইলটিতে বিদ্যালয় ডেটার সঠিক স্ট্রাকচার পাওয়া যায়নি।");
+      }
+      const noticeCount = Array.isArray(parsed.notices) ? parsed.notices.length : 0;
+      const teacherCount = Array.isArray(parsed.teachers) ? parsed.teachers.length : 0;
+      const resultCount = Array.isArray(parsed.results) ? parsed.results.length : 0;
+      const confirmMsg = `আপনি কি নিশ্চিত যে বর্তমান ডেটা প্রতিস্থাপন করতে চান?\n\nইম্পোর্ট হতে যাওয়া বিবরণ:\n- নোটিশ: ${noticeCount}টি\n- শিক্ষক/কর্মচারী: ${teacherCount}জন\n- ফলাফল: ${resultCount}টি`;
+      if(!confirm(confirmMsg)) return;
+
       db = parsed;
-      db.isLocalAdminModified = true;
-      await save();
-      alert("সফলভাবে ডেটা ইম্পোর্ট ও আপডেট করা হয়েছে!");
-      admin();
+      const saved = await save(false);
+      if(saved){
+        alert("✅ সফলভাবে ডেটা ইম্পোর্ট ও সার্ভারে আপডেট করা হয়েছে!");
+        admin();
+      } else {
+        alert("❌ সার্ভারে ডেটা সংরক্ষণ করা যায়নি।");
+      }
     } catch(err){
       alert("JSON ফাইল ইম্পোর্ট করতে সমস্যা হয়েছে: " + err.message);
     }
@@ -1757,19 +1769,17 @@ async function addRoutine(){
   if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF হতে হবে।"); }
   if(file.size > 10 * 1024 * 1024){ return alert("PDF সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
 
-  const pdfDataUrl = await new Promise(resolve => {
-    const rd = new FileReader();
-    rd.onload = e => resolve(e.target.result);
-    rd.readAsDataURL(file);
-  });
+  const pdfUrl = await uploadFileToServer(file, file.name, file.type);
 
   if(!db.routines) db.routines = [];
   db.routines.unshift({
-    id: Date.now(), title, className: cls, pdfUrl: pdfDataUrl, date: new Date().toLocaleDateString("bn-BD")
+    id: Date.now(), title, className: cls, pdfUrl: pdfUrl, date: new Date().toLocaleDateString("bn-BD")
   });
-  await save();
-  alert("পরীক্ষার রুটিন সফলভাবে প্রকাশিত হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ পরীক্ষার রুটিন সফলভাবে প্রকাশিত হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function editRoutine(index){
@@ -1779,8 +1789,8 @@ async function editRoutine(index){
   const newTitle = prompt("রুটিনের নতুন শিরোনাম:", item.title);
   if(newTitle !== null && newTitle.trim() !== ""){
     item.title = newTitle.trim();
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1788,8 +1798,8 @@ async function deleteRoutine(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই রুটিনটি মুছে ফেলতে চান?")){
     db.routines.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1807,19 +1817,17 @@ async function addEbook(){
   const file = fileInput.files[0];
   if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই PDF হতে হবে।"); }
 
-  const pdfDataUrl = await new Promise(resolve => {
-    const rd = new FileReader();
-    rd.onload = e => resolve(e.target.result);
-    rd.readAsDataURL(file);
-  });
+  const pdfUrl = await uploadFileToServer(file, file.name, file.type);
 
   if(!db.ebooks) db.ebooks = [];
   db.ebooks.unshift({
-    id: Date.now(), className: cls, title, subject: subj, pdfUrl: pdfDataUrl, date: new Date().toLocaleDateString("bn-BD")
+    id: Date.now(), className: cls, title, subject: subj, pdfUrl: pdfUrl, date: new Date().toLocaleDateString("bn-BD")
   });
-  await save();
-  alert("ই-বুক সফলভাবে আপলোড হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ ই-বুক সফলভাবে আপলোড হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function editEbook(index){
@@ -1829,8 +1837,8 @@ async function editEbook(index){
   const newTitle = prompt("বইয়ের নতুন শিরোনাম:", item.title);
   if(newTitle !== null && newTitle.trim() !== ""){
     item.title = newTitle.trim();
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1838,8 +1846,8 @@ async function deleteEbook(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই ই-বুকটি মুছে ফেলতে চান?")){
     db.ebooks.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1878,8 +1886,8 @@ async function editCalendar(index){
   const newTitle = prompt("ক্যালেন্ডারের নতুন শিরোনাম:", item.title);
   if(newTitle !== null && newTitle.trim() !== ""){
     item.title = newTitle.trim();
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1887,8 +1895,8 @@ async function deleteCalendar(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই ক্যালেন্ডারটি মুছে ফেলতে চান?")){
     db.calendars.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1905,24 +1913,22 @@ async function saveChairmanMessage(){
     const file = fileInput.files[0];
     if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
     if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
-    db.chairman.imageUrl = await new Promise(resolve => {
-      const rd = new FileReader();
-      rd.onload = e => resolve(e.target.result);
-      rd.readAsDataURL(file);
-    });
+    db.chairman.imageUrl = await uploadFileToServer(file, file.name, file.type);
   }
 
-  await save();
-  alert("সভাপতির বাণী সফলভাবে আপডেট হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ সভাপতির বাণী সফলভাবে আপডেট হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function removeChairmanPhoto(){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি সভাপতির ছবি মুছে ফেলতে চান?")){
     if(db.chairman) db.chairman.imageUrl = "";
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1939,24 +1945,22 @@ async function saveHeadTeacherMessage(){
     const file = fileInput.files[0];
     if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
     if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
-    db.headTeacher.imageUrl = await new Promise(resolve => {
-      const rd = new FileReader();
-      rd.onload = e => resolve(e.target.result);
-      rd.readAsDataURL(file);
-    });
+    db.headTeacher.imageUrl = await uploadFileToServer(file, file.name, file.type);
   }
 
-  await save();
-  alert("প্রধান শিক্ষকের বাণী সফলভাবে আপডেট হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ প্রধান শিক্ষকের বাণী সফলভাবে আপডেট হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function removeHeadTeacherPhoto(){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি প্রধান শিক্ষকের ছবি মুছে ফেলতে চান?")){
     if(db.headTeacher) db.headTeacher.imageUrl = "";
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -1969,8 +1973,8 @@ async function addNotice(){
 
   const pdfInput = document.getElementById("npdf");
   const imgInput = document.getElementById("nimg");
-  let pdfDataUrl = null;
-  let imgDataUrl = null;
+  let pdfUrl = null;
+  let imgUrl = null;
 
   if(pdfInput && pdfInput.files && pdfInput.files[0]){
     const file = pdfInput.files[0];
@@ -1980,11 +1984,7 @@ async function addNotice(){
     if(file.size > 10 * 1024 * 1024){
       return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।");
     }
-    pdfDataUrl = await new Promise(resolve => {
-      const rd = new FileReader();
-      rd.onload = e => resolve(e.target.result);
-      rd.readAsDataURL(file);
-    });
+    pdfUrl = await uploadFileToServer(file, file.name, file.type);
   }
 
   if(imgInput && imgInput.files && imgInput.files[0]){
@@ -1995,23 +1995,21 @@ async function addNotice(){
     if(file.size > 5 * 1024 * 1024){
       return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
     }
-    imgDataUrl = await new Promise(resolve => {
-      const rd = new FileReader();
-      rd.onload = e => resolve(e.target.result);
-      rd.readAsDataURL(file);
-    });
+    imgUrl = await uploadFileToServer(file, file.name, file.type);
   }
 
   db.notices.unshift({
     title: t,
     body: b,
     date: new Date().toLocaleDateString("bn-BD"),
-    pdfUrl: pdfDataUrl,
-    imageUrl: imgDataUrl
+    pdfUrl: pdfUrl,
+    imageUrl: imgUrl
   });
-  await save();
-  alert("নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function editNotice(index){
@@ -2021,8 +2019,8 @@ async function editNotice(index){
   const newTitle = prompt("নোটিশের নতুন শিরোনাম:", item.title);
   if(newTitle !== null && newTitle.trim() !== ""){
     item.title = newTitle.trim();
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -2030,8 +2028,8 @@ async function deleteNotice(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই নোটিশটি মুছে ফেলতে চান?")){
     db.notices.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -2046,7 +2044,7 @@ async function addAchievement(){
     return alert("অর্জনের শিরোনাম প্রদান করুন।");
   }
 
-  let imgDataUrl = null;
+  let imgUrl = null;
   if(fileInput && fileInput.files && fileInput.files[0]){
     const file = fileInput.files[0];
     if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
@@ -2055,23 +2053,21 @@ async function addAchievement(){
     if(file.size > 5 * 1024 * 1024){
       return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
     }
-    imgDataUrl = await new Promise(resolve => {
-      const rd = new FileReader();
-      rd.onload = e => resolve(e.target.result);
-      rd.readAsDataURL(file);
-    });
+    imgUrl = await uploadFileToServer(file, file.name, file.type);
   }
 
   if(!db.achievements) db.achievements = [];
   db.achievements.unshift({
     title: title,
     description: desc,
-    imageUrl: imgDataUrl,
+    imageUrl: imgUrl,
     date: new Date().toLocaleDateString("bn-BD")
   });
-  await save();
-  alert("বিদ্যালয়ের অর্জন সফলভাবে সংরক্ষিত হয়েছে।");
-  renderAdminSubContent();
+  const saved = await save();
+  if(saved){
+    alert("✅ বিদ্যালয়ের অর্জন সফলভাবে সংরক্ষিত হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function editAchievement(index){
@@ -2081,8 +2077,8 @@ async function editAchievement(index){
   const newTitle = prompt("অর্জনের নতুন শিরোনাম:", item.title);
   if(newTitle !== null && newTitle.trim() !== ""){
     item.title = newTitle.trim();
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -2090,8 +2086,8 @@ async function deleteAchievement(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই অর্জনটি মুছে ফেলতে চান?")){
     db.achievements.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -2106,22 +2102,20 @@ async function addGallery(){
   }
   const file = fileInput.files[0];
   if(!["image/jpeg", "image/png", "image/webp"].includes(file.type)){
-    return alert("केवलমাত্র JPG, PNG বা WebP ফরম্যাটের ছবি আপলোড করা যাবে।");
+    return alert("শুধুমাত্র JPG, PNG বা WebP ফরম্যাটের ছবি আপলোড করা যাবে।");
   }
   if(file.size > 5 * 1024 * 1024){
     return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
   }
 
-  const imgDataUrl = await new Promise(resolve => {
-    const rd = new FileReader();
-    rd.onload = e => resolve(e.target.result);
-    rd.readAsDataURL(file);
-  });
+  const imgUrl = await uploadFileToServer(file, file.name, file.type);
 
-  db.gallery.push({ title: n, url: imgDataUrl });
-  await save();
-  alert("গ্যালারিতে ছবি সফলভাবে যুক্ত হয়েছে।");
-  renderAdminSubContent();
+  db.gallery.push({ title: n, url: imgUrl });
+  const saved = await save();
+  if(saved){
+    alert("✅ গ্যালারিতে ছবি সফলভাবে যুক্ত হয়েছে।");
+    renderAdminSubContent();
+  }
 }
 
 async function editGallery(index){
@@ -2131,8 +2125,8 @@ async function editGallery(index){
   const newTitle = prompt("ছবির নতুন শিরোনাম:", item.title);
   if(newTitle !== null && newTitle.trim() !== ""){
     item.title = newTitle.trim();
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
@@ -2140,8 +2134,8 @@ async function deleteGallery(index){
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   if(confirm("আপনি কি নিশ্চিত যে এই ছবিটি গ্যালারি থেকে মুছে ফেলতে চান?")){
     db.gallery.splice(index, 1);
-    await save();
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved) renderAdminSubContent();
   }
 }
 
