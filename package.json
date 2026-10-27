@@ -1,0 +1,12 @@
+{
+  "name": "banguri-high-school",
+  "version": "1.0.0",
+  "description": "Banguri High School Official Website Backend & Dynamic Service",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node verify_site.py"
+  },
+  "dependencies": {}
+}
