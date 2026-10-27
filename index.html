@@ -209,8 +209,41 @@ function getCleanSchema(){
 
 let db = JSON.parse(localStorage.getItem(KEY)||"null") || getCleanSchema();
 
-const save=async()=>{
-  db.isLocalAdminModified = true;
+async function uploadFileToServer(file, fileName, fileType){
+  const adminPassHash = sessionStorage.getItem("banguriAdminHash") || DEFAULT_PASS_HASH;
+  const dataUrl = await new Promise(resolve => {
+    const rd = new FileReader();
+    rd.onload = e => resolve(e.target.result);
+    rd.readAsDataURL(file);
+  });
+
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Pass-Hash': adminPassHash
+      },
+      body: JSON.stringify({
+        fileName: fileName || file.name,
+        fileType: fileType || file.type,
+        fileData: dataUrl
+      })
+    });
+    const data = await res.json();
+    if (res.ok && data.success && data.url) {
+      return data.url;
+    }
+  } catch (e) {
+    console.warn("Server upload endpoint not available, using data URL fallback", e);
+  }
+  return dataUrl;
+}
+
+const save=async(showFeedback = false)=>{
+  const adminPassHash = sessionStorage.getItem("banguriAdminHash") || DEFAULT_PASS_HASH;
+
+  // Local browser caching first
   try{
     localStorage.setItem(KEY,JSON.stringify(db));
   }catch(e){
@@ -220,6 +253,37 @@ const save=async()=>{
     await saveToIDB(db);
   }catch(e){
     console.warn("IndexedDB save failed", e);
+  }
+
+  // Publish to shared online backend
+  try {
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Pass-Hash': adminPassHash
+      },
+      body: JSON.stringify(db)
+    });
+    const result = await res.json();
+    if (res.ok && result.success) {
+      delete db.isLocalAdminModified;
+      try{ localStorage.setItem(KEY,JSON.stringify(db)); await saveToIDB(db); }catch(e){}
+      if (showFeedback) {
+        alert("✅ তথ্য সফলভাবে কেন্দ্রীয় সার্ভারে সংরক্ষিত ও প্রকাশিত হয়েছে!");
+      }
+      return true;
+    } else {
+      const errMsg = result.error || "সার্ভারে সংরক্ষণ করতে ব্যর্থ হয়েছে।";
+      alert("❌ ত্রুটি: " + errMsg);
+      return false;
+    }
+  } catch (err) {
+    console.warn("Could not reach backend API server:", err);
+    if (showFeedback) {
+      alert("⚠️ সার্ভারের সাথে যোগাযোগ স্থাপন করা যায়নি। তথ্য শুধুমাত্র আপনার ডিভাইসে সংরক্ষিত হয়েছে।");
+    }
+    return false;
   }
 };
 
@@ -1162,25 +1226,28 @@ function renderAdminSubContent(){
     container.innerHTML = `
     <div class="card">
       <h2>💾 ডেটা প্রকাশ ও ব্যাকআপ ব্যবস্থাপনা (Publish & Backup)</h2>
-      <p class="muted">এডমিন প্যানেলে তথ্য যুক্ত বা আপডেট করার পর এই পৃষ্ঠা থেকে ব্যাকআপ গ্রহণ করতে পারবেন এবং প্রকাশিত <b>data.json</b> ফাইল নামিয়ে নিয়ে মূল রিপোজিটরিতে আপলোড করলে সাধারণ দর্শনার্থীরা লাইভ দেখতে পাবেন।</p>
-
-      <div style="margin:20px 0;padding:15px;background:#f8fafd;border:1px solid var(--border);border-radius:10px">
-        <h3>📥 ১. আপনার ফোনের/ডিভাইসের বর্তমান ডেটা ব্যাকআপ ও data.json ডাউনলোড</h3>
-        <p>আপনার ডিভাইসে সংগৃহীত বা এন্ট্রি করা নোটিশ, শিক্ষক তালিকা, বাণী ও অন্যান্য সকল হালনাগাদ তথ্যসহ <b>data.json</b> ডাউনলোড করতে নিচের বোতামে চাপুন:</p>
-        <button class="btn" onclick="exportDataJson()">📥 data.json ব্যাকআপ ডাউনলোড করুন</button>
+      <p class="muted"><b>অনলাইন পাবলিশিং:</b> এডমিন প্যানেলে আপনি তথ্য যোগ বা সম্পাদনা করার সাথে সাথেই তা কেন্দ্রীয় সার্ভারে সংরক্ষিত ও লাইভ প্রকাশিত হয়।</p>
+      <div style="margin:12px 0;padding:12px;background:#e8f5e9;border:1px solid #2e7d32;border-radius:8px;color:#1b5e20">
+        <b>💡 নোট:</b> স্থানীয়ভাবে ব্রাউজারে JSON ডাউনলোড বা ইম্পোর্ট করা কেবল ব্যক্তিগত ব্যাকআপ সংরক্ষণের জন্য। লাইভ ওয়েবসাইটে অন্য ডিভাইস বা দর্শনার্থীদের জন্য ডেটা সরাসরি অনলাইন সার্ভারে সংরক্ষিত হয়।
       </div>
 
       <div style="margin:20px 0;padding:15px;background:#f8fafd;border:1px solid var(--border);border-radius:10px">
-        <h3>📤 ২. JSON ডেটাফাইল ইম্পোর্ট (অন্য ডিভাইস বা ব্যাকআপ ফাইল থেকে)</h3>
-        <p>পূর্বে সংরক্ষিত বা অন্য ডিভাইস থেকে প্রাপ্ত <b>data.json</b> বা ব্যাকআপ ফাইল লোড করতে ফাইল নির্বাচন করুন:</p>
+        <h3>📥 ১. অফলাইন ডেটা ব্যাকআপ ডাউনলোড (Local Backup Only)</h3>
+        <p>আপনার ডিভাইসে সংগৃহীত নোটিশ, শিক্ষক তালিকা, বাণী ও অন্যান্য সকল তথ্যের অফলাইন JSON ব্যাকআপ নিতে ফাইল ডাউনলোড করুন:</p>
+        <button class="btn" onclick="exportDataJson()">📥 স্থানীয় JSON ব্যাকআপ ডাউনলোড করুন</button>
+      </div>
+
+      <div style="margin:20px 0;padding:15px;background:#f8fafd;border:1px solid var(--border);border-radius:10px">
+        <h3>📤 ২. অফলাইন JSON ব্যাকআপ ইম্পোর্ট (Local Backup Restore)</h3>
+        <p>পূর্বে সংরক্ষিত অফলাইন ব্যাকআপ ফাইল ব্রাউজারে লোড করতে ফাইল নির্বাচন করুন:</p>
         <input type="file" id="jsonImportFile" accept=".json" style="margin-bottom:10px"><br>
-        <button class="btn secondary" onclick="importDataJson()">📤 ডেটাফাইল ইম্পোর্ট ও লোড করুন</button>
+        <button class="btn secondary" onclick="importDataJson()">📤 ব্যাকআপ ইম্পোর্ট ও সার্ভারে সেভ করুন</button>
       </div>
 
       <div style="margin:20px 0;padding:15px;background:#fff8e8;border:1px solid #f0a400;border-radius:10px">
-        <h3>🔄 ৩. সার্ভার পাবলিশড ডেটা রিলোড (Reset Local Changes)</h3>
-        <p class="muted">আপনার ব্রাউজারের সাময়িক পরিবর্তন মুছে ফেলে ওয়েবসাইটে সরাসরি প্রকাশিত <b>data.json</b> পুনরায় লোড করতে চান?</p>
-        <button class="btn danger" onclick="resetToPublicData()">🔄 data.json পুনরায় লোড করুন</button>
+        <h3>🔄 ৩. সার্ভার প্রকাশিত সর্বশেষ ডেটা রিলোড (Sync with Server)</h3>
+        <p class="muted">কেন্দ্রীয় সার্ভারে প্রকাশিত সর্বশেষ ডেটা ব্রাউজারে পুনরায় লোড করতে চাপুন:</p>
+        <button class="btn danger" onclick="resetToPublicData()">🔄 সার্ভার ডেটা রিলোড করুন</button>
       </div>
     </div>`;
   }
@@ -1245,6 +1312,7 @@ async function loginAdmin(){
   const pw = document.getElementById("pw").value;
   if(await checkAdminPass(pw)){
     sessionStorage.setItem("banguriAdmin","yes");
+    sessionStorage.setItem("banguriAdminHash", await hashPassword(pw));
     admin();
   } else {
     alert("ভুল পাসওয়ার্ড। দয়া করে সঠিক পাসওয়ার্ড প্রদান করুন।");
@@ -1253,6 +1321,7 @@ async function loginAdmin(){
 
 function logoutAdmin(){
   sessionStorage.removeItem("banguriAdmin");
+  sessionStorage.removeItem("banguriAdminHash");
   admin();
 }
 
@@ -2256,23 +2325,22 @@ async function importResults(){
 
   let publicData = null;
   try {
-    const res = await fetch('data.json?v=' + Date.now(), { cache: 'no-store' });
+    let res = await fetch('/api/data?v=' + Date.now(), { cache: 'no-store' });
+    if (!res.ok) {
+      res = await fetch('data.json?v=' + Date.now(), { cache: 'no-store' });
+    }
     if(res.ok){
       publicData = await res.json();
     }
   } catch(e){
-    console.warn("Could not fetch data.json", e);
+    console.warn("Could not fetch shared server data", e);
   }
 
   const idbData = await loadFromIDB();
   const localData = idbData || JSON.parse(localStorage.getItem(KEY)||"null");
 
   if(publicData){
-    if(localData && localData.isLocalAdminModified){
-      db = localData;
-    } else {
-      db = publicData;
-    }
+    db = publicData;
   } else if(localData){
     db = localData;
   } else {
@@ -2303,7 +2371,11 @@ async function importResults(){
   if(!db.school.email) db.school.email = "bangurihighschool@gmail.com";
   if(!db.school.contact) db.school.contact = "বাঙ্গুরী উচ্চ বিদ্যালয়, দেবিদ্বার, কুমিল্লা।";
 
-  await save();
+  // Cache the shared online state in local browser storage
+  try{
+    localStorage.setItem(KEY,JSON.stringify(db));
+    await saveToIDB(db);
+  }catch(e){}
 
   const initialHash = location.hash ? location.hash.substring(1) : "home";
   const validViews = ["home","notices","results","syllabus","registration","formfillup","teachers","history","routines","ebooks","calendar","chairman","headteacher","achievements","gallery","contact","admin"];
