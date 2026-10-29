@@ -210,14 +210,32 @@ function getCleanSchema(){
 let db = JSON.parse(localStorage.getItem(KEY)||"null") || getCleanSchema();
 
 async function uploadFileToServer(file, fileName, fileType){
+  if (!file) return null;
+  const mime = fileType || file.type || '';
+  const isImage = mime.startsWith('image/') || ['jpg','jpeg','png','webp'].some(ext => (fileName || file.name || '').toLowerCase().endsWith('.' + ext));
+  const isPdf = mime === 'application/pdf' || (fileName || file.name || '').toLowerCase().endsWith('.pdf');
+
+  if (!isImage && !isPdf) {
+    throw new Error('অনুগ্রহ করে শুধুমাত্র ছবি (JPG, PNG, WebP) অথবা PDF ফাইল নির্বাচন করুন।');
+  }
+
+  if (isImage && file.size > 5 * 1024 * 1024) {
+    throw new Error('ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।');
+  }
+  if (isPdf && file.size > 10 * 1024 * 1024) {
+    throw new Error('PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।');
+  }
+
   const adminPassHash = sessionStorage.getItem("banguriAdminHash") || DEFAULT_PASS_HASH;
-  const dataUrl = await new Promise(resolve => {
+  const dataUrl = await new Promise((resolve, reject) => {
     const rd = new FileReader();
     rd.onload = e => resolve(e.target.result);
+    rd.onerror = () => reject(new Error('ফাইল পাঠাতে ব্যর্থ হয়েছে।'));
     rd.readAsDataURL(file);
   });
 
   const apiUrls = ['/api/upload', 'https://banguri-high-school.dulal-hossain20.workers.dev/api/upload'];
+  let lastError = null;
 
   for (const url of apiUrls) {
     try {
@@ -229,7 +247,7 @@ async function uploadFileToServer(file, fileName, fileType){
         },
         body: JSON.stringify({
           fileName: fileName || file.name,
-          fileType: fileType || file.type,
+          fileType: mime,
           fileData: dataUrl
         })
       });
@@ -237,11 +255,16 @@ async function uploadFileToServer(file, fileName, fileType){
         const data = await res.json();
         if (data.success && data.url) {
           return data.url;
+        } else if (data.error) {
+          lastError = data.error;
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      lastError = e.message;
+    }
   }
-  return dataUrl;
+
+  throw new Error(lastError || 'আপলোড ব্যর্থ হয়েছে। সার্ভার সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।');
 }
 
 const save=async(showFeedback = false)=>{
