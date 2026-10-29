@@ -209,20 +209,76 @@ function getCleanSchema(){
 
 let db = JSON.parse(localStorage.getItem(KEY)||"null") || getCleanSchema();
 
+async function compressImageIfNeeded(file, maxDimension = 1200, quality = 0.75) {
+  if (!file || !file.type || !file.type.startsWith('image/')) return file;
+  return new Promise((resolve) => {
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (blob && blob.size < file.size) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now()
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        }, 'image/jpeg', quality);
+      };
+      img.onerror = () => resolve(file);
+      img.src = e.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
 async function uploadFileToServer(file, fileName, fileType){
   if (!file) return null;
+
+  let processedFile = file;
   const mime = fileType || file.type || '';
-  const isImage = mime.startsWith('image/') || ['jpg','jpeg','png','webp'].some(ext => (fileName || file.name || '').toLowerCase().endsWith('.' + ext));
-  const isPdf = mime === 'application/pdf' || (fileName || file.name || '').toLowerCase().endsWith('.pdf');
+  const name = fileName || file.name || 'file';
+
+  if (mime.startsWith('image/')) {
+    try {
+      processedFile = await compressImageIfNeeded(file);
+    } catch (e) {
+      console.warn("Image compression fallback to original file", e);
+    }
+  }
+
+  const finalMime = processedFile.type || mime;
+  const isImage = finalMime.startsWith('image/') || ['jpg','jpeg','png','webp'].some(ext => name.toLowerCase().endsWith('.' + ext));
+  const isPdf = finalMime === 'application/pdf' || name.toLowerCase().endsWith('.pdf');
 
   if (!isImage && !isPdf) {
     throw new Error('অনুগ্রহ করে শুধুমাত্র ছবি (JPG, PNG, WebP) অথবা PDF ফাইল নির্বাচন করুন।');
   }
 
-  if (isImage && file.size > 5 * 1024 * 1024) {
+  if (isImage && processedFile.size > 5 * 1024 * 1024) {
     throw new Error('ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।');
   }
-  if (isPdf && file.size > 10 * 1024 * 1024) {
+  if (isPdf && processedFile.size > 10 * 1024 * 1024) {
     throw new Error('PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।');
   }
 
@@ -231,37 +287,39 @@ async function uploadFileToServer(file, fileName, fileType){
     const rd = new FileReader();
     rd.onload = e => resolve(e.target.result);
     rd.onerror = () => reject(new Error('ফাইল পাঠাতে ব্যর্থ হয়েছে।'));
-    rd.readAsDataURL(file);
+    rd.readAsDataURL(processedFile);
   });
 
-  const apiUrls = ['/api/upload', 'https://banguri-high-school.dulal-hossain20.workers.dev/api/upload'];
   let lastError = null;
-
-  for (const url of apiUrls) {
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Pass-Hash': adminPassHash
-        },
-        body: JSON.stringify({
-          fileName: fileName || file.name,
-          fileType: mime,
-          fileData: dataUrl
-        })
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && data.url) {
-          return data.url;
-        } else if (data.error) {
-          lastError = data.error;
-        }
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Admin-Pass-Hash': adminPassHash
+      },
+      body: JSON.stringify({
+        fileName: name,
+        fileType: finalMime,
+        fileData: dataUrl
+      })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.url) {
+        return data.url;
+      } else if (data.error) {
+        lastError = data.error;
       }
-    } catch (e) {
-      lastError = e.message;
+    } else {
+      lastError = "সার্ভার রেসপন্স ত্রুটি: " + res.status;
     }
+  } catch (e) {
+    lastError = e.message;
+  }
+
+  if (dataUrl && dataUrl.length < 5 * 1024 * 1024) {
+    return dataUrl;
   }
 
   throw new Error(lastError || 'আপলোড ব্যর্থ হয়েছে। সার্ভার সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।');
@@ -1419,20 +1477,24 @@ async function addSyllabus(){
   if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF ফাইল হতে হবে।"); }
   if(file.size > 10 * 1024 * 1024){ return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
 
-  const pdfUrl = await uploadFileToServer(file, file.name, file.type);
+  try {
+    const pdfUrl = await uploadFileToServer(file, file.name, file.type);
 
-  if(!db.syllabuses) db.syllabuses = [];
-  db.syllabuses.unshift({
-    id: Date.now(),
-    className: cls,
-    title: title,
-    pdfUrl: pdfUrl,
-    date: new Date().toLocaleDateString("bn-BD")
-  });
-  const saved = await save();
-  if(saved){
-    alert("✅ সিলেবাস সফলভাবে প্রকাশিত হয়েছে।");
-    renderAdminSubContent();
+    if(!db.syllabuses) db.syllabuses = [];
+    db.syllabuses.unshift({
+      id: Date.now(),
+      className: cls,
+      title: title,
+      pdfUrl: pdfUrl,
+      date: new Date().toLocaleDateString("bn-BD")
+    });
+    const saved = await save();
+    if(saved){
+      alert("✅ সিলেবাস সফলভাবে প্রকাশিত হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ সিলেবাস আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -1448,12 +1510,16 @@ async function replaceItemFile(storeKey, index, fileProp, fileInput){
     return alert("ফাইলের আকার সর্বোচ্চ 15MB হতে হবে।");
   }
 
-  const fileUrl = await uploadFileToServer(file, file.name, file.type);
-  item[fileProp] = fileUrl;
-  const saved = await save();
-  if(saved){
-    alert("✅ ফাইল সফলভাবে পরিবর্তন করা হয়েছে।");
-    renderAdminSubContent();
+  try {
+    const fileUrl = await uploadFileToServer(file, file.name, file.type);
+    item[fileProp] = fileUrl;
+    const saved = await save();
+    if(saved){
+      alert("✅ ফাইল সফলভাবে পরিবর্তন করা হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ ফাইল আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -1468,17 +1534,21 @@ async function replaceNoticeFile(index, fileInput){
     return alert("ফাইলের আকার সর্বোচ্চ 15MB হতে হবে।");
   }
 
-  const fileUrl = await uploadFileToServer(file, file.name, file.type);
+  try {
+    const fileUrl = await uploadFileToServer(file, file.name, file.type);
 
-  if(file.type === "application/pdf"){
-    item.pdfUrl = fileUrl;
-  } else if(["image/jpeg", "image/png", "image/webp"].includes(file.type)){
-    item.imageUrl = fileUrl;
-  } else {
-    return alert("শুধুমাত্র PDF বা JPG/PNG/WebP ফাইল নির্বাচন করুন।");
+    if(file.type === "application/pdf"){
+      item.pdfUrl = fileUrl;
+    } else if(["image/jpeg", "image/png", "image/webp"].includes(file.type)){
+      item.imageUrl = fileUrl;
+    } else {
+      return alert("শুধুমাত্র PDF বা JPG/PNG/WebP ফাইল নির্বাচন করুন।");
+    }
+
+    const saved = await save();
+  } catch(err) {
+    alert("❌ নোটিশ ফাইল আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
-
-  const saved = await save();
   if(saved){
     alert("✅ নোটিশ ফাইল সফলভাবে পরিবর্তন করা হয়েছে।");
     renderAdminSubContent();
@@ -1517,26 +1587,30 @@ async function addRegistration(){
   if(!title){ return alert("রেজিষ্ট্রেশন নোটিশের শিরোনাম প্রদান করুন।"); }
 
   let pdfUrl = null;
-  if(fileInput && fileInput.files && fileInput.files[0]){
-    const file = fileInput.files[0];
-    if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF ফাইল হতে হবে।"); }
-    if(file.size > 10 * 1024 * 1024){ return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
-    pdfUrl = await uploadFileToServer(file, file.name, file.type);
-  }
+  try {
+    if(fileInput && fileInput.files && fileInput.files[0]){
+      const file = fileInput.files[0];
+      if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF ফাইল হতে হবে।"); }
+      if(file.size > 10 * 1024 * 1024){ return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
+      pdfUrl = await uploadFileToServer(file, file.name, file.type);
+    }
 
-  if(!db.registrations) db.registrations = [];
-  db.registrations.unshift({
-    id: Date.now(),
-    className: cls,
-    title: title,
-    description: desc,
-    pdfUrl: pdfUrl,
-    date: new Date().toLocaleDateString("bn-BD")
-  });
-  const saved = await save();
-  if(saved){
-    alert("✅ রেজিষ্ট্রেশন নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
-    renderAdminSubContent();
+    if(!db.registrations) db.registrations = [];
+    db.registrations.unshift({
+      id: Date.now(),
+      className: cls,
+      title: title,
+      description: desc,
+      pdfUrl: pdfUrl,
+      date: new Date().toLocaleDateString("bn-BD")
+    });
+    const saved = await save();
+    if(saved){
+      alert("✅ রেজিষ্ট্রেশন নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ রেজিষ্ট্রেশন নোটিশ আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -1571,25 +1645,29 @@ async function addFormFillup(){
   if(!title){ return alert("নোটিশের শিরোনাম প্রদান করুন।"); }
 
   let pdfUrl = null;
-  if(fileInput && fileInput.files && fileInput.files[0]){
-    const file = fileInput.files[0];
-    if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF ফাইল হতে হবে।"); }
-    if(file.size > 10 * 1024 * 1024){ return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
-    pdfUrl = await uploadFileToServer(file, file.name, file.type);
-  }
+  try {
+    if(fileInput && fileInput.files && fileInput.files[0]){
+      const file = fileInput.files[0];
+      if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF ফাইল হতে হবে।"); }
+      if(file.size > 10 * 1024 * 1024){ return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
+      pdfUrl = await uploadFileToServer(file, file.name, file.type);
+    }
 
-  if(!db.formFillups) db.formFillups = [];
-  db.formFillups.unshift({
-    id: Date.now(),
-    title: title,
-    description: desc,
-    pdfUrl: pdfUrl,
-    date: new Date().toLocaleDateString("bn-BD")
-  });
-  const saved = await save();
-  if(saved){
-    alert("✅ ফর্ম ফিলাপ নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
-    renderAdminSubContent();
+    if(!db.formFillups) db.formFillups = [];
+    db.formFillups.unshift({
+      id: Date.now(),
+      title: title,
+      description: desc,
+      pdfUrl: pdfUrl,
+      date: new Date().toLocaleDateString("bn-BD")
+    });
+    const saved = await save();
+    if(saved){
+      alert("✅ ফর্ম ফিলাপ নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ ফর্ম ফিলাপ নোটিশ আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -1626,22 +1704,26 @@ async function addTeacher(){
   if(!name || !desig){ return alert("নাম এবং পদবী আবশ্যক।"); }
 
   let imgUrl = null;
-  if(fileInput && fileInput.files && fileInput.files[0]){
-    const file = fileInput.files[0];
-    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
-    if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
-    imgUrl = await uploadFileToServer(file, file.name, file.type);
-  }
+  try {
+    if(fileInput && fileInput.files && fileInput.files[0]){
+      const file = fileInput.files[0];
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
+      if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
+      imgUrl = await uploadFileToServer(file, file.name, file.type);
+    }
 
-  if(!db.teachers) db.teachers = [];
-  db.teachers.push({
-    id: Date.now(),
-    name, designation: desig, subject: subj, category: cat, imageUrl: imgUrl
-  });
-  const saved = await save();
-  if(saved){
-    alert("✅ শিক্ষক/কর্মচারীর তথ্য সফলভাবে যুক্ত হয়েছে।");
-    renderAdminSubContent();
+    if(!db.teachers) db.teachers = [];
+    db.teachers.push({
+      id: Date.now(),
+      name, designation: desig, subject: subj, category: cat, imageUrl: imgUrl
+    });
+    const saved = await save();
+    if(saved){
+      alert("✅ শিক্ষক/কর্মচারীর তথ্য সফলভাবে যুক্ত হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ শিক্ষক/কর্মচারী তথ্য আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -1677,17 +1759,21 @@ async function saveHistory(){
   if(!db.school) db.school = {};
   db.school.history = text;
 
-  if(fileInput && fileInput.files && fileInput.files[0]){
-    const file = fileInput.files[0];
-    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
-    if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
-    db.school.historyImage = await uploadFileToServer(file, file.name, file.type);
-  }
+  try {
+    if(fileInput && fileInput.files && fileInput.files[0]){
+      const file = fileInput.files[0];
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
+      if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
+      db.school.historyImage = await uploadFileToServer(file, file.name, file.type);
+    }
 
-  const saved = await save();
-  if(saved){
-    alert("✅ বিদ্যালয়ের ইতিহাস সফলভাবে আপডেট হয়েছে।");
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved){
+      alert("✅ বিদ্যালয়ের ইতিহাস সফলভাবে আপডেট হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ ইতিহাস আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -1807,16 +1893,20 @@ async function addRoutine(){
   if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই একটি PDF হতে হবে।"); }
   if(file.size > 10 * 1024 * 1024){ return alert("PDF সাইজ সর্বোচ্চ 10MB হতে হবে।"); }
 
-  const pdfUrl = await uploadFileToServer(file, file.name, file.type);
+  try {
+    const pdfUrl = await uploadFileToServer(file, file.name, file.type);
 
-  if(!db.routines) db.routines = [];
-  db.routines.unshift({
-    id: Date.now(), title, className: cls, pdfUrl: pdfUrl, date: new Date().toLocaleDateString("bn-BD")
-  });
-  const saved = await save();
-  if(saved){
-    alert("✅ পরীক্ষার রুটিন সফলভাবে প্রকাশিত হয়েছে।");
-    renderAdminSubContent();
+    if(!db.routines) db.routines = [];
+    db.routines.unshift({
+      id: Date.now(), title, className: cls, pdfUrl: pdfUrl, date: new Date().toLocaleDateString("bn-BD")
+    });
+    const saved = await save();
+    if(saved){
+      alert("✅ পরীক্ষার রুটিন সফলভাবে প্রকাশিত হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ পরীক্ষার রুটিন আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -1855,16 +1945,20 @@ async function addEbook(){
   const file = fileInput.files[0];
   if(file.type !== "application/pdf"){ return alert("ফাইলটি অবশ্যই PDF হতে হবে।"); }
 
-  const pdfUrl = await uploadFileToServer(file, file.name, file.type);
+  try {
+    const pdfUrl = await uploadFileToServer(file, file.name, file.type);
 
-  if(!db.ebooks) db.ebooks = [];
-  db.ebooks.unshift({
-    id: Date.now(), className: cls, title, subject: subj, pdfUrl: pdfUrl, date: new Date().toLocaleDateString("bn-BD")
-  });
-  const saved = await save();
-  if(saved){
-    alert("✅ ই-বুক সফলভাবে আপলোড হয়েছে।");
-    renderAdminSubContent();
+    if(!db.ebooks) db.ebooks = [];
+    db.ebooks.unshift({
+      id: Date.now(), className: cls, title, subject: subj, pdfUrl: pdfUrl, date: new Date().toLocaleDateString("bn-BD")
+    });
+    const saved = await save();
+    if(saved){
+      alert("✅ ই-বুক সফলভাবে আপলোড হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ ই-বুক আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -1947,17 +2041,21 @@ async function saveChairmanMessage(){
   if(!db.chairman) db.chairman = { text: "", imageUrl: "" };
   db.chairman.text = text;
 
-  if(fileInput && fileInput.files && fileInput.files[0]){
-    const file = fileInput.files[0];
-    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
-    if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
-    db.chairman.imageUrl = await uploadFileToServer(file, file.name, file.type);
-  }
+  try {
+    if(fileInput && fileInput.files && fileInput.files[0]){
+      const file = fileInput.files[0];
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
+      if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
+      db.chairman.imageUrl = await uploadFileToServer(file, file.name, file.type);
+    }
 
-  const saved = await save();
-  if(saved){
-    alert("✅ সভাপতির বাণী সফলভাবে আপডেট হয়েছে।");
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved){
+      alert("✅ সভাপতির বাণী সফলভাবে আপডেট হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ সভাপতির ছবি আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -1979,17 +2077,21 @@ async function saveHeadTeacherMessage(){
   if(!db.headTeacher) db.headTeacher = { text: "", imageUrl: "" };
   db.headTeacher.text = text;
 
-  if(fileInput && fileInput.files && fileInput.files[0]){
-    const file = fileInput.files[0];
-    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
-    if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
-    db.headTeacher.imageUrl = await uploadFileToServer(file, file.name, file.type);
-  }
+  try {
+    if(fileInput && fileInput.files && fileInput.files[0]){
+      const file = fileInput.files[0];
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type)){ return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।"); }
+      if(file.size > 5 * 1024 * 1024){ return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।"); }
+      db.headTeacher.imageUrl = await uploadFileToServer(file, file.name, file.type);
+    }
 
-  const saved = await save();
-  if(saved){
-    alert("✅ প্রধান শিক্ষকের বাণী সফলভাবে আপডেট হয়েছে।");
-    renderAdminSubContent();
+    const saved = await save();
+    if(saved){
+      alert("✅ প্রধান শিক্ষকের বাণী সফলভাবে আপডেট হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ প্রধান শিক্ষকের ছবি আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -2014,39 +2116,43 @@ async function addNotice(){
   let pdfUrl = null;
   let imgUrl = null;
 
-  if(pdfInput && pdfInput.files && pdfInput.files[0]){
-    const file = pdfInput.files[0];
-    if(file.type !== "application/pdf"){
-      return alert("সংযুক্তি অবশ্যই একটি PDF ফাইল হতে হবে।");
+  try {
+    if(pdfInput && pdfInput.files && pdfInput.files[0]){
+      const file = pdfInput.files[0];
+      if(file.type !== "application/pdf"){
+        return alert("সংযুক্তি অবশ্যই একটি PDF ফাইল হতে হবে।");
+      }
+      if(file.size > 10 * 1024 * 1024){
+        return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।");
+      }
+      pdfUrl = await uploadFileToServer(file, file.name, file.type);
     }
-    if(file.size > 10 * 1024 * 1024){
-      return alert("PDF ফাইলের সাইজ সর্বোচ্চ 10MB হতে হবে।");
-    }
-    pdfUrl = await uploadFileToServer(file, file.name, file.type);
-  }
 
-  if(imgInput && imgInput.files && imgInput.files[0]){
-    const file = imgInput.files[0];
-    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
-      return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।");
+    if(imgInput && imgInput.files && imgInput.files[0]){
+      const file = imgInput.files[0];
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+        return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।");
+      }
+      if(file.size > 5 * 1024 * 1024){
+        return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
+      }
+      imgUrl = await uploadFileToServer(file, file.name, file.type);
     }
-    if(file.size > 5 * 1024 * 1024){
-      return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
-    }
-    imgUrl = await uploadFileToServer(file, file.name, file.type);
-  }
 
-  db.notices.unshift({
-    title: t,
-    body: b,
-    date: new Date().toLocaleDateString("bn-BD"),
-    pdfUrl: pdfUrl,
-    imageUrl: imgUrl
-  });
-  const saved = await save();
-  if(saved){
-    alert("✅ নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
-    renderAdminSubContent();
+    db.notices.unshift({
+      title: t,
+      body: b,
+      date: new Date().toLocaleDateString("bn-BD"),
+      pdfUrl: pdfUrl,
+      imageUrl: imgUrl
+    });
+    const saved = await save();
+    if(saved){
+      alert("✅ নোটিশ সফলভাবে প্রকাশিত হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ নোটিশ প্রকাশ বা ফাইল আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -2083,28 +2189,32 @@ async function addAchievement(){
   }
 
   let imgUrl = null;
-  if(fileInput && fileInput.files && fileInput.files[0]){
-    const file = fileInput.files[0];
-    if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
-      return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।");
+  try {
+    if(fileInput && fileInput.files && fileInput.files[0]){
+      const file = fileInput.files[0];
+      if(!["image/jpeg","image/png","image/webp"].includes(file.type)){
+        return alert("ছবি অবশ্যই JPG, PNG বা WebP হতে হবে।");
+      }
+      if(file.size > 5 * 1024 * 1024){
+        return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
+      }
+      imgUrl = await uploadFileToServer(file, file.name, file.type);
     }
-    if(file.size > 5 * 1024 * 1024){
-      return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
-    }
-    imgUrl = await uploadFileToServer(file, file.name, file.type);
-  }
 
-  if(!db.achievements) db.achievements = [];
-  db.achievements.unshift({
-    title: title,
-    description: desc,
-    imageUrl: imgUrl,
-    date: new Date().toLocaleDateString("bn-BD")
-  });
-  const saved = await save();
-  if(saved){
-    alert("✅ বিদ্যালয়ের অর্জন সফলভাবে সংরক্ষিত হয়েছে।");
-    renderAdminSubContent();
+    if(!db.achievements) db.achievements = [];
+    db.achievements.unshift({
+      title: title,
+      description: desc,
+      imageUrl: imgUrl,
+      date: new Date().toLocaleDateString("bn-BD")
+    });
+    const saved = await save();
+    if(saved){
+      alert("✅ বিদ্যালয়ের অর্জন সফলভাবে সংরক্ষিত হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ অর্জন যুক্তকরণ ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
@@ -2146,13 +2256,17 @@ async function addGallery(){
     return alert("ছবির সাইজ সর্বোচ্চ 5MB হতে হবে।");
   }
 
-  const imgUrl = await uploadFileToServer(file, file.name, file.type);
+  try {
+    const imgUrl = await uploadFileToServer(file, file.name, file.type);
 
-  db.gallery.push({ title: n, url: imgUrl });
-  const saved = await save();
-  if(saved){
-    alert("✅ গ্যালারিতে ছবি সফলভাবে যুক্ত হয়েছে।");
-    renderAdminSubContent();
+    db.gallery.push({ title: n, url: imgUrl });
+    const saved = await save();
+    if(saved){
+      alert("✅ গ্যালারিতে ছবি সফলভাবে যুক্ত হয়েছে।");
+      renderAdminSubContent();
+    }
+  } catch(err) {
+    alert("❌ গ্যালারিতে ছবি যুক্তকরণ ব্যর্থ হয়েছে: " + (err.message || err));
   }
 }
 
