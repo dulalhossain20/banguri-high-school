@@ -117,9 +117,6 @@ footer{background:#102b46;color:#dbe8f5;padding:22px 0;border-top:3px solid var(
   <div class="wrap" style="text-align:center">
     <b>ব্যবস্থাপনায়: মোঃ দুলাল হোসেন</b>
   </div>
-  <div id="notices-list" style="max-width:900px;margin:20px auto;padding:15px;">
-  <h2>📢 নোটিশ বোর্ড</h2>
-</div>
 </footer>
 
 <script>
@@ -220,25 +217,29 @@ async function uploadFileToServer(file, fileName, fileType){
     rd.readAsDataURL(file);
   });
 
-  try {
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Admin-Pass-Hash': adminPassHash
-      },
-      body: JSON.stringify({
-        fileName: fileName || file.name,
-        fileType: fileType || file.type,
-        fileData: dataUrl
-      })
-    });
-    const data = await res.json();
-    if (res.ok && data.success && data.url) {
-      return data.url;
-    }
-  } catch (e) {
-    console.warn("Server upload endpoint not available, using data URL fallback", e);
+  const apiUrls = ['/api/upload', 'https://banguri-high-school.dulal-hossain20.workers.dev/api/upload'];
+
+  for (const url of apiUrls) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Pass-Hash': adminPassHash
+        },
+        body: JSON.stringify({
+          fileName: fileName || file.name,
+          fileType: fileType || file.type,
+          fileData: dataUrl
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.url) {
+          return data.url;
+        }
+      }
+    } catch (e) {}
   }
   return dataUrl;
 }
@@ -258,33 +259,44 @@ const save=async(showFeedback = false)=>{
     console.warn("IndexedDB save failed", e);
   }
 
-  // Publish to shared online backend
-  try {
-    const res = await fetch('/api/data', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Admin-Pass-Hash': adminPassHash
-      },
-      body: JSON.stringify(db)
-    });
-    const result = await res.json();
-    if (res.ok && result.success) {
-      delete db.isLocalAdminModified;
-      try{ localStorage.setItem(KEY,JSON.stringify(db)); await saveToIDB(db); }catch(e){}
-      if (showFeedback) {
-        alert("✅ তথ্য সফলভাবে কেন্দ্রীয় সার্ভারে সংরক্ষিত ও প্রকাশিত হয়েছে!");
+  let published = false;
+  let lastError = null;
+  const apiUrls = ['/api/data', 'https://banguri-high-school.dulal-hossain20.workers.dev/api/data'];
+
+  for (const url of apiUrls) {
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Pass-Hash': adminPassHash
+        },
+        body: JSON.stringify(db)
+      });
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success) {
+          published = true;
+          break;
+        } else if (result.error) {
+          lastError = result.error;
+        }
       }
-      return true;
-    } else {
-      const errMsg = result.error || "সার্ভারে সংরক্ষণ করতে ব্যর্থ হয়েছে।";
-      alert("❌ ত্রুটি: " + errMsg);
-      return false;
+    } catch (err) {
+      console.warn("Backend API attempt failed for " + url, err);
     }
-  } catch (err) {
-    console.warn("Could not reach backend API server:", err);
+  }
+
+  if (published) {
+    delete db.isLocalAdminModified;
+    try{ localStorage.setItem(KEY,JSON.stringify(db)); await saveToIDB(db); }catch(e){}
     if (showFeedback) {
-      alert("⚠️ সার্ভারের সাথে যোগাযোগ স্থাপন করা যায়নি। তথ্য শুধুমাত্র আপনার ডিভাইসে সংরক্ষিত হয়েছে।");
+      alert("✅ তথ্য সফলভাবে কেন্দ্রীয় সার্ভারে সংরক্ষিত ও প্রকাশিত হয়েছে!");
+    }
+    return true;
+  } else {
+    if (showFeedback) {
+      alert("❌ ত্রুটি: " + (lastError || "সার্ভারে সংরক্ষণ করতে ব্যর্থ হয়েছে।"));
     }
     return false;
   }
@@ -2321,16 +2333,18 @@ async function importResults(){
   await initDB();
 
   let publicData = null;
-  try {
-    let res = await fetch('/api/data?v=' + Date.now(), { cache: 'no-store' });
-    if (!res.ok) {
-      res = await fetch('data.json?v=' + Date.now(), { cache: 'no-store' });
-    }
-    if(res.ok){
-      publicData = await res.json();
-    }
-  } catch(e){
-    console.warn("Could not fetch shared server data", e);
+  const readUrls = ['/api/data', 'https://banguri-high-school.dulal-hossain20.workers.dev/api/data', 'data.json'];
+  for (const url of readUrls) {
+    try {
+      const res = await fetch(url + '?v=' + Date.now(), { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && typeof data === 'object' && (data.notices || data.school)) {
+          publicData = data;
+          break;
+        }
+      }
+    } catch(e){}
   }
 
   const idbData = await loadFromIDB();
@@ -2379,79 +2393,44 @@ async function importResults(){
   const initialView = validViews.includes(initialHash) ? initialHash : "home";
   history.replaceState({ view: initialView }, "", location.pathname + location.search + (initialView === "home" ? "" : "#" + initialView));
   renderView(initialView);
+
+  // Background polling for automatic instant updates across open mobile & desktop devices
+  setInterval(async () => {
+    try {
+      let freshData = null;
+      const readUrls = ['/api/data', 'https://banguri-high-school.dulal-hossain20.workers.dev/api/data', 'data.json'];
+      for (const url of readUrls) {
+        try {
+          const res = await fetch(url + '?v=' + Date.now(), { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && typeof data === 'object' && (data.notices || data.school)) {
+              freshData = data;
+              break;
+            }
+          }
+        } catch(e) {}
+      }
+
+      if (freshData) {
+        const freshStr = JSON.stringify(freshData);
+        const currentStr = JSON.stringify(db);
+        if (freshStr !== currentStr) {
+          db = freshData;
+          try {
+            localStorage.setItem(KEY, JSON.stringify(db));
+            await saveToIDB(db);
+          } catch(e) {}
+
+          const activeEl = document.activeElement;
+          const isUserTyping = activeEl && ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeEl.tagName);
+          if (!isUserTyping || currentView !== 'admin') {
+            renderView(currentView);
+          }
+        }
+      }
+    } catch(e) {}
+  }, 5000);
 })();
 </script>
-<script>
-const API_URL = "https://banguri-high-school.dulal-hossain20.workers.dev";
-
-async function loadNotices() {
-  try {
-    const response = await fetch(API_URL + "/notices");
-    const data = await response.json();
-
-    const box = document.getElementById("notices-list");
-    if (!box || !data.success) return;
-
-    box.innerHTML = "";
-
-    data.notices.forEach(notice => {
-      const item = document.createElement("div");
-      const title = document.createElement("h3");
-      const content = document.createElement("p");
-
-      title.textContent = notice.title;
-      content.textContent = notice.content;
-
-      item.append(title, content);
-      box.appendChild(item);
-    });
-  } catch (error) {
-    console.error("Notices load error:", error);
-  }
-}
-
-async function loadTeachers() {
-  try {
-    const response = await fetch(API_URL + "/teachers");
-    const data = await response.json();
-
-    const box = document.getElementById("teachers-list");
-    if (!box || !data.success) return;
-
-    box.innerHTML = "";
-
-    data.teachers.forEach(teacher => {
-      const item = document.createElement("div");
-      const name = document.createElement("h3");
-
-      name.textContent = teacher.name;
-      item.appendChild(name);
-
-      if (teacher.designation) {
-        const designation = document.createElement("p");
-        designation.textContent = teacher.designation;
-        item.appendChild(designation);
-      }
-
-      if (teacher.subject) {
-        const subject = document.createElement("p");
-        subject.textContent = "বিষয়: " + teacher.subject;
-        item.appendChild(subject);
-      }
-
-      box.appendChild(item);
-    });
-  } catch (error) {
-    console.error("Teachers load error:", error);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  loadNotices();
-  loadTeachers();
-});
-</script>
- <div id="notices-list" style="max-width:900px;margin:20px auto;padding:15px;">
-  <h2>📢 নোটিশ বোর্ড</h2>
-</div>
 </body></html>
