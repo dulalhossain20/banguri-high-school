@@ -18,9 +18,34 @@ export async function onRequest(context) {
     return new Response(JSON.stringify({ success: false, error: 'Method Not Allowed' }), { headers: corsHeaders, status: 405 });
   }
 
+  const DEFAULT_PASS_HASH = "6df603a9397b0777cb35f07751e11b0f18dd2b864b348936f8e0b7a44bc60780";
+
   try {
     const body = await request.json();
     const { fileName, fileData, fileType } = body;
+
+    let storedHash = DEFAULT_PASS_HASH;
+    if (env && env.DB) {
+      try {
+        const stored = await env.DB.prepare("SELECT json_data FROM app_store WHERE key = 'site_data'").first();
+        if (stored && stored.json_data) {
+          const parsed = JSON.parse(stored.json_data);
+          if (parsed.adminPassHash) storedHash = parsed.adminPassHash;
+        }
+      } catch (e) {}
+    }
+
+    const authHeader = request.headers.get('X-Admin-Pass-Hash') || request.headers.get('Authorization');
+    let providedHash = authHeader ? authHeader.replace('Bearer ', '').trim().toLowerCase() : null;
+    if (!providedHash && body.adminPassHash) providedHash = body.adminPassHash.toLowerCase();
+
+    if (providedHash !== storedHash) {
+      return new Response(JSON.stringify({ success: false, error: 'Unauthorized: Invalid admin password' }), { headers: corsHeaders, status: 401 });
+    }
+
+    if (!fileData) {
+      return new Response(JSON.stringify({ success: false, error: 'Missing fileData' }), { headers: corsHeaders, status: 400 });
+    }
 
     // If Cloudflare R2 bucket binding 'UPLOADS_BUCKET' exists
     if (env && env.UPLOADS_BUCKET && fileData) {
