@@ -252,6 +252,30 @@ async function compressImageIfNeeded(file, maxDimension = 1200, quality = 0.75) 
   });
 }
 
+let isActionProcessing = false;
+function acquireLock(btnElement, loadingText = "প্রসেসিং হচ্ছে...") {
+  if (isActionProcessing) {
+    console.warn("আগের প্রসেসিং এখনও চলছে, অনুগ্রহ করে অপেক্ষা করুন...");
+    return null;
+  }
+  isActionProcessing = true;
+  let originalText = "";
+  const targetBtn = (btnElement && btnElement.tagName === "BUTTON") ? btnElement :
+                    (window.event && window.event.target && window.event.target.tagName === "BUTTON") ? window.event.target : null;
+  if (targetBtn) {
+    targetBtn.disabled = true;
+    originalText = targetBtn.innerText;
+    targetBtn.innerText = loadingText;
+  }
+  return () => {
+    isActionProcessing = false;
+    if (targetBtn) {
+      targetBtn.disabled = false;
+      if (originalText) targetBtn.innerText = originalText;
+    }
+  };
+}
+
 async function uploadFileToServer(file, fileName, fileType){
   if (!file) return null;
 
@@ -1422,6 +1446,9 @@ function logoutAdmin(){
 }
 
 async function changeAdminPassword(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   const curPw = document.getElementById("curPw").value;
   const newPw = document.getElementById("newPw").value;
   const confirmPw = document.getElementById("confirmPw").value;
@@ -1443,6 +1470,10 @@ async function changeAdminPassword(){
   await save();
   alert("Admin পাসওয়ার্ড সফলভাবে আপডেট করা হয়েছে!");
   admin();
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 function previewImage(input, previewId){
@@ -1464,6 +1495,9 @@ function previewImage(input, previewId){
 
 // Syllabus Functions
 async function addSyllabus(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const cls = document.getElementById("scls").value;
   const title = document.getElementById("stitle").value.trim();
@@ -1495,6 +1529,10 @@ async function addSyllabus(){
     }
   } catch(err) {
     alert("❌ সিলেবাস আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
+  }
+
+  } finally {
+    _releaseLock();
   }
 }
 
@@ -1578,6 +1616,9 @@ async function deleteSyllabus(index){
 
 // Registration Functions
 async function addRegistration(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const cls = document.getElementById("rcls").value;
   const title = document.getElementById("rtitle").value.trim();
@@ -1612,6 +1653,10 @@ async function addRegistration(){
   } catch(err) {
     alert("❌ রেজিষ্ট্রেশন নোটিশ আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function editRegistration(index){
@@ -1637,6 +1682,9 @@ async function deleteRegistration(index){
 
 // Form Fill-up Functions
 async function addFormFillup(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const title = document.getElementById("ftitle").value.trim();
   const desc = document.getElementById("fdesc").value.trim();
@@ -1669,6 +1717,10 @@ async function addFormFillup(){
   } catch(err) {
     alert("❌ ফর্ম ফিলাপ নোটিশ আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function editFormFillup(index){
@@ -1694,6 +1746,9 @@ async function deleteFormFillup(index){
 
 // Teachers & Staff Functions
 async function addTeacher(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const name = document.getElementById("tname").value.trim();
   const desig = document.getElementById("tdesig").value.trim();
@@ -1725,6 +1780,10 @@ async function addTeacher(){
   } catch(err) {
     alert("❌ শিক্ষক/কর্মচারী তথ্য আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function editTeacher(index){
@@ -1752,6 +1811,9 @@ async function deleteTeacher(index){
 
 // School History Functions
 async function saveHistory(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const text = document.getElementById("htext").value.trim();
   const fileInput = document.getElementById("hfile");
@@ -1775,9 +1837,16 @@ async function saveHistory(){
   } catch(err) {
     alert("❌ ইতিহাস আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function saveContactInfo(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const address = document.getElementById("contactAddress").value.trim();
   const email = document.getElementById("contactEmail").value.trim();
@@ -1792,6 +1861,10 @@ async function saveContactInfo(){
   if(saved){
     alert("✅ যোগাযোগ তথ্য সফলভাবে আপডেট হয়েছে।");
     renderAdminSubContent();
+  }
+
+  } finally {
+    _releaseLock();
   }
 }
 
@@ -1881,6 +1954,9 @@ async function resetToPublicData(){
 
 // Exam Routine Functions
 async function addRoutine(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const title = document.getElementById("rtitle_routine").value.trim();
   const cls = document.getElementById("rclass_routine").value;
@@ -1908,6 +1984,10 @@ async function addRoutine(){
   } catch(err) {
     alert("❌ পরীক্ষার রুটিন আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function editRoutine(index){
@@ -1933,6 +2013,9 @@ async function deleteRoutine(index){
 
 // E-Book Functions
 async function addEbook(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const cls = document.getElementById("ebcls").value;
   const title = document.getElementById("ebtitle").value.trim();
@@ -1960,6 +2043,10 @@ async function addEbook(){
   } catch(err) {
     alert("❌ ই-বুক আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function editEbook(index){
@@ -1985,6 +2072,9 @@ async function deleteEbook(index){
 
 // Academic Calendar Functions
 async function addCalendar(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const title = document.getElementById("caltitle").value.trim();
   const year = document.getElementById("calyear").value.trim();
@@ -2009,6 +2099,10 @@ async function addCalendar(){
   await save();
   alert("একাডেমিক ক্যালেন্ডার সফলভাবে প্রকাশিত হয়েছে।");
   renderAdminSubContent();
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function editCalendar(index){
@@ -2034,6 +2128,9 @@ async function deleteCalendar(index){
 
 // Chairman's Message Functions
 async function saveChairmanMessage(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const text = document.getElementById("chtext").value.trim();
   const fileInput = document.getElementById("chfile");
@@ -2057,6 +2154,10 @@ async function saveChairmanMessage(){
   } catch(err) {
     alert("❌ সভাপতির ছবি আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function removeChairmanPhoto(){
@@ -2070,6 +2171,9 @@ async function removeChairmanPhoto(){
 
 // Head Teacher's Message Functions
 async function saveHeadTeacherMessage(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const text = document.getElementById("htext_msg").value.trim();
   const fileInput = document.getElementById("htfile");
@@ -2093,6 +2197,10 @@ async function saveHeadTeacherMessage(){
   } catch(err) {
     alert("❌ প্রধান শিক্ষকের ছবি আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function removeHeadTeacherPhoto(){
@@ -2106,6 +2214,9 @@ async function removeHeadTeacherPhoto(){
 
 // Notice Functions
 async function addNotice(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const t=document.getElementById("nt").value.trim();
   const b=document.getElementById("nb").value.trim();
@@ -2154,6 +2265,10 @@ async function addNotice(){
   } catch(err) {
     alert("❌ নোটিশ প্রকাশ বা ফাইল আপলোড ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function editNotice(index){
@@ -2179,6 +2294,9 @@ async function deleteNotice(index){
 
 // Achievements Functions
 async function addAchievement(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const title = document.getElementById("at").value.trim();
   const desc = document.getElementById("ad").value.trim();
@@ -2216,6 +2334,10 @@ async function addAchievement(){
   } catch(err) {
     alert("❌ অর্জন যুক্তকরণ ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function editAchievement(index){
@@ -2241,6 +2363,9 @@ async function deleteAchievement(index){
 
 // Gallery Functions
 async function addGallery(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
   if(sessionStorage.getItem("banguriAdmin")!=="yes"){ return alert("অনুমতি প্রয়োজন।"); }
   const n=document.getElementById("gn").value.trim();
   const fileInput = document.getElementById("gfile");
@@ -2268,6 +2393,10 @@ async function addGallery(){
   } catch(err) {
     alert("❌ গ্যালারিতে ছবি যুক্তকরণ ব্যর্থ হয়েছে: " + (err.message || err));
   }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 async function editGallery(index){
@@ -2292,6 +2421,9 @@ async function deleteGallery(index){
 }
 
 async function importResults(){
+  const _releaseLock = acquireLock(window.event && window.event.target);
+  if (!_releaseLock) return;
+  try {
  if(sessionStorage.getItem("banguriAdmin")!=="yes"){
    alert("অনুমতি প্রয়োজন।"); return;
  }
@@ -2456,6 +2588,10 @@ async function importResults(){
  } else {
    rd.readAsArrayBuffer(f);
  }
+
+  } finally {
+    _releaseLock();
+  }
 }
 
 (async function initApp(){
